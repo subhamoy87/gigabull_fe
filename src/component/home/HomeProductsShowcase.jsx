@@ -9,6 +9,7 @@ import {
   Products07Img,
   Products08Img,
 } from '../../assets/home';
+import { Link } from 'react-router-dom';
 
 export default function HomeProductsShowcase() {
   return (
@@ -32,58 +33,70 @@ export default function HomeProductsShowcase() {
               img: Products07Img,
               title: "Women's Leather Wallet",
               desc: 'Genuine Leather Wallet for <br /> Women',
+              link: 'product/handbag-genuine-leather-wallet-for-women-12',
             },
             {
               img: Products08Img,
               title: 'RFID Leather Wallet',
               desc: 'Premium blend of elegance and <br /> durability',
+              link: 'product/Bike%20Embossed%20Leather%20Wallet%20TAN-00',
             },
             {
               img: Products01Img,
               title: 'Genuine Laptop Bag',
               desc: 'GIGABULL Brown Genuine <br /> Bag',
+              link: 'product/brown-men-s-genuine-leather-bag-22',
             },
             {
               img: Products02Img,
               title: 'Handcrafted Wallet',
               desc: 'Vintage 3D Print Leather <br /> Wallet',
+              link: 'product/vintage-brown-rfid-3d-print-leather-wallet-06',
             },
             {
               img: Products03Img,
               title: 'Genuine Luggage Bag',
               desc: 'GIGABULL Pure Leather <br /> High-Quality Bag',
+              link: 'product/gigabull-pure-leather-backpack-21',
             },
             {
               img: Products04Img,
               title: "Men's Leather Bag",
               desc: 'Perfect blend of style. High-quality <br /> leather',
+              link: 'product/gigabull-men-s-genuine-leather-bag-20',
             },
             {
               img: Products05Img,
               title: "Women's Leather Handbag",
               desc: 'Handcrafted Genuine Leather <br /> Handbag',
+              link: 'product/handcrafted-genuine-leather-handbag',
             },
             {
               img: Products06Img,
               title: "Women's Leather Wallet",
               desc: 'Handcrafted Leather Wallet for <br /> Women',
+              link: 'product/handcrafted-genuine-leather-wallet-for-women',
             },
           ].map((product, index) => (
             <div key={index} className='relative bg-ivory mx-4'>
               <div className='ring rounded-lg overflow-visible relative'>
                 <div className='ring-2 ring-primary -translate-y-10 hover:-translate-y-14 transition-all duration-300 cursor-pointer rounded-lg overflow-hidden mx-3 sm:mx-5'>
-                  <div className='aspect-square bg-white p-4 flex items-center justify-center'>
-                    <img
-                      src={product.img}
-                      alt={product.title}
-                      width={200}
-                      height={200}
-                      className='object-contain max-h-48'
-                    />
-                  </div>
+                  <Link to={`${product.link}`}>
+                    <div className='aspect-square bg-white p-4 flex items-center justify-center'>
+                      <img
+                        src={product.img}
+                        alt={product.title}
+                        width={200}
+                        height={200}
+                        className='object-contain max-h-48'
+                      />
+                    </div>
+                  </Link>
                 </div>
                 <div className='pb-4 -mt-6 text-center'>
-                  <h3 className='sm:text-xl text-base font-bold mb-2'>{product.title}</h3>
+                  <h3 className='sm:text-xl text-base font-bold mb-2'>
+                    {product.title}
+                  </h3>
                   <p
                     className='text-gray-700 sm:text-base text-xs mx-[2px] sm:mx-0'
                     dangerouslySetInnerHTML={{ __html: product.desc }}

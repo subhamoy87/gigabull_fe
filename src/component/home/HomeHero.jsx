@@ -10,6 +10,7 @@ import {
   HeroCarousel5,
 } from '../../assets/home';
 import { Link } from 'react-router-dom';
+import { GradualSpacing } from '../ui/GradualSpacing';
 
 const images = [
   HeroCarousel1,
@@ -74,7 +75,7 @@ const HomeHero = () => {
               Luxury Leather
             </h1>
             <h2 className='text-primary text-4xl md:text-5xl font-heading font-bold mb-2'>
-              Confidence
+              <GradualSpacing />
             </h2>
             <h3 className='text-white text-4xl md:text-5xl font-heading font-bold mb-3'>
               Crafted for the Modern You

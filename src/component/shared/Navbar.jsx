@@ -66,7 +66,7 @@ export default function Navbar() {
             whileHover={{ scale: 1.02 }}
           >
             <Link to='/'>
-              <img src={logoWithTextImg} alt='GIGABULL' className='scale-75' />
+              <img src={logoWithTextImg} alt='GIGABULL' className='scale-75 ml-0 lg:ml-20' />
             </Link>
           </motion.div>
 

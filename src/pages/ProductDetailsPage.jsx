@@ -3,6 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import { ChevronRight, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import productsData from '../data/Products';
+import DOMPurify from 'dompurify';
+
+export function formatDescription(htmlString) {
+  const clean = DOMPurify.sanitize(htmlString);
+  const withParagraphs = clean
+    .split(/\n{3,}/g)
+    .map((block) => `<p>${block.replace(/\n/g, '<br/>')}</p>`)
+    .join('');
+  return withParagraphs;
+}
 
 export default function ProductDetailsPage() {
   const { slug } = useParams();
@@ -89,13 +99,13 @@ export default function ProductDetailsPage() {
           </div>
 
           {/* Thumbnails */}
-          <div className='grid grid-cols-4 gap-2 mt-4'>
+          <div className='grid grid-cols-5 gap-2 mt-4'>
             {images.map((img, idx) => (
-              <div key={idx}>
+              <div key={idx} className='h-[100px]'>
                 <img
                   src={img}
                   alt={`Thumbnail ${idx + 1}`}
-                  className={`mx-auto object-contain h-[100px] cursor-pointer border ${
+                  className={`mx-auto object-cover bg-[#D8CADD] aspect-square cursor-pointer border ${
                     selectedImage === img
                       ? 'border-primary'
                       : 'border-transparent'
@@ -114,19 +124,20 @@ export default function ProductDetailsPage() {
           </h1>
           <div className='space-y-8'>
             {Object.entries(details)
-              .filter(([key]) => key !== 'description')
+              .filter(([key, value]) => key !== 'description' && value != null)
               .map(([key, value]) => (
                 <div key={key} className='flex text-xl'>
-                  <span className='font-semibold w-40 text-nowrap capitalize text-dark'>
+                  <span className='font-semibold w-40 whitespace-nowrap capitalize text-dark'>
                     {key
                       .replace(/_/g, ' ')
                       .replace(/\b\w/g, (l) => l.toUpperCase())}{' '}
                     –
                   </span>
-                  <span>{value}</span>
+                  <span className='block w-full text-end'>{value}</span>
                 </div>
               ))}
           </div>
+
           <Link
             to='/contact'
             state={{ productName: name, productSlug: slug }}
@@ -143,7 +154,12 @@ export default function ProductDetailsPage() {
           <h2 className='text-2xl font-bold mb-4 text-dark'>
             Product Description
           </h2>
-          <p className='text-text whitespace-pre-line'>{details.description}</p>
+          <div
+            className='text-text leading-relaxed'
+            dangerouslySetInnerHTML={{
+              __html: formatDescription(details.description),
+            }}
+          />
         </div>
       )}
 
@@ -153,7 +169,7 @@ export default function ProductDetailsPage() {
           <h2 className='text-2xl font-bold mb-6 text-dark'>
             Related Products
           </h2>
-          <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6'>
+          <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6'>
             {relatedProducts.map((product) => (
               <Link
                 to={`/product/${product.slug}`}
@@ -164,7 +180,7 @@ export default function ProductDetailsPage() {
                   <img
                     src={product.images[0]}
                     alt={product.name}
-                    className='mx-auto h-[250px] aspect-square w-full object-cover'
+                    className='mx-auto h-auto lg:h-[250px] aspect-square w-full object-cover'
                   />
                 </div>
                 <div className='p-4'>

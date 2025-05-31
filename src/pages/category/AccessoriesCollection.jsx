@@ -43,7 +43,7 @@ const AccessoriesCollection = () => {
 
       {/* Products Grid */}
       <div className='container mx-auto px-4 py-8'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {currentProducts.map((product, idx) => (
             <Link to={`/product/${product.slug}`} key={idx}>
               <div className='flex flex-col'>
@@ -51,7 +51,7 @@ const AccessoriesCollection = () => {
                   <img
                     src={product.images[0]}
                     alt={product.name}
-                    className='object-cover aspect-square h-[350px] w-full'
+                    className='object-cover aspect-square h-[150px] sm:h-[300px] lg:h-[330px] xl:h-[400px] w-full'
                   />
                 </div>
                 <div className='text-center mt-2'>
