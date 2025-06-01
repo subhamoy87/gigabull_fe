@@ -38,7 +38,7 @@ export default function HomeProductsShowcase() {
             {
               img: Products08Img,
               title: 'RFID Leather Wallet',
-              desc: 'Premium blend of elegance and <br /> durability',
+              desc: 'Premium blend of elegance and durability',
               link: 'product/Bike%20Embossed%20Leather%20Wallet%20TAN-00',
             },
             {
@@ -49,7 +49,7 @@ export default function HomeProductsShowcase() {
             },
             {
               img: Products02Img,
-              title: 'Handcrafted Wallet',
+              title: 'Handcrafted <br /> Wallet',
               desc: 'Vintage 3D Print Leather <br /> Wallet',
               link: 'product/vintage-brown-rfid-3d-print-leather-wallet-06',
             },
@@ -94,9 +94,11 @@ export default function HomeProductsShowcase() {
                   </Link>
                 </div>
                 <div className='pb-4 -mt-6 text-center'>
-                  <h3 className='sm:text-xl text-base font-bold mb-2'>
-                    {product.title}
-                  </h3>
+                  <h3
+                    className='sm:text-xl text-base font-bold mb-2'
+                    dangerouslySetInnerHTML={{ __html: product.title }}
+                  />
+
                   <p
                     className='text-gray-700 sm:text-base text-xs mx-[2px] sm:mx-0'
                     dangerouslySetInnerHTML={{ __html: product.desc }}

@@ -46,13 +46,13 @@ const MensCollection = () => {
       <div className='container mx-auto px-4 py-8'>
         <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {currentProducts.map((product, idx) => (
-            <Link to={`/product/${product.slug}`} key={idx}>
+            <Link to={`/product/${product.slug}`} key={idx} className='aspect-square'>
               <div className='flex flex-col'>
                 <div className='bg-white rounded-lg overflow-hidden shadow-md'>
                   <img
                     src={product.images[0]}
                     alt={product.name}
-                    className='object-cover aspect-square h-[150px] sm:h-[300px] lg:h-[330px] xl:h-[400px] w-full'
+                    className='object-cover aspect-square h-full w-full'
                   />
                 </div>
                 <div className='text-center mt-2'>

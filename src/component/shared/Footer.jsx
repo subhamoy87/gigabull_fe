@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer className='bg-[#202020] text-white'>
-      <div className='container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10'>
+      <div className='container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-10'>
         {/* Brand + CTA */}
         <div className='space-y-6'>
           <div className='flex items-center gap-2'>
@@ -79,7 +79,7 @@ const Footer = () => {
         </div>
 
         {/* Reach Us */}
-        <div className='space-y-4 border-4 border-primary p-6 rounded'>
+        <div className='space-y-4 border-4 col-span-1 md:col-span-3 lg:col-span-3 xl:col-span-1 border-primary p-6 rounded'>
           <h3 className='text-yellow-400 font-semibold text-xl'>Reach Us</h3>
           <div className='space-y-3 text-white'>
             <div className='flex items-start gap-3'>
@@ -113,7 +113,6 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        
       </div>
     </footer>
   );

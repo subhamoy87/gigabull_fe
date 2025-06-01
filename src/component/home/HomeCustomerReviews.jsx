@@ -50,32 +50,49 @@ const HomeCustomerReviews = () => {
   const review = reviews[page];
 
   return (
-    <div className='bg-gradient-to-b from-stone-700 to-zinc-300 '>
-      <div className='container mx-auto px-4 py-20'>
+    <div className='bg-gradient-to-b from-stone-700 to-zinc-300'>
+      <div className='container mx-auto px-4 py-16 sm:py-20'>
         <div className='flex flex-col items-center justify-center'>
           {/* Heading */}
-          <div className='text-center text-white mb-12'>
-            <h1 className='text-4xl md:text-5xl font-bold mb-4'>
+          <div className='text-center text-white mb-10 sm:mb-12'>
+            <h1 className='text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4'>
               What Our Customer Says
             </h1>
-            <p className='text-lg md:text-xl font-medium text-white/80'>
+            <p className='text-sm sm:text-base md:text-lg font-medium text-white/80 leading-relaxed sm:leading-snug'>
               Hear From Our Satisfied Customers! Discover Genuine Reviews About
-              Our Premium Leather Products, Quality <br />
+              Our Premium Leather Products, Quality{' '}
+              <br className='hidden sm:block' />
               Craftsmanship, And Exceptional Service. Your Trust Is Our
               Priority.
             </p>
           </div>
 
           {/* Review Carousel */}
-          <div className='flex items-center justify-center space-x-2 sm:space-x-6 relative'>
+          <div className='flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-6 relative w-full'>
+            {/* Previous Button */}
             <button
               onClick={() => paginate(-1)}
-              className='bg-secondary p-3 rounded-full flex items-center justify-center z-10'
+              className='bg-secondary p-2 sm:p-3 rounded-full flex items-center justify-center z-10'
             >
-              <ChevronLeft className='text-dark' size={24} />
+              <ChevronLeft className='text-dark' size={20} sm={{ size: 24 }} />
             </button>
 
-            <div className='relative max-w-xl md:h-[240px] overflow-hidden'>
+            {/* Carousel Content */}
+            <div
+              className='
+              relative 
+              w-full 
+              max-w-xs 
+              sm:max-w-sm 
+              md:max-w-md 
+              lg:max-w-xl 
+              h-auto 
+              sm:h-56 
+              md:h-64 
+              lg:h-72 
+              overflow-hidden
+            '
+            >
               <AnimatePresence initial={false} custom={direction}>
                 <motion.div
                   key={page}
@@ -84,21 +101,24 @@ const HomeCustomerReviews = () => {
                   initial='enter'
                   animate='center'
                   exit='exit'
-                  className='absolute bg-primary top-0 left-0 w-full h-full text-black p-6 rounded-2xl shadow-xl flex flex-col justify-center'
+                  className='absolute top-0 left-0 w-full h-full bg-primary text-black p-4 sm:p-6 md:p-8 rounded-2xl shadow-xl flex flex-col justify-center'
                 >
-                  <h2 className='card-header'>{review.title}</h2>{' '}
-                  <p className='text-base font-normal text-black'>
+                  <h2 className='text-lg sm:text-xl md:text-2xl font-semibold mb-2'>
+                    {review.title}
+                  </h2>
+                  <p className='text-xs sm:text-sm md:text-base leading-relaxed'>
                     {review.text}
                   </p>
                 </motion.div>
               </AnimatePresence>
             </div>
 
+            {/* Next Button */}
             <button
               onClick={() => paginate(1)}
-              className='bg-secondary p-3 rounded-full flex items-center justify-center z-10'
+              className='bg-secondary p-2 sm:p-3 rounded-full flex items-center justify-center z-10'
             >
-              <ChevronRight className='text-dark' size={24} />
+              <ChevronRight className='text-dark' size={20} sm={{ size: 24 }} />
             </button>
           </div>
         </div>

@@ -62,9 +62,7 @@ export default function Navbar() {
           </div>
 
           <motion.div
-            className='flex items-center space-x-2 mx-auto md:mx-0'
-            whileHover={{ scale: 1.02 }}
-          >
+            className='flex items-center space-x-2 mx-auto md:mx-0'          >
             <Link to='/'>
               <img src={logoWithTextImg} alt='GIGABULL' className='scale-75 ml-0 lg:ml-20' />
             </Link>

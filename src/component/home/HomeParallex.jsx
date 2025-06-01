@@ -3,7 +3,7 @@ import { ParallaxImg } from '../../assets/home';
 
 const HomeParallex = () => {
   return (
-    <div className='relative w-full h-[500px] overflow-hidden'>
+    <div className='relative w-full h-[400px] overflow-hidden'>
       {/* Parallax Background */}
       <div
         className='absolute inset-0 w-full h-full bg-cover bg-center bg-fixed'

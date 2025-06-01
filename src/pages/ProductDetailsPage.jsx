@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, Search, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronRight, Search } from 'lucide-react';
+import { motion } from 'framer-motion';
 import productsData from '../data/Products';
 import DOMPurify from 'dompurify';
+
+import Lightbox from 'yet-another-react-lightbox';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import 'yet-another-react-lightbox/styles.css';
 
 export function formatDescription(htmlString) {
   const clean = DOMPurify.sanitize(htmlString);
@@ -17,7 +21,7 @@ export function formatDescription(htmlString) {
 export default function ProductDetailsPage() {
   const { slug } = useParams();
 
-  // Get product and category
+  // Find the selected product and its category
   let selectedProduct = null;
   let categoryName = '';
   for (const category of productsData) {
@@ -39,9 +43,18 @@ export default function ProductDetailsPage() {
 
   const { name, images, details, tags } = selectedProduct;
 
+  // Local state for which image is currently displayed, and whether the lightbox is open
   const [selectedImage, setSelectedImage] = useState(images[0]);
-  const [isZoomed, setIsZoomed] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  // Whenever the `images` array changes (i.e. user navigates to a different product),
+  // reset selectedImage to the first image and make sure the lightbox is closed.
+  useEffect(() => {
+    setSelectedImage(images[0]);
+    setIsLightboxOpen(false);
+  }, [images]);
+
+  // Build a flat list of all products (with category attached) in order to compute related products
   const allProducts = productsData.flatMap((cat) =>
     cat.products.map((p) => ({
       ...p,
@@ -49,6 +62,7 @@ export default function ProductDetailsPage() {
     }))
   );
 
+  // Filter out the current product, then pick up to 4 that share at least one tag
   const relatedProducts = allProducts
     .filter((p) => p.slug !== slug && p.tags.some((tag) => tags.includes(tag)))
     .slice(0, 4);
@@ -78,7 +92,7 @@ export default function ProductDetailsPage() {
       </div>
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
-        {/* Images */}
+        {/* Images Section */}
         <div className='relative'>
           <div className='bg-white p-2 rounded shadow-md relative'>
             <motion.img
@@ -88,20 +102,20 @@ export default function ProductDetailsPage() {
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className='mx-auto object-cover w-full max-h-[600px]'
+              className='mx-auto object-cover aspect-square w-full max-h-[600px]'
             />
             <button
               className='absolute top-4 right-4 bg-white p-2 rounded-full'
-              onClick={() => setIsZoomed(true)}
+              onClick={() => setIsLightboxOpen(true)}
             >
               <Search className='h-5 w-5 text-dark' />
             </button>
           </div>
 
-          {/* Thumbnails */}
-          <div className='grid grid-cols-5 gap-2 mt-4'>
+          {/* Thumbnail Strip */}
+          <div className='grid grid-cols-5 gap-2 lg:gap-5 mt-4'>
             {images.map((img, idx) => (
-              <div key={idx} className='h-[100px]'>
+              <div key={idx} className='h-[100px] md:h-[80px] lg:h-[100px]'>
                 <img
                   src={img}
                   alt={`Thumbnail ${idx + 1}`}
@@ -133,7 +147,7 @@ export default function ProductDetailsPage() {
                       .replace(/\b\w/g, (l) => l.toUpperCase())}{' '}
                     –
                   </span>
-                  <span className='block w-full text-end'>{value}</span>
+                  <span className='block w-full ml-16'>{value}</span>
                 </div>
               ))}
           </div>
@@ -195,37 +209,15 @@ export default function ProductDetailsPage() {
         </div>
       )}
 
-      {/* Modal Zoom */}
-      <AnimatePresence>
-        {isZoomed && (
-          <motion.div
-            className='fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4'
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className='relative max-w-4xl w-full'
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-            >
-              <button
-                className='absolute -top-2 -right-2 z-10 bg-white rounded-full p-2'
-                onClick={() => setIsZoomed(false)}
-              >
-                <X className='h-5 w-5 text-black' />
-              </button>
-              <img
-                src={selectedImage}
-                alt='Zoomed'
-                className='rounded shadow-lg w-full max-h-[80vh] object-contain'
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Lightbox with Zoom Plugin */}
+      {isLightboxOpen && (
+        <Lightbox
+          open={isLightboxOpen}
+          close={() => setIsLightboxOpen(false)}
+          slides={images.map((img) => ({ src: img }))}
+          plugins={[Zoom]}
+        />
+      )}
     </div>
   );
 }
