@@ -58,7 +58,7 @@ const HomeCategories = () => {
               key={idx}
               className='
                 flex-shrink-0 
-                w-[260px] md:w-[320px]
+                w-[320px] md:w-[320px]
                 rounded-2xl overflow-hidden shadow-lg bg-white
               '
             >

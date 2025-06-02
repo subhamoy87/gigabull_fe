@@ -27,23 +27,23 @@ export default function HomeProductsShowcase() {
           Your Everyday Essentials.
         </p>
 
-        <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-20 gap-x-0 sm:gap-x-8 mt-20'>
+        <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-y-20 gap-y-16 gap-x-0 sm:gap-x-8 mt-20'>
           {[
             {
               img: Products07Img,
-              title: "Women's Leather Wallet",
+              title: "Women's Leather <br />  Wallet",
               desc: 'Genuine Leather Wallet for <br /> Women',
               link: 'product/handbag-genuine-leather-wallet-for-women-12',
             },
             {
               img: Products08Img,
-              title: 'RFID Leather Wallet',
+              title: 'RFID Leather <br /> Wallet',
               desc: 'Premium blend of elegance and durability',
               link: 'product/Bike%20Embossed%20Leather%20Wallet%20TAN-00',
             },
             {
               img: Products01Img,
-              title: 'Genuine Laptop Bag',
+              title: 'Genuine Laptop <br />  Bag',
               desc: 'GIGABULL Brown Genuine <br /> Bag',
               link: 'product/brown-men-s-genuine-leather-bag-22',
             },
@@ -55,26 +55,26 @@ export default function HomeProductsShowcase() {
             },
             {
               img: Products03Img,
-              title: 'Genuine Luggage Bag',
-              desc: 'GIGABULL Pure Leather <br /> High-Quality Bag',
+              title: 'Genuine Luggage <br /> Bag',
+              desc: 'GIGABULL Pure Leather <br /> High-Quality <br /> Bag',
               link: 'product/gigabull-pure-leather-backpack-21',
             },
             {
               img: Products04Img,
-              title: "Men's Leather Bag",
-              desc: 'Perfect blend of style. High-quality <br /> leather',
+              title: "Men's Leather <br /> Bag",
+              desc: 'Perfect blend of style. <br />  High-quality <br /> leather',
               link: 'product/gigabull-men-s-genuine-leather-bag-20',
             },
             {
               img: Products05Img,
-              title: "Women's Leather Handbag",
-              desc: 'Handcrafted Genuine Leather <br /> Handbag',
+              title: "Women's Leather <br />  Handbag",
+              desc: 'Handcrafted Genuine <br />  Leather <br /> Handbag',
               link: 'product/handcrafted-genuine-leather-handbag',
             },
             {
               img: Products06Img,
-              title: "Women's Leather Wallet",
-              desc: 'Handcrafted Leather Wallet for <br /> Women',
+              title: "Women's Leather <br />  Wallet",
+              desc: 'Handcrafted Leather <br />  Wallet for <br /> Women',
               link: 'product/handcrafted-genuine-leather-wallet-for-women',
             },
           ].map((product, index) => (
