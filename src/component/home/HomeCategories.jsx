@@ -20,7 +20,7 @@ const HomeCategories = () => {
       src: WomensCategoryImg,
       alt: "Women's Collections",
       label: "Women's Collections",
-      desc: 'Elegant Leather Bags, Belts, And Wallets For Timeless Style.',
+      desc: 'Elegant Leather Bags, Belts, And Wallets For A Timeless Style.',
       link: '/womens-collection',
     },
     {
@@ -85,10 +85,10 @@ const HomeCategories = () => {
               {/* Card Content */}
               <div className='p-4'>
                 <p className='text-center text-lg font-semibold mb-4'>{desc}</p>
-                <div className='flex justify-center'>
+                <div className='flex justify-center '>
                   <Link
                     to={link}
-                    className='flex items-center font-bold text-[#3D2E00] hover:underline'
+                    className='flex items-center font-bold text-[#3D2E00] hover:underline '
                   >
                     View Collection <ChevronRight className='ml-2' />
                   </Link>

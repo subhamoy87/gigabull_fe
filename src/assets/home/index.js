@@ -7,7 +7,7 @@ import HeroCarousel5 from './5-min.webp';
 import AccessoriesCategoryImg from './Accessries-min.webp';
 import WomensCategoryImg from './Women-Collections-min.webp';
 import MensCategoryImg from './Mens-Collections-min.webp';
-import Products01Img from './Products-01.webp';
+import Products01Img from './Products-new.png';
 import Products02Img from './Products-02.webp';
 import Products03Img from './Products-03.webp';
 import Products04Img from './Products-04.webp';

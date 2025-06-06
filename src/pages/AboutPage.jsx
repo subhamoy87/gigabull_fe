@@ -23,7 +23,7 @@ export default function AboutPage() {
       <div className='container mx-auto px-6 py-12'>
         <div className='flex flex-col lg:flex-row gap-12'>
           {/* Left Column - Company Story */}
-          <div className='w-full lg:w-2/3'>
+          <div className='w-full'>
             <h2 className='text-3xl font-heading font-bold text-dark mb-6'>
               Our story
             </h2>
@@ -159,32 +159,14 @@ export default function AboutPage() {
                     <div className='w-full sm:w-2/5 text-xl underline font-semibold'>
                       Export Percentage:
                     </div>
-                    <div className='w-full sm:w-3/5'>50%</div>
+                    <div className='w-full sm:w-3/5'>100%</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column - FAQ */}
-          <div className='w-full bg-ivory p-2 lg:w-1/3 mt-8 lg:mt-0'>
-            <h2 className='text-3xl font-heading font-bold text-dark mb-6'>
-              F.A.Q.
-            </h2>
-
-            <div className='text-body mb-6'>
-              <p>
-                Rendered Her For Put Improved Concerns His. Ladies Bed Wisdom
-                Theirs Mrs Men Months Set.
-              </p>
-              <p className='mt-2'>
-                Everything So Dispatched As It Increasing Pianoforte.
-              </p>
-            </div>
-
-            {/* FAQ Accordion */}
-            <FAQAccordion />
-          </div>
+        
         </div>
       </div>
     </div>

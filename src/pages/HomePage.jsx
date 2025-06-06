@@ -9,6 +9,7 @@ import Footer from '../component/shared/Footer';
 import HomePremiumAccessories from '../component/home/HomePremiumAccessories';
 import { PING_API_URL } from '../config/config';
 import axios from 'axios';
+import ParallaxShowcase from '../component/others/ParallaxShowcase';
 
 const HomePage = () => {
   useEffect(() => {

@@ -32,7 +32,7 @@ export default function HomeProductsShowcase() {
             {
               img: Products07Img,
               title: "Women's Leather <br />  Wallet",
-              desc: 'Genuine Leather Wallet for <br /> Women',
+              desc: 'Genuine Leather Wallet for Women',
               link: 'product/handbag-genuine-leather-wallet-for-women-12',
             },
             {
@@ -43,14 +43,14 @@ export default function HomeProductsShowcase() {
             },
             {
               img: Products01Img,
-              title: 'Genuine Laptop <br />  Bag',
-              desc: 'GIGABULL Brown Genuine <br /> Bag',
+              title: 'Men’s Genuine Leather<br />  Bag',
+              desc: 'GIGABULL Men’s Genuine  Leather Bag',
               link: 'product/brown-men-s-genuine-leather-bag-22',
             },
             {
               img: Products02Img,
               title: 'Handcrafted <br /> Wallet',
-              desc: 'Vintage 3D Print Leather <br /> Wallet',
+              desc: 'GIGABULL Vintage 3D Print Leather  Wallet',
               link: 'product/vintage-brown-rfid-3d-print-leather-wallet-06',
             },
             {

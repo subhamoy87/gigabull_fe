@@ -1,27 +1,42 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { CategoryMensCollectionImg } from '../../assets/category';
 import productsData from '../../data/Products.js';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 const MensCollection = () => {
-  const mensProducts =
-    productsData.find((cat) => cat.category === "Men's Collection")?.products ||
-    [];
-
   const productsPerPage = 12;
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = parseInt(searchParams.get('page') || '1', 10);
 
-  const totalPages = Math.ceil(mensProducts.length / productsPerPage);
+  const shuffleArray = (array) => {
+    return array
+      .map((item) => ({ item, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ item }) => item);
+  };
+
+  const shuffledMensProducts = useMemo(() => {
+    const allMensProducts =
+      productsData.find((cat) => cat.category === "Men's Collection")
+        ?.products || [];
+
+    const modelImages = allMensProducts.filter((p) => p.isModelImage);
+    const nonModelImages = allMensProducts.filter((p) => !p.isModelImage);
+
+    return [...modelImages, ...shuffleArray(nonModelImages)];
+  }, []);
+
+  const totalPages = Math.ceil(shuffledMensProducts.length / productsPerPage);
   const startIndex = (currentPage - 1) * productsPerPage;
-  const currentProducts = mensProducts.slice(
+  const currentProducts = shuffledMensProducts.slice(
     startIndex,
     startIndex + productsPerPage
   );
 
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      setSearchParams({ page: page.toString() });
     }
   };
 
@@ -46,7 +61,11 @@ const MensCollection = () => {
       <div className='container mx-auto px-4 py-8'>
         <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {currentProducts.map((product, idx) => (
-            <Link to={`/product/${product.slug}`} key={idx} className='aspect-square'>
+            <Link
+              to={`/product/${product.slug}`}
+              key={idx}
+              className='aspect-square'
+            >
               <div className='flex flex-col'>
                 <div className='bg-white rounded-lg overflow-hidden shadow-md'>
                   <img
@@ -71,7 +90,7 @@ const MensCollection = () => {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className='flex items-center justify-center w-8 h-8 text-dark border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50'
+                className='flex cursor-pointer  items-center justify-center w-8 h-8 text-dark border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50'
               >
                 <ChevronLeft size={16} />
               </button>
@@ -80,7 +99,7 @@ const MensCollection = () => {
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`flex items-center justify-center w-8 h-8 border rounded ${
+                  className={`flex cursor-pointer  items-center justify-center w-8 h-8 border rounded ${
                     currentPage === i + 1
                       ? 'bg-primary text-dark font-bold'
                       : 'text-dark border-gray-300 hover:bg-gray-100'
@@ -93,7 +112,7 @@ const MensCollection = () => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className='flex items-center justify-center w-8 h-8 text-dark border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50'
+                className='flex items-center cursor-pointer justify-center w-8 h-8 text-dark border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50'
               >
                 <ChevronRight size={16} />
               </button>

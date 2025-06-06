@@ -1,2 +1,3 @@
 import logoWithTextImg from './logoWithText.webp';
-export { logoWithTextImg };
+import faqBannerImg from './faqbanner.webp';
+export { logoWithTextImg, faqBannerImg };

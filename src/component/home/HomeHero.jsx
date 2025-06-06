@@ -46,7 +46,7 @@ const HomeHero = () => {
 
   return (
     <div className='w-full overflow-visible'>
-      <section className='relative w-full h-[400px] overflow-visible bg-black'>
+      <section className='relative w-full md:h-[450px] h-[500px] overflow-visible bg-black'>
         {/* Background Carousel */}
         <div className='absolute inset-0 w-full h-full overflow-hidden'>
           <AnimatePresence mode='wait'>
@@ -94,7 +94,7 @@ const HomeHero = () => {
 
           {/* Satisfaction Badge */}
           <motion.div
-            className='absolute -bottom-20 right-6 md:-bottom-18 md:right-10 w-24 h-24 md:w-36 md:h-36 z-20'
+            className='absolute sm:-bottom-20 -bottom-12 right-6 md:-bottom-18 md:right-10 w-24 h-24 md:w-36 md:h-36 z-20'
             initial={{ rotate: 0 }}
             animate={{ rotate: 360 }}
             transition={{

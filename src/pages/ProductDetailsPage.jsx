@@ -8,6 +8,8 @@ import DOMPurify from 'dompurify';
 import Lightbox from 'yet-another-react-lightbox';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
+import ZoomableImage from '../component/others/ZoomableImage';
+import EnquiryModal from '../component/others/EnquiryModal';
 
 export function formatDescription(htmlString) {
   const clean = DOMPurify.sanitize(htmlString);
@@ -20,6 +22,7 @@ export function formatDescription(htmlString) {
 
 export default function ProductDetailsPage() {
   const { slug } = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Find the selected product and its category
   let selectedProduct = null;
@@ -43,18 +46,14 @@ export default function ProductDetailsPage() {
 
   const { name, images, details, tags } = selectedProduct;
 
-  // Local state for which image is currently displayed, and whether the lightbox is open
   const [selectedImage, setSelectedImage] = useState(images[0]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  // Whenever the `images` array changes (i.e. user navigates to a different product),
-  // reset selectedImage to the first image and make sure the lightbox is closed.
   useEffect(() => {
     setSelectedImage(images[0]);
     setIsLightboxOpen(false);
   }, [images]);
 
-  // Build a flat list of all products (with category attached) in order to compute related products
   const allProducts = productsData.flatMap((cat) =>
     cat.products.map((p) => ({
       ...p,
@@ -62,9 +61,18 @@ export default function ProductDetailsPage() {
     }))
   );
 
-  // Filter out the current product, then pick up to 4 that share at least one tag
   const relatedProducts = allProducts
-    .filter((p) => p.slug !== slug && p.tags.some((tag) => tags.includes(tag)))
+    .filter(
+      (p) =>
+        p.slug !== slug &&
+        p.category === categoryName &&
+        p.tags.some((tag) => tags.includes(tag))
+    )
+    .sort((a, b) => {
+      const aMatchCount = a.tags.filter((tag) => tags.includes(tag)).length;
+      const bMatchCount = b.tags.filter((tag) => tags.includes(tag)).length;
+      return bMatchCount - aMatchCount;
+    })
     .slice(0, 4);
 
   return (
@@ -94,15 +102,14 @@ export default function ProductDetailsPage() {
       <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
         {/* Images Section */}
         <div className='relative'>
-          <div className='bg-white p-2 rounded shadow-md relative'>
+          <div className='bg-white p-2 rounded shadow-md relative '>
+            {/* <ZoomableImage name={name} selectedImage={selectedImage} /> */}
             <motion.img
-              key={selectedImage}
               src={selectedImage}
-              alt={name}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
-              className='mx-auto object-cover aspect-square w-full max-h-[600px]'
+              className='mx-auto bg-[#D8CADD] object-contain  w-full'
             />
             <button
               className='absolute top-4 right-4 bg-white p-2 rounded-full'
@@ -113,21 +120,26 @@ export default function ProductDetailsPage() {
           </div>
 
           {/* Thumbnail Strip */}
-          <div className='grid grid-cols-5 gap-2 lg:gap-5 mt-4'>
-            {images.map((img, idx) => (
-              <div key={idx} className='h-[100px] md:h-[80px] lg:h-[100px]'>
-                <img
-                  src={img}
-                  alt={`Thumbnail ${idx + 1}`}
-                  className={`mx-auto object-cover bg-[#D8CADD] aspect-square cursor-pointer border ${
-                    selectedImage === img
-                      ? 'border-primary'
-                      : 'border-transparent'
-                  }`}
-                  onClick={() => setSelectedImage(img)}
-                />
-              </div>
-            ))}
+          <div className='overflow-x-auto mt-4'>
+            <div className='flex gap-3 lg:gap-5 w-max'>
+              {images.map((img, idx) => (
+                <div
+                  key={idx}
+                  className='h-[100px] min-w-[100px] flex-shrink-0'
+                >
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${idx + 1}`}
+                    className={`object-cover aspect-square w-full h-full cursor-pointer border ${
+                      selectedImage === img
+                        ? 'border-primary'
+                        : 'border-transparent'
+                    }`}
+                    onClick={() => setSelectedImage(img)}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -136,31 +148,40 @@ export default function ProductDetailsPage() {
           <h1 className='text-2xl font-bold text-dark text-shadow-2xs mb-6'>
             {name}
           </h1>
-          <div className='space-y-8'>
+          <div className='grid gap-4'>
             {Object.entries(details)
               .filter(([key, value]) => key !== 'description' && value != null)
               .map(([key, value]) => (
-                <div key={key} className='flex text-xl'>
-                  <span className='font-semibold w-40 whitespace-nowrap capitalize text-dark'>
+                <div
+                  key={key}
+                  className='grid grid-cols-[minmax(160px,210px)_1fr] text-base md:text-lg gap-2 items-start'
+                >
+                  <span className='font-semibold capitalize text-dark'>
                     {key
                       .replace(/_/g, ' ')
-                      .replace(/\b\w/g, (l) => l.toUpperCase())}{' '}
-                    –
+                      .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    {'  '}-
                   </span>
-                  <span className='block w-full ml-16'>{value}</span>
+                  <span className='text-gray-700'>{value}</span>
                 </div>
               ))}
           </div>
 
-          <Link
-            to='/contact'
-            state={{ productName: name, productSlug: slug }}
+          <button
+            onClick={() => setIsModalOpen(true)}
             className='block text-center w-full mt-6 py-3 font-medium text-white rounded bg-[#424EA3]'
           >
             Send Enquiry
-          </Link>
+          </button>
         </div>
       </div>
+
+      <EnquiryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        productName={name}
+        productSlug={slug}
+      />
 
       {/* Product Description */}
       {details.description && (

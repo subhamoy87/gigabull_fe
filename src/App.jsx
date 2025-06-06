@@ -13,6 +13,9 @@ import ReturnPolicyPage from './pages/ReturnPolicyPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import ShippingDeliveryPage from './pages/ShippingDeliveryPage';
 import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
+import FAQPage from './pages/FAQPage';
+import BrochurePage from './pages/BrochurePage';
+import CertificatePage from './pages/CertificatePage';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -43,10 +46,13 @@ const App = () => {
           <Route path='/product/:slug' element={<ProductDetailsPage />} />
           <Route path='/about' element={<AboutPage />} />
           <Route path='/contact' element={<ContactPage />} />
+          <Route path='/faq' element={<FAQPage />} />
           <Route path='/terms' element={<TermsAndConditionsPage />} />
           <Route path='/privacy' element={<PrivacyPolicyPage />} />
           <Route path='/return' element={<ReturnPolicyPage />} />
           <Route path='/shipping' element={<ShippingDeliveryPage />} />
+          <Route path='/brochure' element={<BrochurePage />} />
+          <Route path='/certificate' element={<CertificatePage />} />
         </Route>
       </Routes>
     </>

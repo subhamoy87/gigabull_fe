@@ -169,7 +169,7 @@ import GIGABULLLadiesGenuineLeatherHandpaintedHandbagBird2 from './womens-produc
 import GIGABULLLadiesGenuineLeatherHandpaintedHandbagBird3 from './womens-products/GIGABULL Ladies Genuine Leather Hand painted Handbag Bird 3.webp';
 import GIGABULLLadiesGenuineLeatherHandpaintedHandbagBird4 from './womens-products/GIGABULL Ladies Genuine Leather Hand painted Handbag Bird 4.webp';
 import GenuineLeatherWalletforWomen1 from './womens-products/Genuine Leather Wallet for Women 1.webp';
-import GenuineLeatherWalletforWomen2 from './womens-products/Genuine Leather Wallet for Women 2.webp';
+import GenuineLeatherWalletforWomen2 from './womens-products/Genuine Leather Wallet for Women 2 old.webp';
 import GenuineLeatherWalletforWomen3 from './womens-products/Genuine Leather Wallet for Women 3.webp';
 import GenuineLeatherWalletforWomen4 from './womens-products/Genuine Leather Wallet for Women 4.webp';
 import GenuineLeatherWalletforWomen5 from './womens-products/Genuine Leather Wallet for Women 5.webp';
@@ -253,12 +253,18 @@ import GreenGenuineLeatherBag1 from './accessories-products/Green Genuine Leathe
 import GreenGenuineLeatherBag2 from './accessories-products/Green Genuine Leather Bag 2.webp';
 import GreenGenuineLeatherBag3 from './accessories-products/Green Genuine Leather Bag 3.webp';
 import GreenGenuineLeatherBag4 from './accessories-products/Green Genuine Leather Bag 4.webp';
+import UnCategoryImg1 from './uncategory-img1.webp';
+import UnCategoryImg2 from './uncategory-img2.webp';
 
 export {
   // Category
   CategoryMensCollectionImg,
   CategoryWomensCollectionImg,
   CategoryAccessoriesCollectionImg,
+
+  // UnCategory
+  UnCategoryImg1,
+  UnCategoryImg2,
 
   // Mens Products
   BikeEmbossedLeather1,
