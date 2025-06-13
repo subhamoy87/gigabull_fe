@@ -99,7 +99,7 @@ export default function FAQPage() {
       {/* Map Footer */}
       <div className='h-96'>
         <iframe
-          src='https://maps.google.com/maps?q=Gigabull%2C%20Metropolitan%20CZ20B%20CO-OPT%20Housing%20Society%20Ltd%2C%20Canal%20S%20Rd%2C%20Kolkata%2C%20West%20Bengal%20700105&t=m&z=15&output=embed&iwloc=near'
+          src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d9965.355950193825!2d88.3951078307683!3d22.556971416295514!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a0277edf0421f99%3A0xd336dfd249e9be87!2sGigabull!5e0!3m2!1sen!2sin!4v1749727093097!5m2!1sen!2sin'
           width='100%'
           height='100%'
           style={{ border: 0 }}
@@ -107,7 +107,6 @@ export default function FAQPage() {
           loading='lazy'
           aria-label='Gigabull Location Map'
           title='Gigabull Location'
-          referrerPolicy='no-referrer-when-downgrade'
         ></iframe>
       </div>
     </div>

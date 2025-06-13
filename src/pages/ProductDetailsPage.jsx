@@ -169,7 +169,7 @@ export default function ProductDetailsPage() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className='block text-center w-full mt-6 py-3 font-medium text-white rounded bg-[#424EA3]'
+            className='block text-center w-full mt-6 py-3 font-medium text-white rounded bg-black'
           >
             Send Enquiry
           </button>

@@ -9,10 +9,12 @@ export default function EnquiryModal({
 }) {
   const [formData, setFormData] = useState({
     name: '',
+    phone: '',
     email: '',
     message: `I'm interested in the product: ${productName}`,
   });
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [loading, setLoading] = useState(false); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,6 +23,7 @@ export default function EnquiryModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); 
 
     const payload = {
       productName,
@@ -38,13 +41,15 @@ export default function EnquiryModal({
       if (!response.ok) throw new Error('Failed to send enquiry');
 
       setSubmitStatus('Thank you! Your enquiry has been sent.');
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({ name: '', phone: '', email: '', message: '' });
       setTimeout(() => {
         setSubmitStatus(null);
         onClose();
       }, 3000);
     } catch (error) {
       setSubmitStatus('Error sending enquiry. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,7 +78,24 @@ export default function EnquiryModal({
               name='name'
               type='text'
               required
+              disabled={loading}
               value={formData.name}
+              onChange={handleInputChange}
+              className='w-full border px-3 py-2 rounded'
+            />
+          </div>
+
+          <div>
+            <label className='block font-semibold mb-1' htmlFor='phone'>
+              Your Phone number
+            </label>
+            <input
+              id='phone'
+              name='phone'
+              type='tel'
+              required
+              disabled={loading}
+              value={formData.phone}
               onChange={handleInputChange}
               className='w-full border px-3 py-2 rounded'
             />
@@ -88,6 +110,7 @@ export default function EnquiryModal({
               name='email'
               type='email'
               required
+              disabled={loading}
               value={formData.email}
               onChange={handleInputChange}
               className='w-full border px-3 py-2 rounded'
@@ -103,6 +126,7 @@ export default function EnquiryModal({
               name='message'
               rows='4'
               required
+              disabled={loading}
               value={formData.message}
               onChange={handleInputChange}
               className='w-full border px-3 py-2 rounded'
@@ -113,15 +137,43 @@ export default function EnquiryModal({
             <button
               type='button'
               onClick={onClose}
+              disabled={loading}
               className='px-4 py-2 rounded border'
             >
               Cancel
             </button>
             <button
               type='submit'
-              className='px-4 py-2 rounded bg-[#424EA3] text-white'
+              disabled={loading}
+              className='px-4 py-2 rounded bg-black text-white flex items-center gap-2'
             >
-              Send
+              {loading ? (
+                <>
+                  <svg
+                    className='animate-spin h-4 w-4 text-white'
+                    xmlns='http://www.w3.org/2000/svg'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                  >
+                    <circle
+                      className='opacity-25'
+                      cx='12'
+                      cy='12'
+                      r='10'
+                      stroke='currentColor'
+                      strokeWidth='4'
+                    />
+                    <path
+                      className='opacity-75'
+                      fill='currentColor'
+                      d='M4 12a8 8 0 018-8v8z'
+                    />
+                  </svg>
+                  Sending...
+                </>
+              ) : (
+                'Send'
+              )}
             </button>
           </div>
 

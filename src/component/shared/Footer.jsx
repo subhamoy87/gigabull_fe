@@ -114,6 +114,11 @@ const Footer = () => {
           </div>
         </div>
       </div>
+      <div className='border-t border-white/20 py-2'>
+        <p className='text-center text-sm text-white/60'>
+          Developed By <a href='https://dhigrowth.com' target='_blank'>DhiGrowth</a>
+        </p>
+      </div>
     </footer>
   );
 };

@@ -15,24 +15,6 @@
   --font-heading: 'Montserrat', var(--font-sans);
 }
 
-
-/* @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Squada+One&display=swap');
-
-@import 'tailwindcss';
-
-@theme {
-  --color-primary: #ffd15c;
-  --color-secondary: #f5c73f;
-  --color-ivory: #fcf9f1;
-  --color-dark: #1e293b;
-  --color-footer: #111827;
-  --color-text: #333333;
-
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    'Oxygen Sans', Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-  --font-heading: 'Squada One', var(--font-sans);
-} */
-
 @layer theme, base, components, utilities;
 
 @layer components {
@@ -142,3 +124,4 @@
   aspect-ratio: 1/1;
   background-color: #d8cadd;
 }
+
