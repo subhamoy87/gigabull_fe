@@ -1,8 +1,12 @@
 import React from 'react';
 import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
+import { useSiteData } from '../context/SiteDataContext';
 
 const BrochurePage = () => {
+  const { documents } = useSiteData();
+  const brochureUrl = documents?.brochureUrl || BrochureGigabull2025;
+
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
       {/* Hero Section */}
@@ -37,7 +41,7 @@ const BrochurePage = () => {
         {/* PDF Viewer */}
         <div className='w-full' style={{ height: '80vh' }}>
           <iframe
-            src={BrochureGigabull2025}
+            src={brochureUrl}
             title='Leather Products Brochure'
             width='100%'
             height='100%'
@@ -50,11 +54,11 @@ const BrochurePage = () => {
           <p>
             Can’t view the brochure?{' '}
             <a
-              href={BrochureGigabull2025}
+              href={brochureUrl}
               target='_blank'
               rel='noopener noreferrer'
               className='text-blue-600 underline'
-              download={true}
+              download='BrochureGigabull2025.pdf'
             >
               Download it here
             </a>

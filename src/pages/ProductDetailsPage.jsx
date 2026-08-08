@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, Search } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
-import productsData from '../data/Products';
+import { useSiteData } from '../context/SiteDataContext';
 import DOMPurify from 'dompurify';
 
 import Lightbox from 'yet-another-react-lightbox';
@@ -23,6 +23,7 @@ export function formatDescription(htmlString) {
 export default function ProductDetailsPage() {
   const { slug } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { productsData } = useSiteData();
 
   // Find the selected product and its category
   let selectedProduct = null;
@@ -53,6 +54,22 @@ export default function ProductDetailsPage() {
     setSelectedImage(images[0]);
     setIsLightboxOpen(false);
   }, [images]);
+
+  const currentIndex = images.indexOf(selectedImage);
+
+  const handlePrevImage = () => {
+    if (!images || images.length <= 1) return;
+    const currIdx = images.indexOf(selectedImage);
+    const prevIdx = currIdx <= 0 ? images.length - 1 : currIdx - 1;
+    setSelectedImage(images[prevIdx]);
+  };
+
+  const handleNextImage = () => {
+    if (!images || images.length <= 1) return;
+    const currIdx = images.indexOf(selectedImage);
+    const nextIdx = currIdx >= images.length - 1 ? 0 : currIdx + 1;
+    setSelectedImage(images[nextIdx]);
+  };
 
   const allProducts = productsData.flatMap((cat) =>
     cat.products.map((p) => ({
@@ -101,41 +118,86 @@ export default function ProductDetailsPage() {
 
       <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
         {/* Images Section */}
-        <div className='relative'>
-          <div className='bg-white p-2 rounded shadow-md relative '>
-            {/* <ZoomableImage name={name} selectedImage={selectedImage} /> */}
-            <motion.img
-              src={selectedImage}
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className='mx-auto bg-[#D8CADD] object-contain  w-full'
-            />
-            <button
-              className='absolute top-4 right-4 bg-white p-2 rounded-full'
-              onClick={() => setIsLightboxOpen(true)}
-            >
-              <Search className='h-5 w-5 text-dark' />
-            </button>
+        <div className='relative w-full max-w-[580px] mx-auto'>
+          {/* Main Canvas with Side Navigation Controls */}
+          <div className='flex items-center justify-between gap-2 sm:gap-3'>
+            {/* Previous Arrow Button */}
+            {images && images.length > 1 ? (
+              <button
+                type='button'
+                onClick={handlePrevImage}
+                className='p-2.5 sm:p-3 rounded-full bg-white hover:bg-black text-gray-800 hover:text-white shadow-md border border-gray-200 transition-all duration-200 cursor-pointer shrink-0 hover:scale-105 active:scale-95'
+                title='Previous Image'
+                aria-label='Previous Image'
+              >
+                <ChevronLeft className='h-5 w-5' />
+              </button>
+            ) : (
+              <div className='w-10 sm:w-11 shrink-0' />
+            )}
+
+            {/* 500px Image Canvas Box */}
+            <div className='bg-white rounded-2xl p-4 shadow-md relative w-full max-w-[500px] h-[360px] sm:h-[450px] md:h-[500px] flex items-center justify-center overflow-hidden border border-gray-200 shrink-0 flex-1'>
+              {/* <ZoomableImage name={name} selectedImage={selectedImage} /> */}
+              <motion.img
+                key={selectedImage}
+                src={selectedImage}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className='max-h-full max-w-full w-full h-full object-contain mx-auto select-none'
+              />
+
+              {/* Image Counter Badge */}
+              {images && images.length > 1 && (
+                <div className='absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white text-[11px] font-semibold px-3 py-1 rounded-full backdrop-blur-md shadow select-none'>
+                  {currentIndex >= 0 ? currentIndex + 1 : 1} / {images.length}
+                </div>
+              )}
+
+              {/* Zoom Button */}
+              <button
+                className='absolute top-4 right-4 bg-gray-100/90 hover:bg-gray-200 text-gray-800 p-2.5 rounded-full shadow transition-all cursor-pointer hover:scale-105'
+                onClick={() => setIsLightboxOpen(true)}
+                title='Zoom Image'
+              >
+                <Search className='h-5 w-5 text-dark' />
+              </button>
+            </div>
+
+            {/* Next Arrow Button */}
+            {images && images.length > 1 ? (
+              <button
+                type='button'
+                onClick={handleNextImage}
+                className='p-2.5 sm:p-3 rounded-full bg-white hover:bg-black text-gray-800 hover:text-white shadow-md border border-gray-200 transition-all duration-200 cursor-pointer shrink-0 hover:scale-105 active:scale-95'
+                title='Next Image'
+                aria-label='Next Image'
+              >
+                <ChevronRight className='h-5 w-5' />
+              </button>
+            ) : (
+              <div className='w-10 sm:w-11 shrink-0' />
+            )}
           </div>
 
           {/* Thumbnail Strip */}
-          <div className='overflow-x-auto mt-4'>
-            <div className='flex gap-3 lg:gap-5 w-max'>
+          <div className='overflow-x-auto mt-4 pb-1 px-1 sm:px-12'>
+            <div className='flex gap-3 lg:gap-4 w-max mx-auto'>
               {images.map((img, idx) => (
                 <div
                   key={idx}
-                  className='h-[100px] min-w-[100px] flex-shrink-0'
+                  className={`h-[88px] w-[88px] flex-shrink-0 rounded-xl overflow-hidden bg-white border-2 transition cursor-pointer p-1.5 ${
+                    selectedImage === img
+                      ? 'border-primary shadow-sm'
+                      : 'border-gray-200 hover:border-amber-300'
+                  }`}
+                  onClick={() => setSelectedImage(img)}
                 >
                   <img
                     src={img}
                     alt={`Thumbnail ${idx + 1}`}
-                    className={`object-cover aspect-square w-full h-full cursor-pointer border ${
-                      selectedImage === img
-                        ? 'border-primary'
-                        : 'border-transparent'
-                    }`}
-                    onClick={() => setSelectedImage(img)}
+                    className='object-contain w-full h-full'
                   />
                 </div>
               ))}

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
+import { SiteDataProvider } from './context/SiteDataContext';
 import HomePage from './pages/HomePage';
 import MainLayout from './layouts/MainLayout';
 import ErrorBoundary from './component/ErrorBoundary';
@@ -16,6 +17,7 @@ import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
 import FAQPage from './pages/FAQPage';
 import BrochurePage from './pages/BrochurePage';
 import CertificatePage from './pages/CertificatePage';
+import AdminPage from './pages/AdminPage';
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -29,9 +31,13 @@ const ScrollToTop = () => {
 
 const App = () => {
   return (
-    <>
+    <SiteDataProvider>
       <ScrollToTop />
       <Routes>
+        {/* Admin Route standalone without main header/footer layout */}
+        <Route path='/admin' element={<AdminPage />} />
+
+        {/* Public Routes with MainLayout */}
         <Route
           element={
             <ErrorBoundary>
@@ -55,7 +61,7 @@ const App = () => {
           <Route path='/certificate' element={<CertificatePage />} />
         </Route>
       </Routes>
-    </>
+    </SiteDataProvider>
   );
 };
 

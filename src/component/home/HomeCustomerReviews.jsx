@@ -51,7 +51,7 @@ const HomeCustomerReviews = () => {
 
   return (
     <div className='bg-gradient-to-b from-stone-600 to-zinc-200'>
-      <div className='container mx-auto px-4 py-16 sm:py-20'>
+      <div className='container mx-auto px-4 pt-16 pb-8 sm:pt-20 sm:pb-10'>
         <div className='flex flex-col items-center justify-center'>
           {/* Heading */}
           <div className='text-center text-white mb-10 sm:mb-12'>
@@ -211,16 +211,16 @@ export default HomeCustomerReviews;
 //             {/* Carousel Content */}
 //             <div
 //               className='
-//               relative 
-//               w-full 
-//               max-w-xs 
-//               sm:max-w-sm 
-//               md:max-w-md 
-//               lg:max-w-xl 
-//               h-auto 
-//               sm:h-56 
-//               md:h-64 
-//               lg:h-72 
+//               relative
+//               w-full
+//               max-w-xs
+//               sm:max-w-sm
+//               md:max-w-md
+//               lg:max-w-xl
+//               h-auto
+//               sm:h-56
+//               md:h-64
+//               lg:h-72
 //               overflow-hidden
 //             '
 //             >

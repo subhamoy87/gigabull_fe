@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { CategoryAccessoriesCollectionImg } from '../../assets/category';
-import productsData from '../../data/Products.js';
+import { useSiteData } from '../../context/SiteDataContext';
 import { Link, useSearchParams } from 'react-router-dom';
 
 const AccessoriesCollection = () => {
+  const { productsData } = useSiteData();
   const productsPerPage = 12;
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = parseInt(searchParams.get('page') || '1', 10);
@@ -27,7 +28,7 @@ const AccessoriesCollection = () => {
     );
 
     return [...modelImages, ...shuffleArray(nonModelImages)];
-  }, []);
+  }, [productsData]);
 
   const totalPages = Math.ceil(
     shuffledAccessoriesProducts.length / productsPerPage
@@ -63,7 +64,7 @@ const AccessoriesCollection = () => {
 
       {/* Products Grid */}
       <div className='container mx-auto px-4 py-8'>
-        <div className='grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+        <div className='grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6'>
           {currentProducts.map((product, idx) => (
             <Link
               to={`/product/${product.slug}`}

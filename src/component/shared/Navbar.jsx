@@ -9,12 +9,13 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { logoWithTextImg } from '../../assets/shared';
 import { Link } from 'react-router-dom';
+import { useSiteData } from '../../context/SiteDataContext';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { company, contact } = useSiteData();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,15 +53,17 @@ export default function Navbar() {
         <div className='container mx-auto flex justify-between items-center'>
           <div className='hidden md:flex items-center space-x-4'>
             <a
-              href='https://www.facebook.com/gigabullindia'
+              href={contact.facebook || 'https://www.facebook.com/gigabullindia'}
               target='_blank'
+              rel='noreferrer'
               className='p-1.5 bg-primary rounded-md'
             >
-              <Facebook className='size-5  bg-primary text-black cursor-pointer transition-colors' />
+              <Facebook className='size-5 bg-primary text-black cursor-pointer transition-colors' />
             </a>
             <a
-              href='https://www.instagram.com/gigabullindia'
+              href={contact.instagram || 'https://www.instagram.com/gigabullindia'}
               target='_blank'
+              rel='noreferrer'
               className='p-1.5 bg-primary rounded-md'
             >
               <Instagram className='size-5 bg-primary text-black cursor-pointer transition-colors' />
@@ -68,41 +71,44 @@ export default function Navbar() {
             <a
               href='https://www.youtube.com/@gigabullindia'
               target='_blank'
+              rel='noreferrer'
               className='p-1.5 bg-primary rounded-md'
             >
-              <Youtube className='size-5  bg-primary text-black cursor-pointer transition-colors' />
+              <Youtube className='size-5 bg-primary text-black cursor-pointer transition-colors' />
             </a>
           </div>
 
           <motion.div className='flex items-center space-x-2 mx-auto md:mx-0'>
-            <Link to='/' className='inline'>
-              <img
-                src={logoWithTextImg}
-                alt='GIGABULL'
-                className='md:w-34 w-40 ml-0 lg:ml-36'
-              />
+            <Link to='/' className='inline-flex items-center'>
+              {company.logoUrl ? (
+                <img
+                  src={company.logoUrl}
+                  alt={company.brandName || 'GIGABULL'}
+                  className='max-h-12 md:max-h-14 object-contain ml-0 lg:ml-36'
+                />
+              ) : (
+                <span className='text-2xl font-extrabold text-yellow-400 tracking-wider ml-0 lg:ml-36'>
+                  {company.brandName || 'GIGABULL'}
+                </span>
+              )}
             </Link>
           </motion.div>
 
           <div className='flex items-center space-x-4'>
             <div className='hidden md:flex items-center space-x-4'>
               <a
-                href='mailto:admin@gigabull.in'
-                target='_blank'
-                rel='noopener noreferrer'
+                href={`mailto:${contact.email || 'admin@gigabull.in'}`}
                 className='flex items-center space-x-1'
               >
                 <Mail className='size-6 fill-primary text-black' />
-                <span className='text-base text-white'>admin@gigabull.in</span>
+                <span className='text-base text-white'>{contact.email || 'admin@gigabull.in'}</span>
               </a>
               <a
-                href='tel:+919874525414'
-                target='_blank'
-                rel='noopener noreferrer'
+                href={`tel:${contact.phone?.replace(/[^0-9+]/g, '') || '+919874525414'}`}
                 className='flex items-center space-x-1'
               >
                 <Phone className='size-6 fill-primary text-black' />
-                <span className='text-base text-white'>+919874525414</span>
+                <span className='text-base text-white'>{contact.phone || '+919874525414'}</span>
               </a>
             </div>
 

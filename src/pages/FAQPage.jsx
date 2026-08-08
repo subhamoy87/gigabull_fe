@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react';
 import { faqBannerImg } from '../assets/shared';
 import FAQAccordion from '../component/about/FAQAccordion';
 
@@ -21,78 +20,14 @@ export default function FAQPage() {
       </div>
 
       {/* Facts & Questions Section */}
-      <div className='container py-16'>
+      <div className='container py-12 md:py-16 mx-auto px-4'>
         <div className='max-w-4xl mx-auto'>
-          {/* <h2 className='text-4xl font-heading font-bold text-center mb-4 text-dark'>
-            Facts & Questions
-          </h2> */}
-          <p className='text-center text-text mb-1 max-w-2xl mx-auto'>
-            Rendered Her For Put Improved Concerns His. Ladies Bed Wisdom Theirs
-            Mrs Men Months Set.
-          </p>
-          <p className='text-center text-text mb-12 max-w-2xl mx-auto'>
-            Everything So Dispatched As It Increasing Pianoforte.
+          <p className='text-center text-gray-600 mb-8 max-w-2xl mx-auto text-base md:text-lg'>
+            Find answers to commonly asked questions about GIGABULL products, ordering, shipping, and wholesale options below.
           </p>
 
           {/* FAQ Items */}
-          <div className='space-y-4'>
-            <FAQAccordion />
-            {/* <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>Who is GIGABULL? </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                What are all the leather products GIGABULL offer?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                Are all GIGABULL products made from genuine leather?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                What makes GIGABULL products unique?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                How do I place an order?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                Do you offer wholesale options?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                Do you provide international shipping?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                How can I get in touch with customer support?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div>
-            <div className='bg-gray-100 rounded-lg p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'>
-              <span className='font-semibold text-dark'>
-                Do you offer custom leather products?{' '}
-              </span>
-              <Plus className='w-6 h-6 text-dark' />
-            </div> */}
-          </div>
+          <FAQAccordion />
         </div>
       </div>
 

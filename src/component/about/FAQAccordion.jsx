@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
-const faqItems = [
+const defaultFaqItems = [
   {
     question: 'Who is GIGABULL?',
     answer:
@@ -41,7 +41,7 @@ const faqItems = [
   {
     question: 'How can I get in touch with customer support?',
     answer:
-      'You can reach us at +91 9874525414 or email us at admin@gigabull.in for any inquiries.',
+      'You can reach us at +91 9874525414 or email us at admin@gigabull.in/admin.shivansh@gmail.com for any inquiries.',
   },
   {
     question: 'Do you offer custom leather products?',
@@ -51,7 +51,7 @@ const faqItems = [
 ];
 
 function FAQAccordion() {
-  const [openIndex, setOpenIndex] = useState(0); // First item open by default
+  const [openIndex, setOpenIndex] = useState(0);
 
   const toggle = (idx) => {
     setOpenIndex(openIndex === idx ? null : idx);
@@ -59,37 +59,36 @@ function FAQAccordion() {
 
   return (
     <div className='mt-8 space-y-4'>
-      {faqItems.map((item, idx) => {
+      {defaultFaqItems.map((item, idx) => {
         const isOpen = idx === openIndex;
         return (
-          <div>
+          <div key={idx} className='border border-gray-200 rounded-lg overflow-hidden bg-gray-50'>
             <div
-              key={idx}
               onClick={() => toggle(idx)}
-              className='bg-gray-100 rounded-lg p-4 md:p-6 flex justify-between items-center hover:bg-gray-200 transition-colors cursor-pointer'
+              className='p-4 md:p-6 flex justify-between items-center bg-gray-100 hover:bg-gray-200 transition-colors cursor-pointer'
             >
-              <span className='font-semibold md:text-xl text-dark'>{item.question}</span>
-
+              <span className='font-semibold md:text-lg text-base text-dark'>{item.question}</span>
               {isOpen ? (
-                <ChevronUp className='w-6 h-6 text-dark' />
+                <ChevronUp className='w-5 h-5 text-dark shrink-0 ml-2' />
               ) : (
-                <ChevronDown className='w-6 h-6 text-dark' />
+                <ChevronDown className='w-5 h-5 text-dark shrink-0 ml-2' />
               )}
             </div>
-            <div className='ring ring-black/50 rounded'>
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.p
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className='text-text md:text-lg text-base mt-4 p-2 bg-gray-100/50 rounded-lg'
-                  >
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className='overflow-hidden'
+                >
+                  <p className='p-4 md:p-6 text-text md:text-base text-sm leading-relaxed bg-white border-t border-gray-200'>
                     {item.answer}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </div>
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         );
       })}

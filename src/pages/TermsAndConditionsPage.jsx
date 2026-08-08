@@ -2,6 +2,7 @@ import React from 'react';
 import { CommonTermsConditionsImg } from '../assets/common';
 
 const TermsAndConditionsPage = () => {
+
   return (
     <div className='w-full bg-white text-[#2d2d2d] font-sans'>
       <section className='relative w-full h-64 bg-[#1e293b] overflow-hidden'>
@@ -20,9 +21,9 @@ const TermsAndConditionsPage = () => {
 
       <section className='container mx-auto py-10 px-6 space-y-6 text-[18px] leading-loose'>
         <p>
-          This website is operated by Spotdeal Enterprises. Throughout the site,
-          the terms “we”, “us” and “our” refer to Spotdeal Enterprises. Spotdeal
-          Enterprises offers this website, including all information, products
+          This website is operated by Shivansh International. Throughout the site,
+          the terms “we”, “us” and “our” refer to Shivansh International. Shivansh
+          International offers this website, including all information, products
           and services available from this site to you, the user, conditioned
           upon your acceptance of all terms, conditions, policies and notices
           stated here.
@@ -61,7 +62,7 @@ const TermsAndConditionsPage = () => {
           in totality and without modification, you must stop using our website
           immediately. We may revise and update our website conditions at any
           time and your continued usage of this website means you accept those
-          changes. While Spotdeal Enterprises aims to ensure that the
+          changes. While Shivansh International aims to ensure that the
           information in this website is correct, sometimes errors do occur for
           which we apologize. Please refer back to these website terms &
           conditions of use from time to time so that you are aware of the
@@ -79,7 +80,7 @@ const TermsAndConditionsPage = () => {
         </p>
         <p>
           In a credit card transaction, you must use your own credit card.
-          Spotdeal Enterprises will not be liable for any credit card fraud. The
+          Shivansh International will not be liable for any credit card fraud. The
           liability to use a card fraudulently will be on the user and the onus
           to ‘prove otherwise’ shall be exclusively on the user.
         </p>
@@ -114,19 +115,19 @@ const TermsAndConditionsPage = () => {
         <p>
           Shipment/delivery time, of the order processing starts from the day of
           receipt of the payment confirmed against the order placed with
-          Spotdeal Enterprises. The shipment /delivery time is an approximate
-          time mentioned by the vendor against each product. Spotdeal
-          Enterprises shall not be liable for any delay / non-delivery of
+          Shivansh International. The shipment /delivery time is an approximate
+          time mentioned by the vendor against each product. Shivansh
+          International shall not be liable for any delay / non-delivery of
           purchased goods by flood, fire, wars, acts of God or any cause that is
-          beyond the control of Spotdeal Enterprises.
+          beyond the control of Shivansh International.
         </p>
         <p>
           The user must agree to provide authentic and true information, to
-          avoid any kind of delay or loss of merchandise. Spotdeal Enterprises
+          avoid any kind of delay or loss of merchandise. Shivansh International
           reserves the right to confirm and validate the information and other
           details provided by the user at any point in time. If upon
           confirmation, such user details are found not true (wholly or partly),
-          Spotdeal Enterprises has the right in its sole discretion to reject
+          Shivansh International has the right in its sole discretion to reject
           the registration and debar the user from using the services available
           at this website, and/or other affiliated websites without prior
           intimation whatsoever.
@@ -136,21 +137,21 @@ const TermsAndConditionsPage = () => {
           Returns & Exchanges
         </h2>
         <p>
-          Spotdeal Enterprises acknowledges return of products only limited to
+          Shivansh International acknowledges return of products only limited to
           direct sale between vendor and consumer. This only entails sales
           online, and not through retail outlets.
           <br />
           Any product that has been hampered or damaged while transportation
           must be notified by email within 48 hours of the product being
           delivered and returned to our warehouse within a strict time period of
-          one week, else Spotdeal Enterprises will not be liable to accept the
+          one week, else Shivansh International will not be liable to accept the
           merchandise. In such cases, the customer will have to write into
-          admin@gigabull.in/spotdealenterprises@gmail.com and a prompt response
+          admin@gigabull.in/admin.shivansh@gmail.com and a prompt response
           is guaranteed from our end. We will investigate the damage from our
           end and repair the merchandise in its entirety.
           <br />
           ALL couriers of this nature will be borne by the customer themselves.
-          Spotdeal Enterprises will only bear the expenses of the transaction
+          Shivansh International will only bear the expenses of the transaction
           after the repair of the merchandise.
         </p>
         <p>
@@ -161,7 +162,7 @@ const TermsAndConditionsPage = () => {
           <br />
           Please note, damaged products specific to repair will have to be
           couriered back to our warehouse wherein all costs will be borne by the
-          customer themselves. Spotdeal Enterprises will only bear the expenses
+          customer themselves. Shivansh International will only bear the expenses
           of the transaction after the repair of the merchandise.
         </p>
 
@@ -178,7 +179,7 @@ const TermsAndConditionsPage = () => {
           store credit to be added to your account against the returned order,
           which you can use to shop online, within the duration of validity of
           the store credit. The store credit can also be redeemed at any of the
-          Spotdeal Enterprises brick & mortar stores.
+          Shivansh International brick & mortar stores.
         </p>
 
         <h2 className='font-extrabold text-lg uppercase'>
@@ -249,7 +250,7 @@ const TermsAndConditionsPage = () => {
           merchandise.
         </p>
         <p>
-          All Spotdeal Enterprises Products are dyed in Natural Vegetable Dyes,
+          All Shivansh International Products are dyed in Natural Vegetable Dyes,
           in accordance to International Standards.
         </p>
 
@@ -257,7 +258,7 @@ const TermsAndConditionsPage = () => {
           <span className='font-extrabold text-lg'>
             Defects and Scratches :{' '}
           </span>
-          All Spotdeal Enterprises products are hand crafted , hence no two
+          All Shivansh International products are hand crafted , hence no two
           products are identical in their absolute measurements. There might be
           a slight change, but minimal to the eye which therefore would not
           change the essence of the design.
@@ -283,15 +284,15 @@ const TermsAndConditionsPage = () => {
         <p>
           This site and the materials and products on this site are provided “as
           is” and without warranty of any kind, whether express or implied. To
-          the fullest extent permissible pursuant to applicable law, Spotdeal
-          Enterprises disclaims all warranties, express or implied, including,
+          the fullest extent permissible pursuant to applicable law, Shivansh
+          International disclaims all warranties, express or implied, including,
           but not limited to, implied warranties of merchantability and fitness
-          for a particular purpose and non-infringement. Spotdeal Enterprises
+          for a particular purpose and non-infringement. Shivansh International
           does not represent or warrant that the functions contained in the site
           will be uninterrupted or error-free, that the defects will be
           corrected, or that this site or the server that makes the site
-          available are free of viruses or other harmful components. Spotdeal
-          Enterprises does not make any warranties or representations regarding
+          available are free of viruses or other harmful components. Shivansh
+          International does not make any warranties or representations regarding
           the use of the materials in this site in terms of their correctness,
           accuracy, adequacy, usefulness, timeliness, reliability, or otherwise.
           Some states do not permit limitations or exclusions on warranties, so
@@ -299,34 +300,33 @@ const TermsAndConditionsPage = () => {
         </p>
 
         <h2 className='font-extrabold text-lg uppercase'>
-          Liability of Spotdeal Enterprises
+          Liability of Shivansh International
         </h2>
         <p>
           Your use of this website or any information on this website is
-          entirely at your own risk. Spotdeal Enterprises makes no
+          entirely at your own risk. Shivansh International makes no
           representation or warranty with respect to the accuracy, completeness,
           suitability, performance, or timeliness of the information provided on
-          this website. Spotdeal Enterprises excludes liability for any such
+          this website. Shivansh International excludes liability for any such
           inaccuracies or errors to the fullest extent permitted by law.
           <br />
           This website may contain links to other internet sites provided by
           third parties. The provision of any of these links does not represent
-          an endorsement by Spotdeal Enterprises of those internet sites, nor
-          does Spotdeal Enterprises make any representations or warranties as to
+          an endorsement by Shivansh International of those internet sites, nor
+          does Shivansh International make any representations or warranties as to
           the accuracy, completeness, performance, or timeliness of any aspect
           of information contained in those third party internet sites.
         </p>
 
         <h2 className='font-extrabold text-lg uppercase'>Copyright</h2>
         <p>
-          This website and its contents are the property of Spotdeal Enterprises
+          This website and its contents are the property of Shivansh International
           and are subject to copyright. The contents of our website and the
           website as a whole are intended solely for your personal,
           non-commercial use. Any use of our website and its content for
           purposes other than personal and non-commercial use, or for any other
           use, including the modification, reproduction, distribution,
           transmission, republication, display, or performance, of the content
-          of this website, is prohibited and protected under the copyright act,
           and any such case or person can be prosecuted by law.
         </p>
       </section>

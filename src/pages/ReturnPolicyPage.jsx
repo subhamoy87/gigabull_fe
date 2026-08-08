@@ -2,6 +2,7 @@ import React from 'react';
 import { CommonReturnImg } from '../assets/common';
 
 const ReturnPolicyPage = () => {
+
   return (
     <div className='w-full font-sans bg-white text-[#333333]'>
       <section className='relative w-full h-64 bg-[#1e293b] overflow-hidden'>
@@ -25,7 +26,7 @@ const ReturnPolicyPage = () => {
         </p>
 
         <p>
-          Spotdeal Enterprises accepts the return of products only restricted to
+          Shivansh International accepts the return of products only restricted to
           order deals among merchant and customer. This solitary involves deals
           on the web, and not through retail outlets.
         </p>
@@ -34,7 +35,7 @@ const ReturnPolicyPage = () => {
           Any item that has been hampered or harmed while transportation must be
           told by email within 48 hours of the item being delivered and returned
           back to our distribution center inside a precise time-frame of one
-          week, else Spotdeal Enterprises won’t be at risk to acknowledge the
+          week, else Shivansh International won’t be at risk to acknowledge the
           product. In such cases, the client should send an email to
           <a
             href='mailto:admin@gigabull.in'
@@ -44,10 +45,10 @@ const ReturnPolicyPage = () => {
           </a>{' '}
           /
           <a
-            href='mailto:spotdealenterprises@gmail.com'
+            href='mailto:admin.shivansh@gmail.com'
             className='text-blue-600 font-medium ml-1'
           >
-            spotdealenterprises@gmail.com
+            admin.shivansh@gmail.com
           </a>{' '}
           and a quick response is ensured from our end. We will examine the harm
           from our end and fix the merchandise in its entirety.
@@ -55,7 +56,7 @@ const ReturnPolicyPage = () => {
 
         <p>
           ALL dispatches of this nature will be borne by the actual client.
-          Spotdeal Enterprises will just bear the costs of the exchange after
+          Shivansh International will just bear the costs of the exchange after
           the maintenance of the product.
         </p>
 
@@ -69,7 +70,7 @@ const ReturnPolicyPage = () => {
         <p>
           Please note, damaged products specific to repair will have to be
           couriered back to our warehouse wherein all costs will be borne by the
-          customer themselves. Spotdeal Enterprises will only bear the expenses
+          customer themselves. Shivansh International will only bear the expenses
           of the transaction after the repair of the merchandise.
         </p>
 
@@ -149,9 +150,9 @@ const ReturnPolicyPage = () => {
         </p>
 
         <address className='space-y-4 text-[#1e293b] font-extrabold text-lg not-italic mt-6'>
-          <p>Spotdeal Enterprises</p>
+          <p>Shivansh International</p>
           <p>
-            Metropolitan CZ-20B, Co-Operative Housing Society Ltd,
+            P-68, Sector-A, Metropolitan, Co-Operative Housing Society Ltd,
             <br /> Canal South Road, Kolkata – 700105
           </p>
           <p>Tel: +91-9874525414</p>
@@ -162,10 +163,10 @@ const ReturnPolicyPage = () => {
             </a>{' '}
             /
             <a
-              href='mailto:spotdealenterprises@gmail.com'
+              href='mailto:admin.shivansh@gmail.com'
               className='ml-1 text-blue-600'
             >
-              spotdealenterprises@gmail.com
+              admin.shivansh@gmail.com
             </a>
           </p>
         </address>

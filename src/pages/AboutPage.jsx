@@ -15,7 +15,9 @@ export default function AboutPage() {
           }}
         ></div>
         <div className='relative container mx-auto px-6 h-full flex items-center'>
-          <h1 className='text-4xl font-bold font-heading text-white'>About Our Company</h1>
+          <h1 className='text-4xl font-bold font-heading text-white'>
+            About Our Company
+          </h1>
         </div>
       </div>
 
@@ -29,11 +31,7 @@ export default function AboutPage() {
             </h2>
 
             <p className='text-body mb-6'>
-              GIGABULL Is Committed To Delivering Premium Genuine Leather
-              Products That Blend Style, Durability, And Craftsmanship. We Take
-              Pride In Offering Luxurious Leather Goods At Pocket- Friendly
-              Prices. Whether You're Looking For Wallets, Clutches, Or Laptop
-              Bags, Our Collection Is Designed To Meet Your Needs.
+              GIGABULL Is Committed To Delivering Premium Genuine Leather Products That Blend Style, Durability, And Craftsmanship. We Take Pride In Offering Luxurious Leather Goods At Pocket- Friendly Prices. Whether You're Looking For Wallets, Clutches, Or Laptop Bags, Our Collection Is Designed To Meet Your Needs.
             </p>
 
             {/* Leather Products Image */}
@@ -47,36 +45,19 @@ export default function AboutPage() {
 
             {/* Bullet Points */}
             <div className='space-y-4 my-8'>
-              <div className='flex items-start'>
-                <Check
-                  className='text-primary mr-2 mt-1 flex-shrink-0'
-                  size={20}
-                />
-                <p className='text-body'>
-                  We use only genuine leather for a luxurious feel and
-                  long-lasting durability.
-                </p>
-              </div>
-              <div className='flex items-start'>
-                <Check
-                  className='text-primary mr-2 mt-1 flex-shrink-0'
-                  size={20}
-                />
-                <p className='text-body'>
-                  Every product is handmade by skilled artisans with precision
-                  and care.
-                </p>
-              </div>
-              <div className='flex items-start'>
-                <Check
-                  className='text-primary mr-2 mt-1 flex-shrink-0'
-                  size={20}
-                />
-                <p className='text-body'>
-                  Get high-quality leather products at pocket-friendly prices
-                  without compromise.
-                </p>
-              </div>
+              {[
+                'We use only genuine leather for a luxurious feel and long-lasting durability.',
+                'Every product is handmade by skilled artisans with precision and care.',
+                'Get high-quality leather products at pocket-friendly prices without compromise.',
+              ].map((bp, i) => (
+                <div key={i} className='flex items-start'>
+                  <Check
+                    className='text-primary mr-2 mt-1 flex-shrink-0'
+                    size={20}
+                  />
+                  <p className='text-body'>{bp}</p>
+                </div>
+              ))}
             </div>
 
             {/* Key Features Section */}
@@ -90,10 +71,18 @@ export default function AboutPage() {
                 <div className='flex flex-col space-y-4'>
                   <div className='flex flex-col sm:flex-row border-b border-gray-200 pb-4'>
                     <div className='w-full sm:w-2/5 text-xl underline font-semibold'>
+                      Name of Business:
+                    </div>
+                    <div className='w-full  sm:w-3/5'>
+                      Shivansh International
+                    </div>
+                  </div>
+                  <div className='flex flex-col sm:flex-row border-b border-gray-200 pb-4'>
+                    <div className='w-full sm:w-2/5 text-xl underline font-semibold'>
                       Nature of Business:
                     </div>
                     <div className='w-full  sm:w-3/5'>
-                      Gigabull Manufacturer, Exporter And Supplier
+                      Manufacturer, Exporter And Supplier
                     </div>
                   </div>
 
@@ -108,14 +97,14 @@ export default function AboutPage() {
                     <div className='w-full sm:w-2/5 text-xl underline font-semibold'>
                       No. of Employees:
                     </div>
-                    <div className='w-full sm:w-3/5'>20</div>
+                    <div className='w-full sm:w-3/5'>100</div>
                   </div>
 
                   <div className='flex flex-col sm:flex-row border-b border-gray-200 pb-4'>
                     <div className='w-full sm:w-2/5 text-xl underline font-semibold'>
                       No. of Designers:
                     </div>
-                    <div className='w-full sm:w-3/5'>01</div>
+                    <div className='w-full sm:w-3/5'>02</div>
                   </div>
 
                   <div className='flex flex-col sm:flex-row border-b border-gray-200 pb-4'>
@@ -125,13 +114,6 @@ export default function AboutPage() {
                     <div className='w-full sm:w-3/5'>
                       20000 To 50000 Pieces Of Every Product
                     </div>
-                  </div>
-
-                  <div className='flex flex-col sm:flex-row border-b border-gray-200 pb-4'>
-                    <div className='w-full sm:w-2/5 text-xl underline font-semibold'>
-                      Warehousing Facility:
-                    </div>
-                    <div className='w-full sm:w-3/5'>Yes</div>
                   </div>
 
                   <div className='flex flex-col sm:flex-row border-b border-gray-200 pb-4'>
@@ -166,7 +148,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-        
+
         </div>
       </div>
     </div>

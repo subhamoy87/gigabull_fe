@@ -1,8 +1,12 @@
 import React from 'react';
 import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
+import { useSiteData } from '../context/SiteDataContext';
 
 const CertificatePage = () => {
+  const { documents } = useSiteData();
+  const certUrl = documents?.certificateUrl || RCMCCertificate;
+
   return (
     <div className='w-full bg-white min-h-screen font-sans'>
       {/* Hero Section */}
@@ -29,7 +33,7 @@ const CertificatePage = () => {
       <div className='container mx-auto px-4 py-8'>
         <div className='w-full' style={{ height: '80vh' }}>
           <iframe
-            src={RCMCCertificate}
+            src={certUrl}
             title='RCMC Certificate'
             width='100%'
             height='100%'
@@ -42,10 +46,10 @@ const CertificatePage = () => {
           <p>
             Can’t view the certificate?{' '}
             <a
-              href='/rcmc-certificate.pdf'
+              href={certUrl}
               target='_blank'
               rel='noopener noreferrer'
-              download={true}
+              download='RCMCCertificate.pdf'
               className='text-blue-600 underline'
             >
               Download it here
