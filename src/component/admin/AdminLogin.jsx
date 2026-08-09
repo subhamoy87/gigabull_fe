@@ -21,7 +21,7 @@ const AdminLogin = () => {
 
     const success = await login(password);
     if (!success) {
-      setError('Invalid password. Default is admin123');
+      setError('Invalid password. Please check your admin credentials.');
     }
   };
 

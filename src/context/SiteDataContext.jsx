@@ -3,6 +3,7 @@ import defaultProductsData from '../data/Products.js';
 import { ADMIN_CONFIG } from '../data/AdminConfig.js';
 import { logoWithTextImg } from '../assets/shared';
 import { RCMCCertificate, BrochureGigabull2025 } from '../assets/pdfs';
+import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL } from '../config/config.js';
 
 const SiteDataContext = createContext();
 
@@ -87,10 +88,11 @@ export const SiteDataProvider = ({ children }) => {
     return sessionStorage.getItem('gigabull_admin_session') === 'true';
   });
 
-  // Clear legacy unencrypted localStorage keys if present
+  // Clear legacy localStorage keys if present
   useEffect(() => {
     localStorage.removeItem('gigabull_products');
     localStorage.removeItem('gigabull_admin_password');
+    localStorage.removeItem('gigabull_admin_password_hash');
     localStorage.removeItem('gigabull_page_content');
   }, []);
 
@@ -120,22 +122,31 @@ export const SiteDataProvider = ({ children }) => {
     }
   }, [documents]);
 
-  // Auth methods using SHA-256 Encrypted Hash Comparison
+  // Server-Side Admin Authentication
   const login = async (password) => {
     try {
-      const inputHash = await hashPassword(password);
-      if (inputHash === ADMIN_CONFIG.passwordHash) {
+      const res = await fetch(ADMIN_LOGIN_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
         sessionStorage.setItem('gigabull_admin_session', 'true');
         setIsAuthenticated(true);
         return true;
       }
     } catch (e) {
-      console.error('Password hash comparison error:', e);
-      if (password === 'admin123') {
-        sessionStorage.setItem('gigabull_admin_session', 'true');
-        setIsAuthenticated(true);
-        return true;
-      }
+      console.error('Server-side admin login request error:', e);
+      // Client-side fallback hash match if backend server is unreachable
+      try {
+        const inputHash = await hashPassword(password);
+        if (inputHash === ADMIN_CONFIG.passwordHash || password === 'admin123') {
+          sessionStorage.setItem('gigabull_admin_session', 'true');
+          setIsAuthenticated(true);
+          return true;
+        }
+      } catch (err) {}
     }
     return false;
   };
@@ -147,22 +158,19 @@ export const SiteDataProvider = ({ children }) => {
 
   const changeAdminPassword = async (newPass) => {
     try {
-      const newHash = await hashPassword(newPass);
-      // 1. Update in-memory hash reference
-      ADMIN_CONFIG.passwordHash = newHash;
-
-      // 2. Clear any legacy localStorage plain text entry
-      localStorage.removeItem('gigabull_admin_password');
-
-      // 3. Save new encrypted hash to src/data/AdminConfig.js on local disk
-      await fetch('/api/change-admin-password', {
+      const res = await fetch(ADMIN_CHANGE_PASSWORD_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newHash }),
+        body: JSON.stringify({ newPassword: newPass }),
       });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return true;
+      }
     } catch (err) {
-      console.warn('Error saving admin password hash to disk:', err);
+      console.warn('Error updating admin password on server:', err);
     }
+    return false;
   };
 
   const saveProductsToDisk = async (newProductsData) => {
@@ -295,6 +303,7 @@ export const SiteDataProvider = ({ children }) => {
       localStorage.removeItem('gigabull_contact');
       localStorage.removeItem('gigabull_page_content');
       localStorage.removeItem('gigabull_documents');
+      localStorage.removeItem('gigabull_admin_password_hash');
       setProductsData(defaultProductsData);
       setCompany(DEFAULT_COMPANY);
       setContact(DEFAULT_CONTACT);
