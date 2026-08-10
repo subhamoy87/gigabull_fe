@@ -521,7 +521,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Metric Cards Grid */}
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5'>
               <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 relative overflow-hidden'>
                 <div className='text-amber-400 font-bold text-xs uppercase tracking-wider mb-2'>Total Products</div>
                 <div className='text-4xl font-extrabold text-white'>{totalProductsCount}</div>
@@ -541,16 +541,6 @@ const AdminDashboard = () => {
                 <div className='text-base font-semibold text-white truncate'>{contact.email}</div>
                 <div className='text-slate-400 text-xs mt-2 truncate'>{contact.phone}</div>
                 <PhoneCall className='w-16 h-16 text-slate-800 absolute -right-2 -bottom-2 opacity-50' />
-              </div>
-
-              <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 relative overflow-hidden'>
-                <div className='text-amber-400 font-bold text-xs uppercase tracking-wider mb-2'>System Persistence</div>
-                <div className='text-base font-semibold text-emerald-400 flex items-center gap-1.5'>
-                  <span className='w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse' />
-                  LocalStorage Active
-                </div>
-                <div className='text-slate-400 text-xs mt-2'>Instant Site Syncing</div>
-                <Sparkles className='w-16 h-16 text-slate-800 absolute -right-2 -bottom-2 opacity-50' />
               </div>
             </div>
 
