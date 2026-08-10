@@ -384,6 +384,34 @@ const AdminDashboard = () => {
     }
   };
 
+  // Smart PDF Preview handler (handles Base64 Blobs, Server URLs, and Page Fallbacks)
+  const handlePreviewPdf = (e, url, fallbackRoute) => {
+    e.preventDefault();
+    if (!url) {
+      window.open(fallbackRoute, '_blank');
+      return;
+    }
+    if (typeof url === 'string' && url.startsWith('data:application/pdf;base64,')) {
+      try {
+        const base64Data = url.replace(/^data:application\/pdf;base64,/, '').trim().replace(/[\r\n\s]/g, '');
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      } catch (err) {
+        console.error('Error creating preview Blob URL:', err);
+        window.open(fallbackRoute, '_blank');
+      }
+    } else {
+      window.open(url || fallbackRoute, '_blank');
+    }
+  };
+
   // Password change submission
   const handlePasswordChangeSubmit = async (e) => {
     e.preventDefault();
@@ -833,16 +861,17 @@ const AdminDashboard = () => {
                         RCMC Certificate PDF
                       </span>
                       <a
-                        href={documents?.certificateUrl}
+                        href='/certificate'
+                        onClick={(e) => handlePreviewPdf(e, documents?.certificateUrl, '/certificate')}
                         target='_blank'
                         rel='noreferrer'
-                        className='text-xs text-amber-400 hover:underline flex items-center gap-1'
+                        className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
                       >
                         <ExternalLink className='w-3.5 h-3.5' /> Preview
                       </a>
                     </div>
                     <p className='text-xs text-slate-400'>
-                      Current File: <code className='text-amber-400 font-mono'>RCMC Certificate.pdf</code>
+                      Current File: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'RCMC Certificate.pdf'}</code>
                     </p>
                     <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
                       <Upload className='w-4 h-4' /> Upload New Certificate PDF
@@ -862,16 +891,17 @@ const AdminDashboard = () => {
                         Product Brochure PDF
                       </span>
                       <a
-                        href={documents?.brochureUrl}
+                        href='/brochure'
+                        onClick={(e) => handlePreviewPdf(e, documents?.brochureUrl, '/brochure')}
                         target='_blank'
                         rel='noreferrer'
-                        className='text-xs text-amber-400 hover:underline flex items-center gap-1'
+                        className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
                       >
                         <ExternalLink className='w-3.5 h-3.5' /> Preview
                       </a>
                     </div>
                     <p className='text-xs text-slate-400'>
-                      Current File: <code className='text-amber-400 font-mono'>Brochure Gigabull.pdf</code>
+                      Current File: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Brochure Gigabull.pdf'}</code>
                     </p>
                     <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
                       <Upload className='w-4 h-4' /> Upload New Brochure PDF
