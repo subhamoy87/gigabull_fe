@@ -4,6 +4,7 @@ import { ADMIN_CONFIG } from '../data/AdminConfig.js';
 import { logoWithTextImg } from '../assets/shared';
 import { RCMCCertificate, BrochureGigabull2025 } from '../assets/pdfs';
 import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL, PRODUCTS_API_URL, SAVE_PRODUCTS_API_URL, DOCUMENTS_API_URL, SAVE_DOCUMENTS_API_URL } from '../config/config.js';
+import { getIDBItem, setIDBItem } from '../utils/idbStorage';
 
 const SiteDataContext = createContext();
 
@@ -100,6 +101,31 @@ export const SiteDataProvider = ({ children }) => {
     }
   });
 
+  // Load IndexedDB documents on mount
+  useEffect(() => {
+    const loadIDBDocuments = async () => {
+      try {
+        const cert = await getIDBItem('certificateUrl');
+        const certName = await getIDBItem('certificateName');
+        const brochure = await getIDBItem('brochureUrl');
+        const brochureName = await getIDBItem('brochureName');
+
+        if (cert || brochure) {
+          setDocuments((prev) => ({
+            ...prev,
+            certificateUrl: cert || prev.certificateUrl,
+            certificateName: certName || prev.certificateName,
+            brochureUrl: brochure || prev.brochureUrl,
+            brochureName: brochureName || prev.brochureName,
+          }));
+        }
+      } catch (err) {
+        console.warn('Error loading IDB documents:', err);
+      }
+    };
+    loadIDBDocuments();
+  }, []);
+
   // Fetch server documents on component mount
   useEffect(() => {
     const fetchServerDocuments = async () => {
@@ -154,9 +180,17 @@ export const SiteDataProvider = ({ children }) => {
     try {
       if (documents.certificateUrl && documents.certificateUrl.startsWith('data:')) {
         sessionStorage.setItem('gigabull_session_cert', documents.certificateUrl);
+        setIDBItem('certificateUrl', documents.certificateUrl);
+      }
+      if (documents.certificateName) {
+        setIDBItem('certificateName', documents.certificateName);
       }
       if (documents.brochureUrl && documents.brochureUrl.startsWith('data:')) {
         sessionStorage.setItem('gigabull_session_brochure', documents.brochureUrl);
+        setIDBItem('brochureUrl', documents.brochureUrl);
+      }
+      if (documents.brochureName) {
+        setIDBItem('brochureName', documents.brochureName);
       }
 
       const docsToSave = { ...documents };
@@ -342,6 +376,15 @@ export const SiteDataProvider = ({ children }) => {
 
   const updateCompany = (updates) => setCompany((prev) => ({ ...prev, ...updates }));
   const updateDocuments = async (updates) => {
+    try {
+      if (updates.certificateUrl) await setIDBItem('certificateUrl', updates.certificateUrl);
+      if (updates.certificateName) await setIDBItem('certificateName', updates.certificateName);
+      if (updates.brochureUrl) await setIDBItem('brochureUrl', updates.brochureUrl);
+      if (updates.brochureName) await setIDBItem('brochureName', updates.brochureName);
+    } catch (err) {
+      console.warn('IDB save note:', err);
+    }
+
     setDocuments((prev) => {
       const nextDocs = { ...prev, ...updates };
       fetch(SAVE_DOCUMENTS_API_URL, {

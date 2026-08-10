@@ -3,12 +3,23 @@ import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { SERVE_BROCHURE_API_URL } from '../config/config';
+import { getIDBItem } from '../utils/idbStorage';
 
 const BrochurePage = () => {
   const { documents } = useSiteData();
-  const rawBrochureUrl = documents?.brochureUrl || BrochureGigabull2025;
-  const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
+  const [idbBrochure, setIdbBrochure] = useState(null);
+  const [idbBrochureName, setIdbBrochureName] = useState(null);
   const [hasServerBrochure, setHasServerBrochure] = useState(false);
+
+  useEffect(() => {
+    const loadIDBBrochure = async () => {
+      const storedBrochure = await getIDBItem('brochureUrl');
+      const storedName = await getIDBItem('brochureName');
+      if (storedBrochure) setIdbBrochure(storedBrochure);
+      if (storedName) setIdbBrochureName(storedName);
+    };
+    loadIDBBrochure();
+  }, [documents?.brochureUrl]);
 
   useEffect(() => {
     fetch(SERVE_BROCHURE_API_URL, { method: 'HEAD' })
@@ -17,6 +28,9 @@ const BrochurePage = () => {
       })
       .catch(() => {});
   }, [documents?.brochureUrl]);
+
+  const rawBrochureUrl = idbBrochure || documents?.brochureUrl || BrochureGigabull2025;
+  const brochureName = idbBrochureName || documents?.brochureName || 'Brochure Gigabull.pdf';
 
   const pdfViewUrl = useMemo(() => {
     if (typeof rawBrochureUrl === 'string' && rawBrochureUrl.startsWith('data:application/pdf;base64,')) {

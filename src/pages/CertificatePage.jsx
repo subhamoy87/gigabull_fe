@@ -3,12 +3,23 @@ import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { SERVE_CERTIFICATE_API_URL } from '../config/config';
+import { getIDBItem } from '../utils/idbStorage';
 
 const CertificatePage = () => {
   const { documents } = useSiteData();
-  const rawCertUrl = documents?.certificateUrl || RCMCCertificate;
-  const certName = documents?.certificateName || 'RCMC Certificate.pdf';
+  const [idbCert, setIdbCert] = useState(null);
+  const [idbCertName, setIdbCertName] = useState(null);
   const [hasServerCert, setHasServerCert] = useState(false);
+
+  useEffect(() => {
+    const loadIDBCert = async () => {
+      const storedCert = await getIDBItem('certificateUrl');
+      const storedName = await getIDBItem('certificateName');
+      if (storedCert) setIdbCert(storedCert);
+      if (storedName) setIdbCertName(storedName);
+    };
+    loadIDBCert();
+  }, [documents?.certificateUrl]);
 
   useEffect(() => {
     fetch(SERVE_CERTIFICATE_API_URL, { method: 'HEAD' })
@@ -17,6 +28,9 @@ const CertificatePage = () => {
       })
       .catch(() => {});
   }, [documents?.certificateUrl]);
+
+  const rawCertUrl = idbCert || documents?.certificateUrl || RCMCCertificate;
+  const certName = idbCertName || documents?.certificateName || 'RCMC Certificate.pdf';
 
   const pdfViewUrl = useMemo(() => {
     if (typeof rawCertUrl === 'string' && rawCertUrl.startsWith('data:application/pdf;base64,')) {
