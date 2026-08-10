@@ -84,22 +84,7 @@ export const SiteDataProvider = ({ children }) => {
   const contact = DEFAULT_CONTACT;
 
   // 5. Documents State (PDFs for Certificate and Brochure)
-  const [documents, setDocuments] = useState(() => {
-    try {
-      const savedSessionCert = sessionStorage.getItem('gigabull_session_cert');
-      const savedSessionBrochure = sessionStorage.getItem('gigabull_session_brochure');
-      const saved = localStorage.getItem('gigabull_documents');
-      const parsed = saved ? JSON.parse(saved) : {};
-      return {
-        certificateUrl: savedSessionCert || parsed.certificateUrl || RCMCCertificate,
-        certificateName: parsed.certificateName || 'RCMC Certificate.pdf',
-        brochureUrl: savedSessionBrochure || parsed.brochureUrl || BrochureGigabull2025,
-        brochureName: parsed.brochureName || 'Brochure Gigabull.pdf',
-      };
-    } catch (e) {
-      return DEFAULT_DOCUMENTS;
-    }
-  });
+  const [documents, setDocuments] = useState(DEFAULT_DOCUMENTS);
 
   // Load IndexedDB documents on mount
   useEffect(() => {
@@ -130,7 +115,7 @@ export const SiteDataProvider = ({ children }) => {
   useEffect(() => {
     const fetchServerDocuments = async () => {
       try {
-        const res = await fetch(DOCUMENTS_API_URL);
+        const res = await fetch(`${DOCUMENTS_API_URL}?t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         if (res.ok && data.success && data.documents) {
           setDocuments((prev) => ({
@@ -152,8 +137,11 @@ export const SiteDataProvider = ({ children }) => {
     return sessionStorage.getItem('gigabull_admin_session') === 'true';
   });
 
-  // Clear legacy localStorage keys if present
+  // Clear legacy localStorage & sessionStorage document keys to eliminate stale cache
   useEffect(() => {
+    localStorage.removeItem('gigabull_documents');
+    sessionStorage.removeItem('gigabull_session_cert');
+    sessionStorage.removeItem('gigabull_session_brochure');
     localStorage.removeItem('gigabull_admin_password');
     localStorage.removeItem('gigabull_admin_password_hash');
     localStorage.removeItem('gigabull_page_content');
@@ -177,32 +165,17 @@ export const SiteDataProvider = ({ children }) => {
   }, [company]);
 
   useEffect(() => {
-    try {
-      if (documents.certificateUrl && documents.certificateUrl.startsWith('data:')) {
-        try { sessionStorage.setItem('gigabull_session_cert', documents.certificateUrl); } catch (e) {}
-        setIDBItem('certificateUrl', documents.certificateUrl);
-      }
-      if (documents.certificateName) {
-        setIDBItem('certificateName', documents.certificateName);
-      }
-      if (documents.brochureUrl && documents.brochureUrl.startsWith('data:')) {
-        try { sessionStorage.setItem('gigabull_session_brochure', documents.brochureUrl); } catch (e) {}
-        setIDBItem('brochureUrl', documents.brochureUrl);
-      }
-      if (documents.brochureName) {
-        setIDBItem('brochureName', documents.brochureName);
-      }
-
-      const docsToSave = { ...documents };
-      if (docsToSave.certificateUrl && docsToSave.certificateUrl.length > 500000 && docsToSave.certificateUrl.startsWith('data:')) {
-        delete docsToSave.certificateUrl;
-      }
-      if (docsToSave.brochureUrl && docsToSave.brochureUrl.length > 500000 && docsToSave.brochureUrl.startsWith('data:')) {
-        delete docsToSave.brochureUrl;
-      }
-      localStorage.setItem('gigabull_documents', JSON.stringify(docsToSave));
-    } catch (e) {
-      console.warn('LocalStorage quota note for documents cache:', e);
+    if (documents.certificateUrl && documents.certificateUrl.startsWith('data:')) {
+      setIDBItem('certificateUrl', documents.certificateUrl);
+    }
+    if (documents.certificateName) {
+      setIDBItem('certificateName', documents.certificateName);
+    }
+    if (documents.brochureUrl && documents.brochureUrl.startsWith('data:')) {
+      setIDBItem('brochureUrl', documents.brochureUrl);
+    }
+    if (documents.brochureName) {
+      setIDBItem('brochureName', documents.brochureName);
     }
   }, [documents]);
 

@@ -48,7 +48,7 @@ const CertificatePage = () => {
 
       // 2. Second priority: Fetch custom uploaded PDF from server
       try {
-        const res = await fetch(SERVE_CERTIFICATE_API_URL);
+        const res = await fetch(`${SERVE_CERTIFICATE_API_URL}?t=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
           const blob = await res.blob();
           if (blob.type === 'application/pdf' || blob.size > 100) {
