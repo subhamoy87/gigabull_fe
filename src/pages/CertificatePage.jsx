@@ -19,10 +19,6 @@ const CertificatePage = () => {
   }, [documents?.certificateUrl]);
 
   const pdfViewUrl = useMemo(() => {
-    if (hasServerCert) {
-      return SERVE_CERTIFICATE_API_URL;
-    }
-    if (!rawCertUrl) return RCMCCertificate;
     if (typeof rawCertUrl === 'string' && rawCertUrl.startsWith('data:application/pdf;base64,')) {
       try {
         const base64Data = rawCertUrl.replace(/^data:application\/pdf;base64,/, '').trim();
@@ -42,6 +38,10 @@ const CertificatePage = () => {
         return RCMCCertificate;
       }
     }
+    if (hasServerCert) {
+      return SERVE_CERTIFICATE_API_URL;
+    }
+    if (!rawCertUrl) return RCMCCertificate;
     return rawCertUrl;
   }, [rawCertUrl, certName, hasServerCert]);
 

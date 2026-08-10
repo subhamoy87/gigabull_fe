@@ -402,7 +402,28 @@ const AdminDashboard = () => {
         const byteArray = new Uint8Array(byteNumbers);
         const blob = new Blob([byteArray], { type: 'application/pdf' });
         const blobUrl = URL.createObjectURL(blob);
-        window.open(blobUrl, '_blank');
+
+        const win = window.open('', '_blank');
+        if (win) {
+          win.document.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>PDF Document Preview</title>
+                <style>
+                  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #0f172a; }
+                  iframe { width: 100%; height: 100%; border: none; }
+                </style>
+              </head>
+              <body>
+                <iframe src="${blobUrl}"></iframe>
+              </body>
+            </html>
+          `);
+          win.document.close();
+        } else {
+          window.open(fallbackRoute, '_blank');
+        }
       } catch (err) {
         console.error('Error creating preview Blob URL:', err);
         window.open(fallbackRoute, '_blank');

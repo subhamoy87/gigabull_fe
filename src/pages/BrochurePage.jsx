@@ -19,10 +19,6 @@ const BrochurePage = () => {
   }, [documents?.brochureUrl]);
 
   const pdfViewUrl = useMemo(() => {
-    if (hasServerBrochure) {
-      return SERVE_BROCHURE_API_URL;
-    }
-    if (!rawBrochureUrl) return BrochureGigabull2025;
     if (typeof rawBrochureUrl === 'string' && rawBrochureUrl.startsWith('data:application/pdf;base64,')) {
       try {
         const base64Data = rawBrochureUrl.replace(/^data:application\/pdf;base64,/, '').trim();
@@ -42,6 +38,10 @@ const BrochurePage = () => {
         return BrochureGigabull2025;
       }
     }
+    if (hasServerBrochure) {
+      return SERVE_BROCHURE_API_URL;
+    }
+    if (!rawBrochureUrl) return BrochureGigabull2025;
     return rawBrochureUrl;
   }, [rawBrochureUrl, brochureName, hasServerBrochure]);
 

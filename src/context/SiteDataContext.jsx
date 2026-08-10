@@ -85,17 +85,16 @@ export const SiteDataProvider = ({ children }) => {
   // 5. Documents State (PDFs for Certificate and Brochure)
   const [documents, setDocuments] = useState(() => {
     try {
+      const savedSessionCert = sessionStorage.getItem('gigabull_session_cert');
+      const savedSessionBrochure = sessionStorage.getItem('gigabull_session_brochure');
       const saved = localStorage.getItem('gigabull_documents');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          certificateUrl: parsed.certificateUrl || RCMCCertificate,
-          certificateName: parsed.certificateName || 'RCMC Certificate.pdf',
-          brochureUrl: parsed.brochureUrl || BrochureGigabull2025,
-          brochureName: parsed.brochureName || 'Brochure Gigabull.pdf',
-        };
-      }
-      return DEFAULT_DOCUMENTS;
+      const parsed = saved ? JSON.parse(saved) : {};
+      return {
+        certificateUrl: savedSessionCert || parsed.certificateUrl || RCMCCertificate,
+        certificateName: parsed.certificateName || 'RCMC Certificate.pdf',
+        brochureUrl: savedSessionBrochure || parsed.brochureUrl || BrochureGigabull2025,
+        brochureName: parsed.brochureName || 'Brochure Gigabull.pdf',
+      };
     } catch (e) {
       return DEFAULT_DOCUMENTS;
     }
@@ -108,7 +107,12 @@ export const SiteDataProvider = ({ children }) => {
         const res = await fetch(DOCUMENTS_API_URL);
         const data = await res.json();
         if (res.ok && data.success && data.documents) {
-          setDocuments(data.documents);
+          setDocuments((prev) => ({
+            ...prev,
+            ...data.documents,
+            certificateUrl: prev.certificateUrl?.startsWith('data:') ? prev.certificateUrl : (data.documents.certificateUrl || prev.certificateUrl),
+            brochureUrl: prev.brochureUrl?.startsWith('data:') ? prev.brochureUrl : (data.documents.brochureUrl || prev.brochureUrl),
+          }));
         }
       } catch (err) {
         console.warn('Could not fetch documents from server, using local fallback:', err);
@@ -148,6 +152,13 @@ export const SiteDataProvider = ({ children }) => {
 
   useEffect(() => {
     try {
+      if (documents.certificateUrl && documents.certificateUrl.startsWith('data:')) {
+        sessionStorage.setItem('gigabull_session_cert', documents.certificateUrl);
+      }
+      if (documents.brochureUrl && documents.brochureUrl.startsWith('data:')) {
+        sessionStorage.setItem('gigabull_session_brochure', documents.brochureUrl);
+      }
+
       const docsToSave = { ...documents };
       if (docsToSave.certificateUrl && docsToSave.certificateUrl.length > 500000 && docsToSave.certificateUrl.startsWith('data:')) {
         delete docsToSave.certificateUrl;
