@@ -33,11 +33,10 @@ const BrochurePage = () => {
         try {
           const base64Data = brochData.replace(/^data:application\/pdf;base64,/, '').trim().replace(/[\r\n\s]/g, '');
           const byteCharacters = atob(base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
+          const byteArray = new Uint8Array(byteCharacters.length);
           for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
+            byteArray[i] = byteCharacters.charCodeAt(i);
           }
-          const byteArray = new Uint8Array(byteNumbers);
           const blob = new Blob([byteArray], { type: 'application/pdf' });
           createdUrl = URL.createObjectURL(blob);
           if (active) setBlobUrl(createdUrl);

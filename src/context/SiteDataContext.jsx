@@ -179,14 +179,14 @@ export const SiteDataProvider = ({ children }) => {
   useEffect(() => {
     try {
       if (documents.certificateUrl && documents.certificateUrl.startsWith('data:')) {
-        sessionStorage.setItem('gigabull_session_cert', documents.certificateUrl);
+        try { sessionStorage.setItem('gigabull_session_cert', documents.certificateUrl); } catch (e) {}
         setIDBItem('certificateUrl', documents.certificateUrl);
       }
       if (documents.certificateName) {
         setIDBItem('certificateName', documents.certificateName);
       }
       if (documents.brochureUrl && documents.brochureUrl.startsWith('data:')) {
-        sessionStorage.setItem('gigabull_session_brochure', documents.brochureUrl);
+        try { sessionStorage.setItem('gigabull_session_brochure', documents.brochureUrl); } catch (e) {}
         setIDBItem('brochureUrl', documents.brochureUrl);
       }
       if (documents.brochureName) {
