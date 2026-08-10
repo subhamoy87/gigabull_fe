@@ -378,7 +378,7 @@ const AdminDashboard = () => {
       }
       await updateDocuments({
         certificateGDriveId: parsedId,
-        certificateName: `Google Drive File (${parsedId.slice(0, 8)}...)`,
+        certificateName: 'RCMC Certificate.pdf',
       });
       setGdriveForm((p) => ({ ...p, certLink: '' }));
       alert('Google Drive Certificate link saved successfully!');
@@ -390,7 +390,7 @@ const AdminDashboard = () => {
       }
       await updateDocuments({
         brochureGDriveId: parsedId,
-        brochureName: `Google Drive File (${parsedId.slice(0, 8)}...)`,
+        brochureName: 'Brochure Gigabull.pdf',
       });
       setGdriveForm((p) => ({ ...p, brochureLink: '' }));
       alert('Google Drive Brochure link saved successfully!');

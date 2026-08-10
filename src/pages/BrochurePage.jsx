@@ -15,7 +15,9 @@ const BrochurePage = () => {
     ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
     : BrochureGigabull2025;
 
-  const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
+  const brochureName = (documents?.brochureName && !documents.brochureName.startsWith('Google Drive File'))
+    ? documents.brochureName
+    : 'Brochure Gigabull.pdf';
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>

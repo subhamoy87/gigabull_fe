@@ -15,7 +15,9 @@ const CertificatePage = () => {
     ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
     : RCMCCertificate;
 
-  const certName = documents?.certificateName || 'RCMC Certificate.pdf';
+  const certName = (documents?.certificateName && !documents.certificateName.startsWith('Google Drive File'))
+    ? documents.certificateName
+    : 'RCMC Certificate.pdf';
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>
