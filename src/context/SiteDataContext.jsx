@@ -377,12 +377,24 @@ export const SiteDataProvider = ({ children }) => {
   const updateCompany = (updates) => setCompany((prev) => ({ ...prev, ...updates }));
   const updateDocuments = async (updates) => {
     try {
-      if (updates.certificateUrl) await setIDBItem('certificateUrl', updates.certificateUrl);
-      if (updates.certificateName) await setIDBItem('certificateName', updates.certificateName);
-      if (updates.brochureUrl) await setIDBItem('brochureUrl', updates.brochureUrl);
-      if (updates.brochureName) await setIDBItem('brochureName', updates.brochureName);
+      if (updates.certificateUrl) {
+        await deleteIDBItem('certificateUrl');
+        await setIDBItem('certificateUrl', updates.certificateUrl);
+      }
+      if (updates.certificateName) {
+        await deleteIDBItem('certificateName');
+        await setIDBItem('certificateName', updates.certificateName);
+      }
+      if (updates.brochureUrl) {
+        await deleteIDBItem('brochureUrl');
+        await setIDBItem('brochureUrl', updates.brochureUrl);
+      }
+      if (updates.brochureName) {
+        await deleteIDBItem('brochureName');
+        await setIDBItem('brochureName', updates.brochureName);
+      }
     } catch (err) {
-      console.warn('IDB save note:', err);
+      console.warn('IDB purge and save note:', err);
     }
 
     setDocuments((prev) => {
