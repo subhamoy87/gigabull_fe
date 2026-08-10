@@ -79,15 +79,8 @@ export const SiteDataProvider = ({ children }) => {
     }
   });
 
-  // 3. Contact State
-  const [contact, setContact] = useState(() => {
-    try {
-      const saved = localStorage.getItem('gigabull_contact');
-      return saved ? JSON.parse(saved) : DEFAULT_CONTACT;
-    } catch (e) {
-      return DEFAULT_CONTACT;
-    }
-  });
+  // 3. Contact State (Static frontend default contact info)
+  const contact = DEFAULT_CONTACT;
 
   // 5. Documents State (PDFs for Certificate and Brochure)
   const [documents, setDocuments] = useState(() => {
@@ -134,6 +127,7 @@ export const SiteDataProvider = ({ children }) => {
     localStorage.removeItem('gigabull_admin_password');
     localStorage.removeItem('gigabull_admin_password_hash');
     localStorage.removeItem('gigabull_page_content');
+    localStorage.removeItem('gigabull_contact');
   }, []);
 
   useEffect(() => {
@@ -151,14 +145,6 @@ export const SiteDataProvider = ({ children }) => {
       console.error('Error saving company data', e);
     }
   }, [company]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('gigabull_contact', JSON.stringify(contact));
-    } catch (e) {
-      console.error('Error saving contact data', e);
-    }
-  }, [contact]);
 
   useEffect(() => {
     try {
@@ -343,9 +329,7 @@ export const SiteDataProvider = ({ children }) => {
     }
   };
 
-  // Updates for company, contact, documents
   const updateCompany = (updates) => setCompany((prev) => ({ ...prev, ...updates }));
-  const updateContact = (updates) => setContact((prev) => ({ ...prev, ...updates }));
   const updateDocuments = async (updates) => {
     setDocuments((prev) => {
       const nextDocs = { ...prev, ...updates };
@@ -360,7 +344,7 @@ export const SiteDataProvider = ({ children }) => {
 
   // Backup & Reset
   const resetToDefaults = () => {
-    if (window.confirm('Are you sure you want to reset all site data, products, and contact details to defaults?')) {
+    if (window.confirm('Are you sure you want to reset all site data, products, and documents to defaults?')) {
       localStorage.removeItem('gigabull_products');
       localStorage.removeItem('gigabull_company');
       localStorage.removeItem('gigabull_contact');
@@ -369,7 +353,6 @@ export const SiteDataProvider = ({ children }) => {
       localStorage.removeItem('gigabull_admin_password_hash');
       setProductsData(defaultProductsData);
       setCompany(DEFAULT_COMPANY);
-      setContact(DEFAULT_CONTACT);
       setDocuments(DEFAULT_DOCUMENTS);
       alert('Site data reset to original defaults!');
     }
@@ -397,7 +380,6 @@ export const SiteDataProvider = ({ children }) => {
       const parsed = JSON.parse(jsonString);
       if (parsed.productsData) setProductsData(parsed.productsData);
       if (parsed.company) setCompany(parsed.company);
-      if (parsed.contact) setContact(parsed.contact);
       if (parsed.documents) setDocuments(parsed.documents);
       alert('Data imported successfully!');
       return true;
@@ -422,7 +404,6 @@ export const SiteDataProvider = ({ children }) => {
         addProduct,
         deleteProduct,
         updateCompany,
-        updateContact,
         updateDocuments,
         resetToDefaults,
         exportData,

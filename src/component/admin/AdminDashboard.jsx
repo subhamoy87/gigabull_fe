@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Package,
   Image as ImageIcon,
-  PhoneCall,
   FileText,
   Settings,
   LogOut,
@@ -42,7 +41,6 @@ const AdminDashboard = () => {
     addProduct,
     deleteProduct,
     updateCompany,
-    updateContact,
     updateDocuments,
     resetToDefaults,
     exportData,
@@ -448,7 +446,6 @@ const AdminDashboard = () => {
               { id: 'overview', label: 'Overview', icon: LayoutDashboard },
               { id: 'products', label: 'Product Manager', icon: Package, badge: totalProductsCount },
               { id: 'branding', label: 'Branding & Logo', icon: ImageIcon },
-              { id: 'contact', label: 'Contact Details', icon: PhoneCall },
               { id: 'settings', label: 'Security & Backup', icon: Settings },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -552,7 +549,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Quick Action Panels */}
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='grid grid-cols-1 gap-6'>
               <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4'>
                 <h3 className='font-bold text-lg text-white flex items-center gap-2'>
                   <ImageIcon className='w-5 h-5 text-amber-400' /> Company Logo & Branding
@@ -575,23 +572,6 @@ const AdminDashboard = () => {
                   className='py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition cursor-pointer'
                 >
                   Manage Logo & Branding &rarr;
-                </button>
-              </div>
-
-              <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4'>
-                <h3 className='font-bold text-lg text-white flex items-center gap-2'>
-                  <PhoneCall className='w-5 h-5 text-amber-400' /> Reach Us Info
-                </h3>
-                <div className='bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-1.5 text-xs text-slate-300'>
-                  <div><strong className='text-slate-400'>Email:</strong> {contact.email}</div>
-                  <div><strong className='text-slate-400'>Phone:</strong> {contact.phone}</div>
-                  <div className='truncate'><strong className='text-slate-400'>Address:</strong> {contact.address}</div>
-                </div>
-                <button
-                  onClick={() => setActiveTab('contact')}
-                  className='py-2 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition cursor-pointer'
-                >
-                  Edit Contact Info &rarr;
                 </button>
               </div>
             </div>
@@ -912,111 +892,6 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
-
-        {/* TAB 4: CONTACT & REACH US */}
-        {activeTab === 'contact' && (
-          <div className='space-y-6 max-w-3xl'>
-            <div>
-              <h1 className='text-3xl font-bold text-white tracking-tight'>Contact & Reach Us Details</h1>
-              <p className='text-slate-400 text-sm mt-1'>
-                Update primary support email, phone numbers, office address, and social channels.
-              </p>
-            </div>
-
-            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl'>
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                <div className='space-y-2'>
-                  <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
-                    Support Email ID
-                  </label>
-                  <input
-                    type='email'
-                    value={contact.email || ''}
-                    onChange={(e) => updateContact({ email: e.target.value })}
-                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500'
-                  />
-                </div>
-
-                <div className='space-y-2'>
-                  <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
-                    Contact Phone Number
-                  </label>
-                  <input
-                    type='text'
-                    value={contact.phone || ''}
-                    onChange={(e) => updateContact({ phone: e.target.value })}
-                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500'
-                  />
-                </div>
-              </div>
-
-              <div className='space-y-2'>
-                <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
-                  WhatsApp Contact Number
-                </label>
-                <input
-                  type='text'
-                  value={contact.whatsapp || ''}
-                  onChange={(e) => updateContact({ whatsapp: e.target.value })}
-                  className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500'
-                />
-              </div>
-
-              <div className='space-y-2'>
-                <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
-                  Full Office / Registered Address
-                </label>
-                <textarea
-                  rows={3}
-                  value={contact.address || ''}
-                  onChange={(e) => updateContact({ address: e.target.value })}
-                  className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500'
-                />
-              </div>
-
-              {/* Social Links */}
-              <div className='pt-4 border-t border-slate-800 space-y-4'>
-                <h3 className='text-xs font-semibold uppercase tracking-wider text-amber-400'>
-                  Social Media Links
-                </h3>
-
-                <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-                  <div className='space-y-1.5'>
-                    <label className='text-xs text-slate-400'>Instagram</label>
-                    <input
-                      type='text'
-                      value={contact.instagram || ''}
-                      onChange={(e) => updateContact({ instagram: e.target.value })}
-                      className='w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500'
-                    />
-                  </div>
-
-                  <div className='space-y-1.5'>
-                    <label className='text-xs text-slate-400'>Facebook</label>
-                    <input
-                      type='text'
-                      value={contact.facebook || ''}
-                      onChange={(e) => updateContact({ facebook: e.target.value })}
-                      className='w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500'
-                    />
-                  </div>
-
-                  <div className='space-y-1.5'>
-                    <label className='text-xs text-slate-400'>LinkedIn</label>
-                    <input
-                      type='text'
-                      value={contact.linkedin || ''}
-                      onChange={(e) => updateContact({ linkedin: e.target.value })}
-                      className='w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-amber-500'
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-
 
         {/* TAB 6: SECURITY & BACKUP */}
         {activeTab === 'settings' && (
