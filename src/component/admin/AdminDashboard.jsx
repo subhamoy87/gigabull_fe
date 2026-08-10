@@ -349,7 +349,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Handle PDF Document Upload (Certificate / Brochure) and overwrite file on disk
+  // Handle PDF Document Upload (Certificate / Brochure)
   const handlePdfFileUpload = (e, docKey, targetFilename) => {
     const file = e.target.files[0];
     if (file) {
@@ -360,25 +360,8 @@ const AdminDashboard = () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const fileData = reader.result;
-        // 1. Update dynamic state
-        updateDocuments({ [docKey]: fileData });
-
-        // 2. Overwrite file on disk in src/assets/pdfs/<targetFilename>
-        try {
-          const res = await fetch('/api/upload-pdf', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ filename: targetFilename, fileData }),
-          });
-          const data = await res.json();
-          if (data.success) {
-            alert(`File successfully uploaded and saved as "${targetFilename}" inside src/assets/pdfs/!`);
-          } else {
-            console.error('PDF upload error:', data.error);
-          }
-        } catch (err) {
-          console.warn('Dev API upload note:', err);
-        }
+        await updateDocuments({ [docKey]: fileData });
+        alert(`PDF document updated successfully!`);
       };
       reader.readAsDataURL(file);
     }

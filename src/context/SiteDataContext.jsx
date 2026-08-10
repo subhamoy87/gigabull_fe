@@ -3,7 +3,7 @@ import defaultProductsData from '../data/Products.js';
 import { ADMIN_CONFIG } from '../data/AdminConfig.js';
 import { logoWithTextImg } from '../assets/shared';
 import { RCMCCertificate, BrochureGigabull2025 } from '../assets/pdfs';
-import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL, PRODUCTS_API_URL, SAVE_PRODUCTS_API_URL } from '../config/config.js';
+import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL, PRODUCTS_API_URL, SAVE_PRODUCTS_API_URL, DOCUMENTS_API_URL, SAVE_DOCUMENTS_API_URL } from '../config/config.js';
 
 const SiteDataContext = createContext();
 
