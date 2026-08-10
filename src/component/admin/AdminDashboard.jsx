@@ -448,7 +448,7 @@ const AdminDashboard = () => {
               { id: 'overview', label: 'Overview', icon: LayoutDashboard },
               { id: 'products', label: 'Product Manager', icon: Package, badge: totalProductsCount },
               { id: 'branding', label: 'Branding & Logo', icon: ImageIcon },
-              { id: 'settings', label: 'Security & Backup', icon: Settings },
+              { id: 'settings', label: 'Change Password', icon: Settings },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
