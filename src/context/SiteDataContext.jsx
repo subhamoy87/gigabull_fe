@@ -165,12 +165,12 @@ export const SiteDataProvider = ({ children }) => {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        return true;
+        return data;
       }
     } catch (err) {
       console.warn('Error updating admin password on server:', err);
     }
-    return false;
+    return { success: false };
   };
 
   const saveProductsToDisk = async (newProductsData) => {

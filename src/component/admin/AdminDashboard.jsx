@@ -395,9 +395,13 @@ const AdminDashboard = () => {
       setPassMessage({ type: 'error', text: 'Passwords do not match.' });
       return;
     }
-    await changeAdminPassword(passForm.newPass);
-    setPassMessage({ type: 'success', text: 'Admin password updated successfully!' });
-    setPassForm({ newPass: '', confirmPass: '' });
+    const res = await changeAdminPassword(passForm.newPass);
+    if (res && res.success) {
+      setPassMessage({ type: 'success', text: res.message || 'Admin password updated successfully!' });
+      setPassForm({ newPass: '', confirmPass: '' });
+    } else {
+      setPassMessage({ type: 'error', text: 'Failed to update admin password on server.' });
+    }
   };
 
   // Backup Import Handler
