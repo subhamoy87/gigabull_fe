@@ -1,3 +1,4 @@
+// Admin Dashboard Component
 import React, { useState } from 'react';
 import { useSiteData } from '../../context/SiteDataContext';
 import { convertImageToWebP } from '../../lib/utils';
