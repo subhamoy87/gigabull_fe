@@ -1,92 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
-import { SERVE_CERTIFICATE_API_URL } from '../config/config';
-import { getIDBItem } from '../utils/idbStorage';
 
 const CertificatePage = () => {
   const { documents } = useSiteData();
-  const [blobUrl, setBlobUrl] = useState(null);
-  const [certName, setCertName] = useState('RCMC Certificate.pdf');
+  const gdriveId = documents?.certificateGDriveId;
 
-  useEffect(() => {
-    let active = true;
-    let createdUrl = null;
+  const pdfViewUrl = gdriveId
+    ? `https://drive.google.com/file/d/${gdriveId}/preview`
+    : RCMCCertificate;
 
-    const resolvePdf = async () => {
-      // 1. Google Drive Integration (Primary Priority if GDrive ID present)
-      const gdriveId = documents?.certificateGDriveId;
-      if (gdriveId) {
-        if (documents?.certificateName) setCertName(documents.certificateName);
-        if (active) setBlobUrl(`https://drive.google.com/file/d/${gdriveId}/preview`);
-        return;
-      }
+  const downloadUrl = gdriveId
+    ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
+    : RCMCCertificate;
 
-      // 2. Base64 Upload in State or IndexedDB
-      let certData = documents?.certificateUrl;
-      let name = documents?.certificateName;
-
-      if (!certData || !certData.startsWith('data:')) {
-        const idbCert = await getIDBItem('certificateUrl');
-        const idbName = await getIDBItem('certificateName');
-        if (idbCert) certData = idbCert;
-        if (idbName) name = idbName;
-      }
-
-      if (name) setCertName(name);
-
-      // If we have a base64 string, convert to Blob URL
-      if (certData && typeof certData === 'string' && certData.startsWith('data:application/pdf;base64,')) {
-        try {
-          const base64Data = certData.replace(/^data:application\/pdf;base64,/, '').trim().replace(/[\r\n\s]/g, '');
-          const byteCharacters = atob(base64Data);
-          const byteArray = new Uint8Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteArray[i] = byteCharacters.charCodeAt(i);
-          }
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-          createdUrl = URL.createObjectURL(blob);
-          if (active) setBlobUrl(createdUrl);
-          return;
-        } catch (err) {
-          console.error('Error converting base64 PDF to blob:', err);
-        }
-      }
-
-      // 3. Second priority: Fetch custom uploaded PDF from server
-      try {
-        const res = await fetch(`${SERVE_CERTIFICATE_API_URL}?t=${Date.now()}`, { cache: 'no-store' });
-        if (res.ok) {
-          const blob = await res.blob();
-          if (blob.type === 'application/pdf' || blob.size > 100) {
-            createdUrl = URL.createObjectURL(blob);
-            if (active) setBlobUrl(createdUrl);
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn('Server PDF fetch note:', err);
-      }
-
-      // 4. Fallback: Default RCMCCertificate asset
-      if (active) setBlobUrl(RCMCCertificate);
-    };
-
-    resolvePdf();
-
-    return () => {
-      active = false;
-      if (createdUrl && createdUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(createdUrl);
-      }
-    };
-  }, [documents?.certificateUrl, documents?.certificateName, documents?.certificateGDriveId]);
-
-  const pdfViewUrl = blobUrl || RCMCCertificate;
-  const downloadUrl = documents?.certificateGDriveId
-    ? `https://drive.google.com/uc?export=download&id=${documents.certificateGDriveId}`
-    : pdfViewUrl;
+  const certName = documents?.certificateName || 'RCMC Certificate.pdf';
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../context/SiteDataContext';
 import { convertImageToWebP } from '../../lib/utils';
-import { UPLOAD_CERTIFICATE_API_URL, UPLOAD_BROCHURE_API_URL } from '../../config/config';
+
 import {
   LayoutDashboard,
   Package,
@@ -350,39 +350,7 @@ const AdminDashboard = () => {
     }
   };
 
-  // Handle PDF Document Upload (Certificate / Brochure) preserving original filename
-  const handlePdfFileUpload = (e, docKey, docNameKey) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Please select a valid PDF file (.pdf)');
-        return;
-      }
-      const originalFileName = file.name;
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const fileData = reader.result;
-        await updateDocuments({
-          [docKey]: fileData,
-          [docNameKey]: originalFileName,
-        });
 
-        const uploadUrl = docKey === 'certificateUrl' ? UPLOAD_CERTIFICATE_API_URL : UPLOAD_BROCHURE_API_URL;
-        try {
-          await fetch(uploadUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ pdfBase64: fileData, fileName: originalFileName }),
-          });
-        } catch (err) {
-          console.warn('Backend PDF upload note:', err);
-        }
-
-        alert(`Document "${originalFileName}" uploaded and saved successfully!`);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const extractGDriveId = (urlOrId) => {
     if (!urlOrId || typeof urlOrId !== 'string') return '';
@@ -926,8 +894,8 @@ const AdminDashboard = () => {
 
             <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl'>
               <h3 className='font-bold text-lg text-amber-400 flex items-center justify-between'>
-                <span>PDF Documents Manager</span>
-                <span className='text-xs text-slate-400 font-normal'>Google Drive Link or File Upload</span>
+                <span>Google Drive PDF Documents Manager</span>
+                <span className='text-xs text-slate-400 font-normal'>Paste Google Drive Share Link or File ID</span>
               </h3>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
@@ -939,27 +907,30 @@ const AdminDashboard = () => {
                     </span>
                     <a
                       href='/certificate'
-                      onClick={(e) => handlePreviewPdf(e, documents?.certificateUrl, '/certificate')}
                       target='_blank'
                       rel='noreferrer'
                       className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
                     >
-                      <ExternalLink className='w-3.5 h-3.5' /> Preview
+                      <ExternalLink className='w-3.5 h-3.5' /> Preview Page
                     </a>
                   </div>
                   <p className='text-xs text-slate-400'>
-                    Current File: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'RCMC Certificate.pdf'}</code>
+                    Current Document: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'Default Certificate'}</code>
                   </p>
+                  {documents?.certificateGDriveId && (
+                    <p className='text-[11px] text-emerald-400 font-mono bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20 truncate'>
+                      Active GDrive ID: {documents.certificateGDriveId}
+                    </p>
+                  )}
 
-                  {/* Method 1: Google Drive Share Link */}
                   <div className='pt-2 border-t border-slate-800 space-y-2'>
                     <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider'>
-                      Option 1: Google Drive Share Link
+                      Set Google Drive Link / File ID
                     </label>
                     <div className='flex gap-2'>
                       <input
                         type='text'
-                        placeholder='Paste GDrive Share Link or File ID'
+                        placeholder='Paste GDrive Link or File ID'
                         value={gdriveForm.certLink}
                         onChange={(e) => setGdriveForm((p) => ({ ...p, certLink: e.target.value }))}
                         className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
@@ -967,27 +938,11 @@ const AdminDashboard = () => {
                       <button
                         type='button'
                         onClick={(e) => handleSaveGDrive(e, 'certificate')}
-                        className='px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
+                        className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
                       >
-                        Save
+                        Save Link
                       </button>
                     </div>
-                  </div>
-
-                  {/* Method 2: Direct PDF Upload */}
-                  <div className='pt-2 border-t border-slate-800 space-y-2'>
-                    <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider'>
-                      Option 2: Direct File Upload
-                    </label>
-                    <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
-                      <Upload className='w-4 h-4' /> Upload New Certificate PDF
-                      <input
-                        type='file'
-                        accept='.pdf,application/pdf'
-                        onChange={(e) => handlePdfFileUpload(e, 'certificateUrl', 'certificateName')}
-                        className='hidden'
-                      />
-                    </label>
                   </div>
                 </div>
 
@@ -999,27 +954,30 @@ const AdminDashboard = () => {
                     </span>
                     <a
                       href='/brochure'
-                      onClick={(e) => handlePreviewPdf(e, documents?.brochureUrl, '/brochure')}
                       target='_blank'
                       rel='noreferrer'
                       className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
                     >
-                      <ExternalLink className='w-3.5 h-3.5' /> Preview
+                      <ExternalLink className='w-3.5 h-3.5' /> Preview Page
                     </a>
                   </div>
                   <p className='text-xs text-slate-400'>
-                    Current File: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Brochure Gigabull.pdf'}</code>
+                    Current Document: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Default Brochure'}</code>
                   </p>
+                  {documents?.brochureGDriveId && (
+                    <p className='text-[11px] text-emerald-400 font-mono bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20 truncate'>
+                      Active GDrive ID: {documents.brochureGDriveId}
+                    </p>
+                  )}
 
-                  {/* Method 1: Google Drive Share Link */}
                   <div className='pt-2 border-t border-slate-800 space-y-2'>
                     <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider'>
-                      Option 1: Google Drive Share Link
+                      Set Google Drive Link / File ID
                     </label>
                     <div className='flex gap-2'>
                       <input
                         type='text'
-                        placeholder='Paste GDrive Share Link or File ID'
+                        placeholder='Paste GDrive Link or File ID'
                         value={gdriveForm.brochureLink}
                         onChange={(e) => setGdriveForm((p) => ({ ...p, brochureLink: e.target.value }))}
                         className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
@@ -1027,27 +985,11 @@ const AdminDashboard = () => {
                       <button
                         type='button'
                         onClick={(e) => handleSaveGDrive(e, 'brochure')}
-                        className='px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
+                        className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
                       >
-                        Save
+                        Save Link
                       </button>
                     </div>
-                  </div>
-
-                  {/* Method 2: Direct PDF Upload */}
-                  <div className='pt-2 border-t border-slate-800 space-y-2'>
-                    <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider'>
-                      Option 2: Direct File Upload
-                    </label>
-                    <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
-                      <Upload className='w-4 h-4' /> Upload New Brochure PDF
-                      <input
-                        type='file'
-                        accept='.pdf,application/pdf'
-                        onChange={(e) => handlePdfFileUpload(e, 'brochureUrl', 'brochureName')}
-                        className='hidden'
-                      />
-                    </label>
                   </div>
                 </div>
               </div>

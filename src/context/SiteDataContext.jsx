@@ -19,10 +19,8 @@ const hashPassword = async (plainPassword) => {
 
 
 const DEFAULT_DOCUMENTS = {
-  certificateUrl: RCMCCertificate,
   certificateName: 'RCMC Certificate.pdf',
   certificateGDriveId: '',
-  brochureUrl: BrochureGigabull2025,
   brochureName: 'Brochure Gigabull.pdf',
   brochureGDriveId: '',
 };
@@ -46,37 +44,27 @@ const DEFAULT_CONTACT = {
 };
 
 export const SiteDataProvider = ({ children }) => {
-  // 1. Products State (Loads from localStorage, syncs with Backend Server API)
+  // 1. Products Data State (Pre-populated catalog + Admin CRUD overrides)
   const [productsData, setProductsData] = useState(() => {
     try {
-      const saved = localStorage.getItem('gigabull_products');
-      return saved ? JSON.parse(saved) : defaultProductsData;
+      const storedProducts = localStorage.getItem('gigabull_products');
+      if (storedProducts) {
+        const parsed = JSON.parse(storedProducts);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+      return defaultProductsData;
     } catch (e) {
       return defaultProductsData;
     }
   });
 
-  // Fetch server products on component mount
-  useEffect(() => {
-    const fetchServerProducts = async () => {
-      try {
-        const res = await fetch(PRODUCTS_API_URL);
-        const data = await res.json();
-        if (res.ok && data.success && Array.isArray(data.productsData) && data.productsData.length > 0) {
-          setProductsData(data.productsData);
-        }
-      } catch (err) {
-        console.warn('Could not fetch products from server, using local fallback:', err);
-      }
-    };
-    fetchServerProducts();
-  }, []);
-
-  // 2. Company State
+  // 2. Company Info State
   const [company, setCompany] = useState(() => {
     try {
-      const saved = localStorage.getItem('gigabull_company');
-      return saved ? JSON.parse(saved) : DEFAULT_COMPANY;
+      const storedCompany = localStorage.getItem('gigabull_company');
+      return storedCompany ? JSON.parse(storedCompany) : DEFAULT_COMPANY;
     } catch (e) {
       return DEFAULT_COMPANY;
     }
@@ -92,20 +80,16 @@ export const SiteDataProvider = ({ children }) => {
   useEffect(() => {
     const loadIDBDocuments = async () => {
       try {
-        const cert = await getIDBItem('certificateUrl');
         const certName = await getIDBItem('certificateName');
         const certGDrive = await getIDBItem('certificateGDriveId');
-        const brochure = await getIDBItem('brochureUrl');
         const brochureName = await getIDBItem('brochureName');
         const brochureGDrive = await getIDBItem('brochureGDriveId');
 
-        if (cert || brochure || certGDrive || brochureGDrive) {
+        if (certGDrive || brochureGDrive || certName || brochureName) {
           setDocuments((prev) => ({
             ...prev,
-            certificateUrl: cert || prev.certificateUrl,
             certificateName: certName || prev.certificateName,
             certificateGDriveId: certGDrive || prev.certificateGDriveId,
-            brochureUrl: brochure || prev.brochureUrl,
             brochureName: brochureName || prev.brochureName,
             brochureGDriveId: brochureGDrive || prev.brochureGDriveId,
           }));
@@ -127,8 +111,6 @@ export const SiteDataProvider = ({ children }) => {
           setDocuments((prev) => ({
             ...prev,
             ...data.documents,
-            certificateUrl: prev.certificateUrl?.startsWith('data:') ? prev.certificateUrl : (data.documents.certificateUrl || prev.certificateUrl),
-            brochureUrl: prev.brochureUrl?.startsWith('data:') ? prev.brochureUrl : (data.documents.brochureUrl || prev.brochureUrl),
           }));
         }
       } catch (err) {
@@ -171,17 +153,11 @@ export const SiteDataProvider = ({ children }) => {
   }, [company]);
 
   useEffect(() => {
-    if (documents.certificateUrl && documents.certificateUrl.startsWith('data:')) {
-      setIDBItem('certificateUrl', documents.certificateUrl);
-    }
     if (documents.certificateName) {
       setIDBItem('certificateName', documents.certificateName);
     }
     if (documents.certificateGDriveId !== undefined) {
       setIDBItem('certificateGDriveId', documents.certificateGDriveId);
-    }
-    if (documents.brochureUrl && documents.brochureUrl.startsWith('data:')) {
-      setIDBItem('brochureUrl', documents.brochureUrl);
     }
     if (documents.brochureName) {
       setIDBItem('brochureName', documents.brochureName);

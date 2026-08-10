@@ -1,92 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
-import { SERVE_BROCHURE_API_URL } from '../config/config';
-import { getIDBItem } from '../utils/idbStorage';
 
 const BrochurePage = () => {
   const { documents } = useSiteData();
-  const [blobUrl, setBlobUrl] = useState(null);
-  const [brochureName, setBrochureName] = useState('Brochure Gigabull.pdf');
+  const gdriveId = documents?.brochureGDriveId;
 
-  useEffect(() => {
-    let active = true;
-    let createdUrl = null;
+  const pdfViewUrl = gdriveId
+    ? `https://drive.google.com/file/d/${gdriveId}/preview`
+    : BrochureGigabull2025;
 
-    const resolvePdf = async () => {
-      // 1. Google Drive Integration (Primary Priority if GDrive ID present)
-      const gdriveId = documents?.brochureGDriveId;
-      if (gdriveId) {
-        if (documents?.brochureName) setBrochureName(documents.brochureName);
-        if (active) setBlobUrl(`https://drive.google.com/file/d/${gdriveId}/preview`);
-        return;
-      }
+  const downloadUrl = gdriveId
+    ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
+    : BrochureGigabull2025;
 
-      // 2. Base64 Upload in State or IndexedDB
-      let brochData = documents?.brochureUrl;
-      let name = documents?.brochureName;
-
-      if (!brochData || !brochData.startsWith('data:')) {
-        const idbBroch = await getIDBItem('brochureUrl');
-        const idbName = await getIDBItem('brochureName');
-        if (idbBroch) brochData = idbBroch;
-        if (idbName) name = idbName;
-      }
-
-      if (name) setBrochureName(name);
-
-      // If we have a base64 string, convert to Blob URL
-      if (brochData && typeof brochData === 'string' && brochData.startsWith('data:application/pdf;base64,')) {
-        try {
-          const base64Data = brochData.replace(/^data:application\/pdf;base64,/, '').trim().replace(/[\r\n\s]/g, '');
-          const byteCharacters = atob(base64Data);
-          const byteArray = new Uint8Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteArray[i] = byteCharacters.charCodeAt(i);
-          }
-          const blob = new Blob([byteArray], { type: 'application/pdf' });
-          createdUrl = URL.createObjectURL(blob);
-          if (active) setBlobUrl(createdUrl);
-          return;
-        } catch (err) {
-          console.error('Error converting base64 brochure to blob:', err);
-        }
-      }
-
-      // 3. Second priority: Fetch custom uploaded PDF from server
-      try {
-        const res = await fetch(`${SERVE_BROCHURE_API_URL}?t=${Date.now()}`, { cache: 'no-store' });
-        if (res.ok) {
-          const blob = await res.blob();
-          if (blob.type === 'application/pdf' || blob.size > 100) {
-            createdUrl = URL.createObjectURL(blob);
-            if (active) setBlobUrl(createdUrl);
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn('Server Brochure fetch note:', err);
-      }
-
-      // 4. Fallback: Default BrochureGigabull2025 asset
-      if (active) setBlobUrl(BrochureGigabull2025);
-    };
-
-    resolvePdf();
-
-    return () => {
-      active = false;
-      if (createdUrl && createdUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(createdUrl);
-      }
-    };
-  }, [documents?.brochureUrl, documents?.brochureName, documents?.brochureGDriveId]);
-
-  const pdfViewUrl = blobUrl || BrochureGigabull2025;
-  const downloadUrl = documents?.brochureGDriveId
-    ? `https://drive.google.com/uc?export=download&id=${documents.brochureGDriveId}`
-    : pdfViewUrl;
+  const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
