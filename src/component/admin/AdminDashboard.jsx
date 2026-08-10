@@ -476,6 +476,7 @@ const AdminDashboard = () => {
               { id: 'overview', label: 'Overview', icon: LayoutDashboard },
               { id: 'products', label: 'Product Manager', icon: Package, badge: totalProductsCount },
               { id: 'branding', label: 'Branding & Logo', icon: ImageIcon },
+              { id: 'documents', label: 'Certificate & Brochure Manager', icon: FileText },
               { id: 'settings', label: 'Change Password', icon: Settings, disabled: true },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -845,74 +846,85 @@ const AdminDashboard = () => {
                   className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500'
                 />
               </div>
+            </div>
+          </div>
+        )}
 
-              {/* Official PDF Documents Manager (RCMC Certificate & Product Brochure) */}
-              <div className='pt-6 border-t border-slate-800 space-y-4'>
-                <h3 className='font-bold text-lg text-amber-400 flex items-center justify-between'>
-                  <span>PDF Documents Manager</span>
-                  <span className='text-xs text-slate-400 font-normal'>RCMC Certificate & Product Brochure</span>
-                </h3>
+        {/* TAB 4: CERTIFICATE & BROCHURE MANAGER */}
+        {activeTab === 'documents' && (
+          <div className='space-y-6 max-w-4xl'>
+            <div>
+              <h1 className='text-3xl font-bold text-white tracking-tight'>Certificate & Brochure Manager</h1>
+              <p className='text-slate-400 text-sm mt-1'>
+                Upload and manage RCMC Certificate and Product Brochure PDFs for storefront preview and downloads.
+              </p>
+            </div>
 
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  {/* RCMC Certificate Upload */}
-                  <div className='bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3'>
-                    <div className='flex items-center justify-between'>
-                      <span className='text-xs font-bold text-white uppercase tracking-wider'>
-                        RCMC Certificate PDF
-                      </span>
-                      <a
-                        href='/certificate'
-                        onClick={(e) => handlePreviewPdf(e, documents?.certificateUrl, '/certificate')}
-                        target='_blank'
-                        rel='noreferrer'
-                        className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
-                      >
-                        <ExternalLink className='w-3.5 h-3.5' /> Preview
-                      </a>
-                    </div>
-                    <p className='text-xs text-slate-400'>
-                      Current File: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'RCMC Certificate.pdf'}</code>
-                    </p>
-                    <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
-                      <Upload className='w-4 h-4' /> Upload New Certificate PDF
-                      <input
-                        type='file'
-                        accept='.pdf,application/pdf'
-                        onChange={(e) => handlePdfFileUpload(e, 'certificateUrl', 'certificateName')}
-                        className='hidden'
-                      />
-                    </label>
+            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl'>
+              <h3 className='font-bold text-lg text-amber-400 flex items-center justify-between'>
+                <span>PDF Documents Manager</span>
+                <span className='text-xs text-slate-400 font-normal'>RCMC Certificate & Product Brochure</span>
+              </h3>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                {/* RCMC Certificate Upload */}
+                <div className='bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-xs font-bold text-white uppercase tracking-wider'>
+                      RCMC Certificate PDF
+                    </span>
+                    <a
+                      href='/certificate'
+                      onClick={(e) => handlePreviewPdf(e, documents?.certificateUrl, '/certificate')}
+                      target='_blank'
+                      rel='noreferrer'
+                      className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
+                    >
+                      <ExternalLink className='w-3.5 h-3.5' /> Preview
+                    </a>
                   </div>
+                  <p className='text-xs text-slate-400'>
+                    Current File: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'RCMC Certificate.pdf'}</code>
+                  </p>
+                  <label className='inline-flex items-center gap-2 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
+                    <Upload className='w-4 h-4' /> Upload New Certificate PDF
+                    <input
+                      type='file'
+                      accept='.pdf,application/pdf'
+                      onChange={(e) => handlePdfFileUpload(e, 'certificateUrl', 'certificateName')}
+                      className='hidden'
+                    />
+                  </label>
+                </div>
 
-                  {/* Product Brochure Upload */}
-                  <div className='bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3'>
-                    <div className='flex items-center justify-between'>
-                      <span className='text-xs font-bold text-white uppercase tracking-wider'>
-                        Product Brochure PDF
-                      </span>
-                      <a
-                        href='/brochure'
-                        onClick={(e) => handlePreviewPdf(e, documents?.brochureUrl, '/brochure')}
-                        target='_blank'
-                        rel='noreferrer'
-                        className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
-                      >
-                        <ExternalLink className='w-3.5 h-3.5' /> Preview
-                      </a>
-                    </div>
-                    <p className='text-xs text-slate-400'>
-                      Current File: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Brochure Gigabull.pdf'}</code>
-                    </p>
-                    <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
-                      <Upload className='w-4 h-4' /> Upload New Brochure PDF
-                      <input
-                        type='file'
-                        accept='.pdf,application/pdf'
-                        onChange={(e) => handlePdfFileUpload(e, 'brochureUrl', 'brochureName')}
-                        className='hidden'
-                      />
-                    </label>
+                {/* Product Brochure Upload */}
+                <div className='bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4'>
+                  <div className='flex items-center justify-between'>
+                    <span className='text-xs font-bold text-white uppercase tracking-wider'>
+                      Product Brochure PDF
+                    </span>
+                    <a
+                      href='/brochure'
+                      onClick={(e) => handlePreviewPdf(e, documents?.brochureUrl, '/brochure')}
+                      target='_blank'
+                      rel='noreferrer'
+                      className='text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer'
+                    >
+                      <ExternalLink className='w-3.5 h-3.5' /> Preview
+                    </a>
                   </div>
+                  <p className='text-xs text-slate-400'>
+                    Current File: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Brochure Gigabull.pdf'}</code>
+                  </p>
+                  <label className='inline-flex items-center gap-2 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
+                    <Upload className='w-4 h-4' /> Upload New Brochure PDF
+                    <input
+                      type='file'
+                      accept='.pdf,application/pdf'
+                      onChange={(e) => handlePdfFileUpload(e, 'brochureUrl', 'brochureName')}
+                      className='hidden'
+                    />
+                  </label>
                 </div>
               </div>
             </div>
