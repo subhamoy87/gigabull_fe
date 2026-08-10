@@ -15,7 +15,15 @@ const BrochurePage = () => {
     let createdUrl = null;
 
     const resolvePdf = async () => {
-      // 1. First priority: Check newly uploaded base64 PDF in state or IndexedDB
+      // 1. Google Drive Integration (Primary Priority if GDrive ID present)
+      const gdriveId = documents?.brochureGDriveId;
+      if (gdriveId) {
+        if (documents?.brochureName) setBrochureName(documents.brochureName);
+        if (active) setBlobUrl(`https://drive.google.com/file/d/${gdriveId}/preview`);
+        return;
+      }
+
+      // 2. Base64 Upload in State or IndexedDB
       let brochData = documents?.brochureUrl;
       let name = documents?.brochureName;
 
@@ -46,7 +54,7 @@ const BrochurePage = () => {
         }
       }
 
-      // 2. Second priority: Fetch custom uploaded PDF from server
+      // 3. Second priority: Fetch custom uploaded PDF from server
       try {
         const res = await fetch(`${SERVE_BROCHURE_API_URL}?t=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
@@ -61,7 +69,7 @@ const BrochurePage = () => {
         console.warn('Server Brochure fetch note:', err);
       }
 
-      // 3. Fallback: Default BrochureGigabull2025 asset
+      // 4. Fallback: Default BrochureGigabull2025 asset
       if (active) setBlobUrl(BrochureGigabull2025);
     };
 
@@ -73,9 +81,12 @@ const BrochurePage = () => {
         URL.revokeObjectURL(createdUrl);
       }
     };
-  }, [documents?.brochureUrl, documents?.brochureName]);
+  }, [documents?.brochureUrl, documents?.brochureName, documents?.brochureGDriveId]);
 
   const pdfViewUrl = blobUrl || BrochureGigabull2025;
+  const downloadUrl = documents?.brochureGDriveId
+    ? `https://drive.google.com/uc?export=download&id=${documents.brochureGDriveId}`
+    : pdfViewUrl;
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -123,7 +134,7 @@ const BrochurePage = () => {
               </div>
             </div>
             <a
-              href={pdfViewUrl}
+              href={downloadUrl}
               target='_blank'
               rel='noopener noreferrer'
               download={brochureName}
@@ -150,7 +161,7 @@ const BrochurePage = () => {
           <p>
             Can’t view the brochure?{' '}
             <a
-              href={pdfViewUrl}
+              href={downloadUrl}
               target='_blank'
               rel='noopener noreferrer'
               className='text-blue-600 font-semibold underline hover:text-blue-800 transition'

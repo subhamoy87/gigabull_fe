@@ -21,8 +21,10 @@ const hashPassword = async (plainPassword) => {
 const DEFAULT_DOCUMENTS = {
   certificateUrl: RCMCCertificate,
   certificateName: 'RCMC Certificate.pdf',
+  certificateGDriveId: '',
   brochureUrl: BrochureGigabull2025,
   brochureName: 'Brochure Gigabull.pdf',
+  brochureGDriveId: '',
 };
 
 const DEFAULT_COMPANY = {
@@ -92,16 +94,20 @@ export const SiteDataProvider = ({ children }) => {
       try {
         const cert = await getIDBItem('certificateUrl');
         const certName = await getIDBItem('certificateName');
+        const certGDrive = await getIDBItem('certificateGDriveId');
         const brochure = await getIDBItem('brochureUrl');
         const brochureName = await getIDBItem('brochureName');
+        const brochureGDrive = await getIDBItem('brochureGDriveId');
 
-        if (cert || brochure) {
+        if (cert || brochure || certGDrive || brochureGDrive) {
           setDocuments((prev) => ({
             ...prev,
             certificateUrl: cert || prev.certificateUrl,
             certificateName: certName || prev.certificateName,
+            certificateGDriveId: certGDrive || prev.certificateGDriveId,
             brochureUrl: brochure || prev.brochureUrl,
             brochureName: brochureName || prev.brochureName,
+            brochureGDriveId: brochureGDrive || prev.brochureGDriveId,
           }));
         }
       } catch (err) {
@@ -171,11 +177,17 @@ export const SiteDataProvider = ({ children }) => {
     if (documents.certificateName) {
       setIDBItem('certificateName', documents.certificateName);
     }
+    if (documents.certificateGDriveId !== undefined) {
+      setIDBItem('certificateGDriveId', documents.certificateGDriveId);
+    }
     if (documents.brochureUrl && documents.brochureUrl.startsWith('data:')) {
       setIDBItem('brochureUrl', documents.brochureUrl);
     }
     if (documents.brochureName) {
       setIDBItem('brochureName', documents.brochureName);
+    }
+    if (documents.brochureGDriveId !== undefined) {
+      setIDBItem('brochureGDriveId', documents.brochureGDriveId);
     }
   }, [documents]);
 

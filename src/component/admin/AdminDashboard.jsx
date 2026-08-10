@@ -384,6 +384,51 @@ const AdminDashboard = () => {
     }
   };
 
+  const extractGDriveId = (urlOrId) => {
+    if (!urlOrId || typeof urlOrId !== 'string') return '';
+    const trimmed = urlOrId.trim();
+    const matchFileD = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (matchFileD && matchFileD[1]) return matchFileD[1];
+    const matchIdParam = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (matchIdParam && matchIdParam[1]) return matchIdParam[1];
+    if (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed)) return trimmed;
+    return trimmed;
+  };
+
+  const [gdriveForm, setGdriveForm] = useState({
+    certLink: '',
+    brochureLink: '',
+  });
+
+  const handleSaveGDrive = async (e, type) => {
+    e.preventDefault();
+    if (type === 'certificate') {
+      const parsedId = extractGDriveId(gdriveForm.certLink);
+      if (!parsedId) {
+        alert('Please enter a valid Google Drive Link or File ID');
+        return;
+      }
+      await updateDocuments({
+        certificateGDriveId: parsedId,
+        certificateName: `Google Drive File (${parsedId.slice(0, 8)}...)`,
+      });
+      setGdriveForm((p) => ({ ...p, certLink: '' }));
+      alert('Google Drive Certificate link saved successfully!');
+    } else if (type === 'brochure') {
+      const parsedId = extractGDriveId(gdriveForm.brochureLink);
+      if (!parsedId) {
+        alert('Please enter a valid Google Drive Link or File ID');
+        return;
+      }
+      await updateDocuments({
+        brochureGDriveId: parsedId,
+        brochureName: `Google Drive File (${parsedId.slice(0, 8)}...)`,
+      });
+      setGdriveForm((p) => ({ ...p, brochureLink: '' }));
+      alert('Google Drive Brochure link saved successfully!');
+    }
+  };
+
   // Smart PDF Preview handler (handles Base64 Blobs, Server URLs, and Page Fallbacks)
   const handlePreviewPdf = (e, url, fallbackRoute) => {
     e.preventDefault();
@@ -882,15 +927,15 @@ const AdminDashboard = () => {
             <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl'>
               <h3 className='font-bold text-lg text-amber-400 flex items-center justify-between'>
                 <span>PDF Documents Manager</span>
-                <span className='text-xs text-slate-400 font-normal'>RCMC Certificate & Product Brochure</span>
+                <span className='text-xs text-slate-400 font-normal'>Google Drive Link or File Upload</span>
               </h3>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                {/* RCMC Certificate Upload */}
+                {/* RCMC Certificate Section */}
                 <div className='bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4'>
                   <div className='flex items-center justify-between'>
                     <span className='text-xs font-bold text-white uppercase tracking-wider'>
-                      RCMC Certificate PDF
+                      RCMC Certificate
                     </span>
                     <a
                       href='/certificate'
@@ -905,22 +950,52 @@ const AdminDashboard = () => {
                   <p className='text-xs text-slate-400'>
                     Current File: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'RCMC Certificate.pdf'}</code>
                   </p>
-                  <label className='inline-flex items-center gap-2 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
-                    <Upload className='w-4 h-4' /> Upload New Certificate PDF
-                    <input
-                      type='file'
-                      accept='.pdf,application/pdf'
-                      onChange={(e) => handlePdfFileUpload(e, 'certificateUrl', 'certificateName')}
-                      className='hidden'
-                    />
-                  </label>
+
+                  {/* Method 1: Google Drive Share Link */}
+                  <div className='pt-2 border-t border-slate-800 space-y-2'>
+                    <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider'>
+                      Option 1: Google Drive Share Link
+                    </label>
+                    <div className='flex gap-2'>
+                      <input
+                        type='text'
+                        placeholder='Paste GDrive Share Link or File ID'
+                        value={gdriveForm.certLink}
+                        onChange={(e) => setGdriveForm((p) => ({ ...p, certLink: e.target.value }))}
+                        className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
+                      />
+                      <button
+                        type='button'
+                        onClick={(e) => handleSaveGDrive(e, 'certificate')}
+                        className='px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Method 2: Direct PDF Upload */}
+                  <div className='pt-2 border-t border-slate-800 space-y-2'>
+                    <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider'>
+                      Option 2: Direct File Upload
+                    </label>
+                    <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
+                      <Upload className='w-4 h-4' /> Upload New Certificate PDF
+                      <input
+                        type='file'
+                        accept='.pdf,application/pdf'
+                        onChange={(e) => handlePdfFileUpload(e, 'certificateUrl', 'certificateName')}
+                        className='hidden'
+                      />
+                    </label>
+                  </div>
                 </div>
 
-                {/* Product Brochure Upload */}
+                {/* Product Brochure Section */}
                 <div className='bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4'>
                   <div className='flex items-center justify-between'>
                     <span className='text-xs font-bold text-white uppercase tracking-wider'>
-                      Product Brochure PDF
+                      Product Brochure
                     </span>
                     <a
                       href='/brochure'
@@ -935,15 +1010,45 @@ const AdminDashboard = () => {
                   <p className='text-xs text-slate-400'>
                     Current File: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Brochure Gigabull.pdf'}</code>
                   </p>
-                  <label className='inline-flex items-center gap-2 py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
-                    <Upload className='w-4 h-4' /> Upload New Brochure PDF
-                    <input
-                      type='file'
-                      accept='.pdf,application/pdf'
-                      onChange={(e) => handlePdfFileUpload(e, 'brochureUrl', 'brochureName')}
-                      className='hidden'
-                    />
-                  </label>
+
+                  {/* Method 1: Google Drive Share Link */}
+                  <div className='pt-2 border-t border-slate-800 space-y-2'>
+                    <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider'>
+                      Option 1: Google Drive Share Link
+                    </label>
+                    <div className='flex gap-2'>
+                      <input
+                        type='text'
+                        placeholder='Paste GDrive Share Link or File ID'
+                        value={gdriveForm.brochureLink}
+                        onChange={(e) => setGdriveForm((p) => ({ ...p, brochureLink: e.target.value }))}
+                        className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
+                      />
+                      <button
+                        type='button'
+                        onClick={(e) => handleSaveGDrive(e, 'brochure')}
+                        className='px-3 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Method 2: Direct PDF Upload */}
+                  <div className='pt-2 border-t border-slate-800 space-y-2'>
+                    <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider'>
+                      Option 2: Direct File Upload
+                    </label>
+                    <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
+                      <Upload className='w-4 h-4' /> Upload New Brochure PDF
+                      <input
+                        type='file'
+                        accept='.pdf,application/pdf'
+                        onChange={(e) => handlePdfFileUpload(e, 'brochureUrl', 'brochureName')}
+                        className='hidden'
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

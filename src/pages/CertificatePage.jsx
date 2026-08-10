@@ -15,7 +15,15 @@ const CertificatePage = () => {
     let createdUrl = null;
 
     const resolvePdf = async () => {
-      // 1. First priority: Check newly uploaded base64 PDF in state or IndexedDB
+      // 1. Google Drive Integration (Primary Priority if GDrive ID present)
+      const gdriveId = documents?.certificateGDriveId;
+      if (gdriveId) {
+        if (documents?.certificateName) setCertName(documents.certificateName);
+        if (active) setBlobUrl(`https://drive.google.com/file/d/${gdriveId}/preview`);
+        return;
+      }
+
+      // 2. Base64 Upload in State or IndexedDB
       let certData = documents?.certificateUrl;
       let name = documents?.certificateName;
 
@@ -46,7 +54,7 @@ const CertificatePage = () => {
         }
       }
 
-      // 2. Second priority: Fetch custom uploaded PDF from server
+      // 3. Second priority: Fetch custom uploaded PDF from server
       try {
         const res = await fetch(`${SERVE_CERTIFICATE_API_URL}?t=${Date.now()}`, { cache: 'no-store' });
         if (res.ok) {
@@ -61,7 +69,7 @@ const CertificatePage = () => {
         console.warn('Server PDF fetch note:', err);
       }
 
-      // 3. Fallback: Default RCMCCertificate asset
+      // 4. Fallback: Default RCMCCertificate asset
       if (active) setBlobUrl(RCMCCertificate);
     };
 
@@ -73,9 +81,12 @@ const CertificatePage = () => {
         URL.revokeObjectURL(createdUrl);
       }
     };
-  }, [documents?.certificateUrl, documents?.certificateName]);
+  }, [documents?.certificateUrl, documents?.certificateName, documents?.certificateGDriveId]);
 
   const pdfViewUrl = blobUrl || RCMCCertificate;
+  const downloadUrl = documents?.certificateGDriveId
+    ? `https://drive.google.com/uc?export=download&id=${documents.certificateGDriveId}`
+    : pdfViewUrl;
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>
@@ -115,7 +126,7 @@ const CertificatePage = () => {
               </div>
             </div>
             <a
-              href={pdfViewUrl}
+              href={downloadUrl}
               target='_blank'
               rel='noopener noreferrer'
               download={certName}
@@ -142,7 +153,7 @@ const CertificatePage = () => {
           <p>
             Can’t view the certificate?{' '}
             <a
-              href={pdfViewUrl}
+              href={downloadUrl}
               target='_blank'
               rel='noopener noreferrer'
               download={certName}
