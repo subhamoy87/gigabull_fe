@@ -59,7 +59,13 @@ const CertificatePage = () => {
     return rawCertUrl;
   }, [rawCertUrl, certName, hasServerCert]);
 
-  const pdfDisplayUrl = `${pdfViewUrl}#filename=${encodeURIComponent('RCMC Certificate.pdf')}`;
+  const pdfDisplayUrl = useMemo(() => {
+    if (!pdfViewUrl) return '';
+    if (pdfViewUrl.startsWith('blob:') || pdfViewUrl.startsWith('data:')) {
+      return pdfViewUrl;
+    }
+    return `${pdfViewUrl}#filename=${encodeURIComponent(certName)}`;
+  }, [pdfViewUrl, certName]);
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>
@@ -94,7 +100,7 @@ const CertificatePage = () => {
               </div>
               <div>
                 <h2 className='text-base font-bold text-white tracking-wide'>
-                  RCMC Certificate
+                  {certName}
                 </h2>
               </div>
             </div>
@@ -102,7 +108,7 @@ const CertificatePage = () => {
               href={pdfViewUrl}
               target='_blank'
               rel='noopener noreferrer'
-              download='RCMC Certificate.pdf'
+              download={certName}
               className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm'
             >
               Download PDF
@@ -110,22 +116,14 @@ const CertificatePage = () => {
           </div>
 
           <div style={{ height: '85vh' }}>
-            <object
-              data={pdfDisplayUrl}
-              type='application/pdf'
-              title='RCMC Certificate'
+            <iframe
+              src={pdfDisplayUrl}
+              title={certName}
               width='100%'
               height='100%'
+              style={{ border: 'none' }}
               className='w-full h-full'
-            >
-              <iframe
-                src={pdfDisplayUrl}
-                title='RCMC Certificate'
-                width='100%'
-                height='100%'
-                style={{ border: 'none' }}
-              />
-            </object>
+            />
           </div>
         </div>
 
