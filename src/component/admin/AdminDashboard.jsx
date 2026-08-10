@@ -895,48 +895,47 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* TAB 6: SECURITY & BACKUP */}
+        {/* TAB 4: CHANGE PASSWORD */}
         {activeTab === 'settings' && (
-          <div className='space-y-6 max-w-3xl'>
+          <div className='space-y-6 max-w-xl'>
             <div>
-              <h1 className='text-3xl font-bold text-white tracking-tight'>Security & Backup Settings</h1>
+              <h1 className='text-3xl font-bold text-white tracking-tight'>Change Password</h1>
               <p className='text-slate-400 text-sm mt-1'>
-                Change admin password, download database backups, restore JSON files, or reset to defaults.
+                Update your administrator account password.
               </p>
             </div>
 
-            {/* Change Password Card */}
-            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl'>
-              <h3 className='font-bold text-lg text-white flex items-center gap-2'>
-                <Settings className='w-5 h-5 text-amber-400' /> Update Security Credential
-              </h3>
-
-              <form onSubmit={handlePasswordChangeSubmit} className='space-y-4 max-w-md'>
-                <div className='space-y-1.5'>
-                  <label className='text-xs text-slate-400'>New Admin Password</label>
+            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl'>
+              <form onSubmit={handlePasswordChangeSubmit} className='space-y-5'>
+                <div className='space-y-2'>
+                  <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
+                    New Admin Password
+                  </label>
                   <input
                     type='password'
                     value={passForm.newPass}
                     onChange={(e) => setPassForm((p) => ({ ...p, newPass: e.target.value }))}
                     placeholder='Enter new password'
-                    className='w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white'
+                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 transition'
                   />
                 </div>
 
-                <div className='space-y-1.5'>
-                  <label className='text-xs text-slate-400'>Confirm New Password</label>
+                <div className='space-y-2'>
+                  <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
+                    Confirm New Password
+                  </label>
                   <input
                     type='password'
                     value={passForm.confirmPass}
                     onChange={(e) => setPassForm((p) => ({ ...p, confirmPass: e.target.value }))}
                     placeholder='Confirm new password'
-                    className='w-full px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white'
+                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 transition'
                   />
                 </div>
 
                 {passMessage.text && (
                   <div
-                    className={`p-3 rounded-xl text-xs font-semibold ${passMessage.type === 'error'
+                    className={`p-3.5 rounded-xl text-xs font-semibold ${passMessage.type === 'error'
                       ? 'bg-red-500/10 text-red-400 border border-red-500/20'
                       : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                       }`}
@@ -947,51 +946,11 @@ const AdminDashboard = () => {
 
                 <button
                   type='submit'
-                  className='py-2.5 px-4 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer'
+                  className='w-full py-3 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer'
                 >
-                  Save New Password
+                  Update Password
                 </button>
               </form>
-            </div>
-
-            {/* Backup & Restore Card */}
-            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl'>
-              <h3 className='font-bold text-lg text-white flex items-center gap-2'>
-                <Download className='w-5 h-5 text-amber-400' /> Data Backup & Restore
-              </h3>
-              <p className='text-xs text-slate-400'>
-                Export all website content, products, logos, and settings as a backup JSON file or upload a previous backup.
-              </p>
-
-              <div className='flex flex-wrap gap-4 pt-2'>
-                <button
-                  onClick={exportData}
-                  className='py-2.5 px-5 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold rounded-xl flex items-center gap-2 border border-slate-700 transition cursor-pointer'
-                >
-                  <Download className='w-4 h-4' /> Download Backup JSON
-                </button>
-
-                <label className='py-2.5 px-5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl flex items-center gap-2 border border-slate-700 transition cursor-pointer'>
-                  <Upload className='w-4 h-4 text-emerald-400' /> Restore from JSON Backup
-                  <input type='file' accept='.json' onChange={handleImportFileChange} className='hidden' />
-                </label>
-              </div>
-            </div>
-
-            {/* Factory Reset Danger Zone */}
-            <div className='bg-red-950/20 border border-red-500/30 rounded-2xl p-6 space-y-3 shadow-xl'>
-              <h3 className='font-bold text-lg text-red-400 flex items-center gap-2'>
-                <ShieldAlert className='w-5 h-5' /> Danger Zone - Factory Reset
-              </h3>
-              <p className='text-xs text-slate-400'>
-                Clear all custom changes saved in browser local storage and restore original codebase defaults.
-              </p>
-              <button
-                onClick={resetToDefaults}
-                className='py-2.5 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/40 text-xs font-bold rounded-xl flex items-center gap-2 transition cursor-pointer'
-              >
-                <RotateCcw className='w-4 h-4' /> Reset All Site Data to Factory Defaults
-              </button>
             </div>
           </div>
         )}
