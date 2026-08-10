@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   Package,
   Image as ImageIcon,
+  PhoneCall,
   FileText,
   Settings,
   LogOut,
