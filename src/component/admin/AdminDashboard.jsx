@@ -235,7 +235,7 @@ const AdminDashboard = () => {
           const urlObj = new URL(str, window.location.href);
           if (urlObj.origin === window.location.origin) return true;
         }
-      } catch (e) {}
+      } catch (e) { }
       return false;
     };
 
@@ -476,7 +476,7 @@ const AdminDashboard = () => {
               { id: 'overview', label: 'Overview', icon: LayoutDashboard },
               { id: 'products', label: 'Product Manager', icon: Package, badge: totalProductsCount },
               { id: 'branding', label: 'Branding & Logo', icon: ImageIcon },
-              { id: 'documents', label: 'Certificate & Brochure Manager', icon: FileText },
+              { id: 'documents', label: 'PDF File Manager', icon: FileText },
               { id: 'settings', label: 'Change Password', icon: Settings, disabled: true },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -486,13 +486,12 @@ const AdminDashboard = () => {
                   key={tab.id}
                   onClick={() => !tab.disabled && setActiveTab(tab.id)}
                   disabled={tab.disabled}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition ${
-                    tab.disabled
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition ${tab.disabled
                       ? 'opacity-40 cursor-not-allowed text-slate-500'
                       : isActive
-                      ? 'bg-amber-500 text-slate-950 font-semibold shadow-lg shadow-amber-500/20 cursor-pointer'
-                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 cursor-pointer'
-                  }`}
+                        ? 'bg-amber-500 text-slate-950 font-semibold shadow-lg shadow-amber-500/20 cursor-pointer'
+                        : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 cursor-pointer'
+                    }`}
                 >
                   <div className='flex items-center gap-3'>
                     <Icon className={`w-5 h-5 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
@@ -710,11 +709,10 @@ const AdminDashboard = () => {
                                 });
                                 window.location.reload();
                               }}
-                              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer border ${
-                                prod.isShowcase
+                              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 transition cursor-pointer border ${prod.isShowcase
                                   ? 'bg-amber-500/10 text-amber-400 border-amber-500/40 hover:bg-amber-500/20'
                                   : 'bg-slate-950 text-slate-500 border-slate-800 hover:border-slate-700 hover:text-slate-300'
-                              }`}
+                                }`}
                               title={
                                 prod.isShowcase
                                   ? 'Featured on Homepage Showcase (Click to remove)'
@@ -1009,8 +1007,8 @@ const AdminDashboard = () => {
                 {editingProduct
                   ? `Edit Product: ${editingProduct.name}`
                   : isDuplicate
-                  ? `Duplicate Product: ${productForm.name}`
-                  : 'Add New Product'}
+                    ? `Duplicate Product: ${productForm.name}`
+                    : 'Add New Product'}
               </h3>
               <button
                 onClick={() => setIsProductModalOpen(false)}
