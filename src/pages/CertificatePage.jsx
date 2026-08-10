@@ -7,7 +7,7 @@ import { SERVE_CERTIFICATE_API_URL } from '../config/config';
 const CertificatePage = () => {
   const { documents } = useSiteData();
   const rawCertUrl = documents?.certificateUrl || RCMCCertificate;
-  const certName = documents?.certificateName || 'RCMCCertificate.pdf';
+  const certName = documents?.certificateName || 'RCMC Certificate.pdf';
   const [hasServerCert, setHasServerCert] = useState(false);
 
   useEffect(() => {
@@ -69,25 +69,51 @@ const CertificatePage = () => {
         </div>
       </div>
 
-      {/* PDF Viewer */}
+      {/* PDF Viewer Container */}
       <div className='container mx-auto px-4 py-8'>
-        <div className='w-full shadow-md rounded-xl overflow-hidden border border-gray-300' style={{ height: '85vh' }}>
-          <object
-            data={pdfDisplayUrl}
-            type='application/pdf'
-            title={certName}
-            width='100%'
-            height='100%'
-            className='w-full h-full'
-          >
-            <iframe
-              src={pdfDisplayUrl}
-              title={certName}
+        <div className='w-full shadow-lg rounded-xl overflow-hidden border border-gray-300 bg-slate-900'>
+          {/* PDF Top Document Header Toolbar */}
+          <div className='bg-slate-900 px-6 py-3 border-b border-slate-800 flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs uppercase'>
+                PDF
+              </div>
+              <div>
+                <h2 className='text-sm font-semibold text-white tracking-wide'>
+                  RCMC Certificate
+                </h2>
+                <p className='text-xs text-slate-400 font-mono'>{certName}</p>
+              </div>
+            </div>
+            <a
+              href={pdfViewUrl}
+              target='_blank'
+              rel='noopener noreferrer'
+              download={certName}
+              className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm'
+            >
+              Download PDF
+            </a>
+          </div>
+
+          <div style={{ height: '85vh' }}>
+            <object
+              data={pdfDisplayUrl}
+              type='application/pdf'
+              title='RCMC Certificate'
               width='100%'
               height='100%'
-              style={{ border: 'none' }}
-            />
-          </object>
+              className='w-full h-full'
+            >
+              <iframe
+                src={pdfDisplayUrl}
+                title='RCMC Certificate'
+                width='100%'
+                height='100%'
+                style={{ border: 'none' }}
+              />
+            </object>
+          </div>
         </div>
 
         {/* Fallback message */}

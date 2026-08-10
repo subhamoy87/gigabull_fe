@@ -7,7 +7,7 @@ import { SERVE_BROCHURE_API_URL } from '../config/config';
 const BrochurePage = () => {
   const { documents } = useSiteData();
   const rawBrochureUrl = documents?.brochureUrl || BrochureGigabull2025;
-  const brochureName = documents?.brochureName || 'BrochureGigabull2025.pdf';
+  const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
   const [hasServerBrochure, setHasServerBrochure] = useState(false);
 
   useEffect(() => {
@@ -78,24 +78,50 @@ const BrochurePage = () => {
           unique features.
         </p>
 
-        {/* PDF Viewer */}
-        <div className='w-full shadow-md rounded-xl overflow-hidden border border-gray-300' style={{ height: '85vh' }}>
-          <object
-            data={pdfDisplayUrl}
-            type='application/pdf'
-            title={brochureName}
-            width='100%'
-            height='100%'
-            className='w-full h-full'
-          >
-            <iframe
-              src={pdfDisplayUrl}
-              title={brochureName}
+        {/* PDF Viewer Container */}
+        <div className='w-full shadow-lg rounded-xl overflow-hidden border border-gray-300 bg-slate-900'>
+          {/* PDF Top Document Header Toolbar */}
+          <div className='bg-slate-900 px-6 py-3 border-b border-slate-800 flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xs uppercase'>
+                PDF
+              </div>
+              <div>
+                <h2 className='text-sm font-semibold text-white tracking-wide'>
+                  Brochure Gigabull
+                </h2>
+                <p className='text-xs text-slate-400 font-mono'>{brochureName}</p>
+              </div>
+            </div>
+            <a
+              href={pdfViewUrl}
+              target='_blank'
+              rel='noopener noreferrer'
+              download={brochureName}
+              className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm'
+            >
+              Download PDF
+            </a>
+          </div>
+
+          <div style={{ height: '85vh' }}>
+            <object
+              data={pdfDisplayUrl}
+              type='application/pdf'
+              title='Brochure Gigabull'
               width='100%'
               height='100%'
-              style={{ border: 'none' }}
-            />
-          </object>
+              className='w-full h-full'
+            >
+              <iframe
+                src={pdfDisplayUrl}
+                title='Brochure Gigabull'
+                width='100%'
+                height='100%'
+                style={{ border: 'none' }}
+              />
+            </object>
+          </div>
         </div>
 
         {/* Fallback message for unsupported browsers */}

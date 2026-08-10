@@ -19,9 +19,9 @@ const hashPassword = async (plainPassword) => {
 
 const DEFAULT_DOCUMENTS = {
   certificateUrl: RCMCCertificate,
-  certificateName: 'RCMCCertificate.pdf',
+  certificateName: 'RCMC Certificate.pdf',
   brochureUrl: BrochureGigabull2025,
-  brochureName: 'BrochureGigabull2025.pdf',
+  brochureName: 'Brochure Gigabull.pdf',
 };
 
 const DEFAULT_COMPANY = {
@@ -97,9 +97,9 @@ export const SiteDataProvider = ({ children }) => {
         const parsed = JSON.parse(saved);
         return {
           certificateUrl: parsed.certificateUrl || RCMCCertificate,
-          certificateName: parsed.certificateName || 'RCMCCertificate.pdf',
+          certificateName: parsed.certificateName || 'RCMC Certificate.pdf',
           brochureUrl: parsed.brochureUrl || BrochureGigabull2025,
-          brochureName: parsed.brochureName || 'BrochureGigabull2025.pdf',
+          brochureName: parsed.brochureName || 'Brochure Gigabull.pdf',
         };
       }
       return DEFAULT_DOCUMENTS;
