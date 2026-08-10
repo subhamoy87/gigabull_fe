@@ -9,6 +9,11 @@ export const PRODUCTS_API_URL = `${BACKEND_URL}/api/products`;
 export const SAVE_PRODUCTS_API_URL = `${BACKEND_URL}/api/save-products-data`;
 export const DOCUMENTS_API_URL = `${BACKEND_URL}/api/documents`;
 export const SAVE_DOCUMENTS_API_URL = `${BACKEND_URL}/api/save-documents`;
+export const UPLOAD_CERTIFICATE_API_URL = `${BACKEND_URL}/api/upload-certificate`;
+export const UPLOAD_BROCHURE_API_URL = `${BACKEND_URL}/api/upload-brochure`;
+export const SERVE_CERTIFICATE_API_URL = `${BACKEND_URL}/api/documents/certificate`;
+export const SERVE_BROCHURE_API_URL = `${BACKEND_URL}/api/documents/brochure`;
+export const DOCUMENTS_INFO_API_URL = `${BACKEND_URL}/api/documents/info`;
 
 
 //export const CONTACT_API_URL = 'https://gigabull-server.onrender.com/api/contact';

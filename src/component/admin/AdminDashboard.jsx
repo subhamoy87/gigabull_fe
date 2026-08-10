@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../context/SiteDataContext';
 import { convertImageToWebP } from '../../lib/utils';
+import { UPLOAD_CERTIFICATE_API_URL, UPLOAD_BROCHURE_API_URL } from '../../config/config';
 import {
   LayoutDashboard,
   Package,
@@ -365,6 +366,18 @@ const AdminDashboard = () => {
           [docKey]: fileData,
           [docNameKey]: originalFileName,
         });
+
+        const uploadUrl = docKey === 'certificateUrl' ? UPLOAD_CERTIFICATE_API_URL : UPLOAD_BROCHURE_API_URL;
+        try {
+          await fetch(uploadUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pdfBase64: fileData, fileName: originalFileName }),
+          });
+        } catch (err) {
+          console.warn('Backend PDF upload note:', err);
+        }
+
         alert(`Document "${originalFileName}" uploaded and saved successfully!`);
       };
       reader.readAsDataURL(file);

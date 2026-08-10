@@ -1,14 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
+import { SERVE_BROCHURE_API_URL } from '../config/config';
 
 const BrochurePage = () => {
   const { documents } = useSiteData();
   const rawBrochureUrl = documents?.brochureUrl || BrochureGigabull2025;
   const brochureName = documents?.brochureName || 'BrochureGigabull2025.pdf';
+  const [hasServerBrochure, setHasServerBrochure] = useState(false);
+
+  useEffect(() => {
+    fetch(SERVE_BROCHURE_API_URL, { method: 'HEAD' })
+      .then((res) => {
+        if (res.ok) setHasServerBrochure(true);
+      })
+      .catch(() => {});
+  }, [documents?.brochureUrl]);
 
   const pdfViewUrl = useMemo(() => {
+    if (hasServerBrochure) {
+      return SERVE_BROCHURE_API_URL;
+    }
     if (!rawBrochureUrl) return BrochureGigabull2025;
     if (typeof rawBrochureUrl === 'string' && rawBrochureUrl.startsWith('data:application/pdf;base64,')) {
       try {
@@ -30,7 +43,7 @@ const BrochurePage = () => {
       }
     }
     return rawBrochureUrl;
-  }, [rawBrochureUrl, brochureName]);
+  }, [rawBrochureUrl, brochureName, hasServerBrochure]);
 
   const pdfDisplayUrl = `${pdfViewUrl}#filename=${encodeURIComponent(brochureName)}`;
 

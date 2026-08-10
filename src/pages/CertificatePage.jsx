@@ -1,14 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
+import { SERVE_CERTIFICATE_API_URL } from '../config/config';
 
 const CertificatePage = () => {
   const { documents } = useSiteData();
   const rawCertUrl = documents?.certificateUrl || RCMCCertificate;
   const certName = documents?.certificateName || 'RCMCCertificate.pdf';
+  const [hasServerCert, setHasServerCert] = useState(false);
+
+  useEffect(() => {
+    fetch(SERVE_CERTIFICATE_API_URL, { method: 'HEAD' })
+      .then((res) => {
+        if (res.ok) setHasServerCert(true);
+      })
+      .catch(() => {});
+  }, [documents?.certificateUrl]);
 
   const pdfViewUrl = useMemo(() => {
+    if (hasServerCert) {
+      return SERVE_CERTIFICATE_API_URL;
+    }
     if (!rawCertUrl) return RCMCCertificate;
     if (typeof rawCertUrl === 'string' && rawCertUrl.startsWith('data:application/pdf;base64,')) {
       try {
@@ -30,7 +43,7 @@ const CertificatePage = () => {
       }
     }
     return rawCertUrl;
-  }, [rawCertUrl, certName]);
+  }, [rawCertUrl, certName, hasServerCert]);
 
   const pdfDisplayUrl = `${pdfViewUrl}#filename=${encodeURIComponent(certName)}`;
 
