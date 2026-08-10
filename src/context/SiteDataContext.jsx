@@ -141,7 +141,7 @@ export const SiteDataProvider = ({ children }) => {
       // Client-side fallback hash match if backend server is unreachable
       try {
         const inputHash = await hashPassword(password);
-        if (inputHash === ADMIN_CONFIG.passwordHash || password === 'admin123') {
+        if (inputHash === ADMIN_CONFIG.passwordHash) {
           sessionStorage.setItem('gigabull_admin_session', 'true');
           setIsAuthenticated(true);
           return true;
