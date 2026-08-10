@@ -448,18 +448,22 @@ const AdminDashboard = () => {
               { id: 'overview', label: 'Overview', icon: LayoutDashboard },
               { id: 'products', label: 'Product Manager', icon: Package, badge: totalProductsCount },
               { id: 'branding', label: 'Branding & Logo', icon: ImageIcon },
-              { id: 'settings', label: 'Change Password', icon: Settings },
+              { id: 'settings', label: 'Change Password', icon: Settings, disabled: true },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition cursor-pointer ${isActive
-                    ? 'bg-amber-500 text-slate-950 font-semibold shadow-lg shadow-amber-500/20'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
-                    }`}
+                  onClick={() => !tab.disabled && setActiveTab(tab.id)}
+                  disabled={tab.disabled}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition ${
+                    tab.disabled
+                      ? 'opacity-40 cursor-not-allowed text-slate-500'
+                      : isActive
+                      ? 'bg-amber-500 text-slate-950 font-semibold shadow-lg shadow-amber-500/20 cursor-pointer'
+                      : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 cursor-pointer'
+                  }`}
                 >
                   <div className='flex items-center gap-3'>
                     <Icon className={`w-5 h-5 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
@@ -895,9 +899,9 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* TAB 4: CHANGE PASSWORD */}
+        {/* TAB 4: CHANGE PASSWORD (DISABLED) */}
         {activeTab === 'settings' && (
-          <div className='space-y-6 max-w-xl'>
+          <div className='space-y-6 max-w-xl opacity-75'>
             <div>
               <h1 className='text-3xl font-bold text-white tracking-tight'>Change Password</h1>
               <p className='text-slate-400 text-sm mt-1'>
@@ -905,18 +909,24 @@ const AdminDashboard = () => {
               </p>
             </div>
 
-            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl'>
-              <form onSubmit={handlePasswordChangeSubmit} className='space-y-5'>
+            <div className='p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs font-semibold flex items-center gap-2'>
+              <ShieldAlert className='w-5 h-5 shrink-0 text-amber-400' />
+              <span>Password changing via the admin dashboard is currently disabled. Please manage passwords via server configuration.</span>
+            </div>
+
+            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl pointer-events-none opacity-60'>
+              <form onSubmit={(e) => e.preventDefault()} className='space-y-5'>
                 <div className='space-y-2'>
                   <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
                     New Admin Password
                   </label>
                   <input
                     type='password'
+                    disabled={true}
                     value={passForm.newPass}
                     onChange={(e) => setPassForm((p) => ({ ...p, newPass: e.target.value }))}
-                    placeholder='Enter new password'
-                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 transition'
+                    placeholder='Password change disabled'
+                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-slate-500 cursor-not-allowed transition'
                   />
                 </div>
 
@@ -926,10 +936,11 @@ const AdminDashboard = () => {
                   </label>
                   <input
                     type='password'
+                    disabled={true}
                     value={passForm.confirmPass}
                     onChange={(e) => setPassForm((p) => ({ ...p, confirmPass: e.target.value }))}
-                    placeholder='Confirm new password'
-                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-500 transition'
+                    placeholder='Password change disabled'
+                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-slate-500 cursor-not-allowed transition'
                   />
                 </div>
 
@@ -945,10 +956,11 @@ const AdminDashboard = () => {
                 )}
 
                 <button
-                  type='submit'
-                  className='w-full py-3 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer'
+                  type='button'
+                  disabled={true}
+                  className='w-full py-3 px-5 bg-slate-800 text-slate-500 font-bold text-sm rounded-xl cursor-not-allowed opacity-60'
                 >
-                  Update Password
+                  Update Password (Disabled)
                 </button>
               </form>
             </div>
