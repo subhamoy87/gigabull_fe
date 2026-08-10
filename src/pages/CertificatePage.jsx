@@ -8,11 +8,14 @@ const CertificatePage = () => {
   const rawCertUrl = documents?.certificateUrl || RCMCCertificate;
 
   const pdfViewUrl = useMemo(() => {
-    if (!rawCertUrl) return '';
+    if (!rawCertUrl) return RCMCCertificate;
     if (typeof rawCertUrl === 'string' && rawCertUrl.startsWith('data:application/pdf;base64,')) {
       try {
-        const base64Data = rawCertUrl.replace(/^data:application\/pdf;base64,/, '');
-        const byteCharacters = atob(base64Data);
+        const base64Data = rawCertUrl.replace(/^data:application\/pdf;base64,/, '').trim();
+        if (!base64Data) return RCMCCertificate;
+
+        const cleanedBase64 = base64Data.replace(/[\r\n\s]/g, '');
+        const byteCharacters = atob(cleanedBase64);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
           byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -22,7 +25,7 @@ const CertificatePage = () => {
         return URL.createObjectURL(blob);
       } catch (err) {
         console.error('Error creating PDF Blob URL:', err);
-        return rawCertUrl;
+        return RCMCCertificate;
       }
     }
     return rawCertUrl;

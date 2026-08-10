@@ -158,9 +158,16 @@ export const SiteDataProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('gigabull_documents', JSON.stringify(documents));
+      const docsToSave = { ...documents };
+      if (docsToSave.certificateUrl && docsToSave.certificateUrl.length > 500000 && docsToSave.certificateUrl.startsWith('data:')) {
+        delete docsToSave.certificateUrl;
+      }
+      if (docsToSave.brochureUrl && docsToSave.brochureUrl.length > 500000 && docsToSave.brochureUrl.startsWith('data:')) {
+        delete docsToSave.brochureUrl;
+      }
+      localStorage.setItem('gigabull_documents', JSON.stringify(docsToSave));
     } catch (e) {
-      console.error('Error saving documents', e);
+      console.warn('LocalStorage quota note for documents cache:', e);
     }
   }, [documents]);
 

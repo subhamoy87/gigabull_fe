@@ -8,11 +8,14 @@ const BrochurePage = () => {
   const rawBrochureUrl = documents?.brochureUrl || BrochureGigabull2025;
 
   const pdfViewUrl = useMemo(() => {
-    if (!rawBrochureUrl) return '';
+    if (!rawBrochureUrl) return BrochureGigabull2025;
     if (typeof rawBrochureUrl === 'string' && rawBrochureUrl.startsWith('data:application/pdf;base64,')) {
       try {
-        const base64Data = rawBrochureUrl.replace(/^data:application\/pdf;base64,/, '');
-        const byteCharacters = atob(base64Data);
+        const base64Data = rawBrochureUrl.replace(/^data:application\/pdf;base64,/, '').trim();
+        if (!base64Data) return BrochureGigabull2025;
+
+        const cleanedBase64 = base64Data.replace(/[\r\n\s]/g, '');
+        const byteCharacters = atob(cleanedBase64);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
           byteNumbers[i] = byteCharacters.charCodeAt(i);
@@ -22,7 +25,7 @@ const BrochurePage = () => {
         return URL.createObjectURL(blob);
       } catch (err) {
         console.error('Error creating PDF Blob URL:', err);
-        return rawBrochureUrl;
+        return BrochureGigabull2025;
       }
     }
     return rawBrochureUrl;
