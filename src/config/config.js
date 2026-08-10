@@ -5,6 +5,8 @@ export const PING_API_URL = `${BACKEND_URL}/api/ping`;
 export const ENQUIRY_API_URL = `${BACKEND_URL}/api/enquiries`;
 export const ADMIN_LOGIN_API_URL = `${BACKEND_URL}/api/admin/login`;
 export const ADMIN_CHANGE_PASSWORD_API_URL = `${BACKEND_URL}/api/admin/change-password`;
+export const PRODUCTS_API_URL = `${BACKEND_URL}/api/products`;
+export const SAVE_PRODUCTS_API_URL = `${BACKEND_URL}/api/save-products-data`;
 
 
 //export const CONTACT_API_URL = 'https://gigabull-server.onrender.com/api/contact';

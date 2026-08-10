@@ -3,7 +3,7 @@ import defaultProductsData from '../data/Products.js';
 import { ADMIN_CONFIG } from '../data/AdminConfig.js';
 import { logoWithTextImg } from '../assets/shared';
 import { RCMCCertificate, BrochureGigabull2025 } from '../assets/pdfs';
-import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL } from '../config/config.js';
+import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL, PRODUCTS_API_URL, SAVE_PRODUCTS_API_URL } from '../config/config.js';
 
 const SiteDataContext = createContext();
 
@@ -41,8 +41,31 @@ const DEFAULT_CONTACT = {
 };
 
 export const SiteDataProvider = ({ children }) => {
-  // 1. Products State (Always load directly from Products.js source of truth)
-  const [productsData, setProductsData] = useState(() => defaultProductsData);
+  // 1. Products State (Loads from localStorage, syncs with Backend Server API)
+  const [productsData, setProductsData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('gigabull_products');
+      return saved ? JSON.parse(saved) : defaultProductsData;
+    } catch (e) {
+      return defaultProductsData;
+    }
+  });
+
+  // Fetch server products on component mount
+  useEffect(() => {
+    const fetchServerProducts = async () => {
+      try {
+        const res = await fetch(PRODUCTS_API_URL);
+        const data = await res.json();
+        if (res.ok && data.success && Array.isArray(data.productsData) && data.productsData.length > 0) {
+          setProductsData(data.productsData);
+        }
+      } catch (err) {
+        console.warn('Could not fetch products from server, using local fallback:', err);
+      }
+    };
+    fetchServerProducts();
+  }, []);
 
   // 2. Company State
   const [company, setCompany] = useState(() => {
@@ -63,8 +86,6 @@ export const SiteDataProvider = ({ children }) => {
       return DEFAULT_CONTACT;
     }
   });
-
-
 
   // 5. Documents State (PDFs for Certificate and Brochure)
   const [documents, setDocuments] = useState(() => {
@@ -90,11 +111,18 @@ export const SiteDataProvider = ({ children }) => {
 
   // Clear legacy localStorage keys if present
   useEffect(() => {
-    localStorage.removeItem('gigabull_products');
     localStorage.removeItem('gigabull_admin_password');
     localStorage.removeItem('gigabull_admin_password_hash');
     localStorage.removeItem('gigabull_page_content');
   }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('gigabull_products', JSON.stringify(productsData));
+    } catch (e) {
+      console.error('Error saving products data', e);
+    }
+  }, [productsData]);
 
   useEffect(() => {
     try {
@@ -111,8 +139,6 @@ export const SiteDataProvider = ({ children }) => {
       console.error('Error saving contact data', e);
     }
   }, [contact]);
-
-
 
   useEffect(() => {
     try {
@@ -175,13 +201,13 @@ export const SiteDataProvider = ({ children }) => {
 
   const saveProductsToDisk = async (newProductsData) => {
     try {
-      await fetch('/api/save-products-data', {
+      await fetch(SAVE_PRODUCTS_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productsData: newProductsData }),
       });
     } catch (err) {
-      console.warn('Dev API save products to disk note:', err);
+      console.warn('Error saving products to server:', err);
     }
   };
 
