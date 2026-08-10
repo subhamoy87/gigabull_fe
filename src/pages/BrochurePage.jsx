@@ -45,7 +45,7 @@ const BrochurePage = () => {
     return rawBrochureUrl;
   }, [rawBrochureUrl, brochureName, hasServerBrochure]);
 
-  const pdfDisplayUrl = `${pdfViewUrl}#filename=${encodeURIComponent(brochureName)}`;
+  const pdfDisplayUrl = `${pdfViewUrl}#filename=${encodeURIComponent('Brochure Gigabull.pdf')}`;
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -87,17 +87,16 @@ const BrochurePage = () => {
                 PDF
               </div>
               <div>
-                <h2 className='text-sm font-semibold text-white tracking-wide'>
+                <h2 className='text-base font-bold text-white tracking-wide'>
                   Brochure Gigabull
                 </h2>
-                <p className='text-xs text-slate-400 font-mono'>{brochureName}</p>
               </div>
             </div>
             <a
               href={pdfViewUrl}
               target='_blank'
               rel='noopener noreferrer'
-              download={brochureName}
+              download='Brochure Gigabull.pdf'
               className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm'
             >
               Download PDF
@@ -133,9 +132,9 @@ const BrochurePage = () => {
               target='_blank'
               rel='noopener noreferrer'
               className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
-              download={brochureName}
+              download='Brochure Gigabull.pdf'
             >
-              Download {brochureName}
+              Download Brochure Gigabull
             </a>
             .
           </p>

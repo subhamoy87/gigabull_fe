@@ -866,7 +866,7 @@ const AdminDashboard = () => {
                       </a>
                     </div>
                     <p className='text-xs text-slate-400'>
-                      Current File: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'RCMCCertificate.pdf'}</code>
+                      Current File: <code className='text-amber-400 font-mono'>RCMC Certificate.pdf</code>
                     </p>
                     <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
                       <Upload className='w-4 h-4' /> Upload New Certificate PDF
@@ -895,7 +895,7 @@ const AdminDashboard = () => {
                       </a>
                     </div>
                     <p className='text-xs text-slate-400'>
-                      Current File: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'BrochureGigabull2025.pdf'}</code>
+                      Current File: <code className='text-amber-400 font-mono'>Brochure Gigabull.pdf</code>
                     </p>
                     <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
                       <Upload className='w-4 h-4' /> Upload New Brochure PDF
