@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
@@ -7,65 +7,76 @@ import { getIDBItem } from '../utils/idbStorage';
 
 const BrochurePage = () => {
   const { documents } = useSiteData();
-  const [idbBrochure, setIdbBrochure] = useState(null);
-  const [idbBrochureName, setIdbBrochureName] = useState(null);
-  const [hasServerBrochure, setHasServerBrochure] = useState(false);
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [brochureName, setBrochureName] = useState('Brochure Gigabull.pdf');
 
   useEffect(() => {
-    const loadIDBBrochure = async () => {
-      const storedBrochure = await getIDBItem('brochureUrl');
-      const storedName = await getIDBItem('brochureName');
-      if (storedBrochure) setIdbBrochure(storedBrochure);
-      if (storedName) setIdbBrochureName(storedName);
-    };
-    loadIDBBrochure();
-  }, [documents?.brochureUrl]);
+    let active = true;
+    let createdUrl = null;
 
-  useEffect(() => {
-    fetch(SERVE_BROCHURE_API_URL, { method: 'HEAD' })
-      .then((res) => {
-        if (res.ok) setHasServerBrochure(true);
-      })
-      .catch(() => {});
-  }, [documents?.brochureUrl]);
+    const resolvePdf = async () => {
+      // 1. First priority: Check newly uploaded base64 PDF in state or IndexedDB
+      let brochData = documents?.brochureUrl;
+      let name = documents?.brochureName;
 
-  const rawBrochureUrl = idbBrochure || documents?.brochureUrl || BrochureGigabull2025;
-  const brochureName = idbBrochureName || documents?.brochureName || 'Brochure Gigabull.pdf';
-
-  const pdfViewUrl = useMemo(() => {
-    if (typeof rawBrochureUrl === 'string' && rawBrochureUrl.startsWith('data:application/pdf;base64,')) {
-      try {
-        const base64Data = rawBrochureUrl.replace(/^data:application\/pdf;base64,/, '').trim();
-        if (!base64Data) return BrochureGigabull2025;
-
-        const cleanedBase64 = base64Data.replace(/[\r\n\s]/g, '');
-        const byteCharacters = atob(cleanedBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const pdfFile = new File([byteArray], brochureName, { type: 'application/pdf' });
-        return URL.createObjectURL(pdfFile);
-      } catch (err) {
-        console.error('Error creating PDF Blob URL:', err);
-        return BrochureGigabull2025;
+      if (!brochData || !brochData.startsWith('data:')) {
+        const idbBroch = await getIDBItem('brochureUrl');
+        const idbName = await getIDBItem('brochureName');
+        if (idbBroch) brochData = idbBroch;
+        if (idbName) name = idbName;
       }
-    }
-    if (hasServerBrochure) {
-      return SERVE_BROCHURE_API_URL;
-    }
-    if (!rawBrochureUrl) return BrochureGigabull2025;
-    return rawBrochureUrl;
-  }, [rawBrochureUrl, brochureName, hasServerBrochure]);
 
-  const pdfDisplayUrl = useMemo(() => {
-    if (!pdfViewUrl) return '';
-    if (pdfViewUrl.startsWith('blob:') || pdfViewUrl.startsWith('data:')) {
-      return pdfViewUrl;
-    }
-    return `${pdfViewUrl}#filename=${encodeURIComponent(brochureName)}`;
-  }, [pdfViewUrl, brochureName]);
+      if (name) setBrochureName(name);
+
+      // If we have a base64 string, convert to Blob URL
+      if (brochData && typeof brochData === 'string' && brochData.startsWith('data:application/pdf;base64,')) {
+        try {
+          const base64Data = brochData.replace(/^data:application\/pdf;base64,/, '').trim().replace(/[\r\n\s]/g, '');
+          const byteCharacters = atob(base64Data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'application/pdf' });
+          createdUrl = URL.createObjectURL(blob);
+          if (active) setBlobUrl(createdUrl);
+          return;
+        } catch (err) {
+          console.error('Error converting base64 brochure to blob:', err);
+        }
+      }
+
+      // 2. Second priority: Fetch custom uploaded PDF from server
+      try {
+        const res = await fetch(SERVE_BROCHURE_API_URL);
+        if (res.ok) {
+          const blob = await res.blob();
+          if (blob.type === 'application/pdf' || blob.size > 100) {
+            createdUrl = URL.createObjectURL(blob);
+            if (active) setBlobUrl(createdUrl);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Server Brochure fetch note:', err);
+      }
+
+      // 3. Fallback: Default BrochureGigabull2025 asset
+      if (active) setBlobUrl(BrochureGigabull2025);
+    };
+
+    resolvePdf();
+
+    return () => {
+      active = false;
+      if (createdUrl && createdUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(createdUrl);
+      }
+    };
+  }, [documents?.brochureUrl, documents?.brochureName]);
+
+  const pdfViewUrl = blobUrl || BrochureGigabull2025;
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -125,7 +136,7 @@ const BrochurePage = () => {
 
           <div style={{ height: '85vh' }}>
             <iframe
-              src={pdfDisplayUrl}
+              src={pdfViewUrl}
               title={brochureName}
               width='100%'
               height='100%'
@@ -144,9 +155,9 @@ const BrochurePage = () => {
               target='_blank'
               rel='noopener noreferrer'
               className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
-              download='Brochure Gigabull.pdf'
+              download={brochureName}
             >
-              Download Brochure Gigabull
+              Download {brochureName}
             </a>
             .
           </p>

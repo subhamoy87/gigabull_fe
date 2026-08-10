@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
@@ -7,65 +7,76 @@ import { getIDBItem } from '../utils/idbStorage';
 
 const CertificatePage = () => {
   const { documents } = useSiteData();
-  const [idbCert, setIdbCert] = useState(null);
-  const [idbCertName, setIdbCertName] = useState(null);
-  const [hasServerCert, setHasServerCert] = useState(false);
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [certName, setCertName] = useState('RCMC Certificate.pdf');
 
   useEffect(() => {
-    const loadIDBCert = async () => {
-      const storedCert = await getIDBItem('certificateUrl');
-      const storedName = await getIDBItem('certificateName');
-      if (storedCert) setIdbCert(storedCert);
-      if (storedName) setIdbCertName(storedName);
-    };
-    loadIDBCert();
-  }, [documents?.certificateUrl]);
+    let active = true;
+    let createdUrl = null;
 
-  useEffect(() => {
-    fetch(SERVE_CERTIFICATE_API_URL, { method: 'HEAD' })
-      .then((res) => {
-        if (res.ok) setHasServerCert(true);
-      })
-      .catch(() => {});
-  }, [documents?.certificateUrl]);
+    const resolvePdf = async () => {
+      // 1. First priority: Check newly uploaded base64 PDF in state or IndexedDB
+      let certData = documents?.certificateUrl;
+      let name = documents?.certificateName;
 
-  const rawCertUrl = idbCert || documents?.certificateUrl || RCMCCertificate;
-  const certName = idbCertName || documents?.certificateName || 'RCMC Certificate.pdf';
-
-  const pdfViewUrl = useMemo(() => {
-    if (typeof rawCertUrl === 'string' && rawCertUrl.startsWith('data:application/pdf;base64,')) {
-      try {
-        const base64Data = rawCertUrl.replace(/^data:application\/pdf;base64,/, '').trim();
-        if (!base64Data) return RCMCCertificate;
-
-        const cleanedBase64 = base64Data.replace(/[\r\n\s]/g, '');
-        const byteCharacters = atob(cleanedBase64);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const pdfFile = new File([byteArray], certName, { type: 'application/pdf' });
-        return URL.createObjectURL(pdfFile);
-      } catch (err) {
-        console.error('Error creating PDF Blob URL:', err);
-        return RCMCCertificate;
+      if (!certData || !certData.startsWith('data:')) {
+        const idbCert = await getIDBItem('certificateUrl');
+        const idbName = await getIDBItem('certificateName');
+        if (idbCert) certData = idbCert;
+        if (idbName) name = idbName;
       }
-    }
-    if (hasServerCert) {
-      return SERVE_CERTIFICATE_API_URL;
-    }
-    if (!rawCertUrl) return RCMCCertificate;
-    return rawCertUrl;
-  }, [rawCertUrl, certName, hasServerCert]);
 
-  const pdfDisplayUrl = useMemo(() => {
-    if (!pdfViewUrl) return '';
-    if (pdfViewUrl.startsWith('blob:') || pdfViewUrl.startsWith('data:')) {
-      return pdfViewUrl;
-    }
-    return `${pdfViewUrl}#filename=${encodeURIComponent(certName)}`;
-  }, [pdfViewUrl, certName]);
+      if (name) setCertName(name);
+
+      // If we have a base64 string, convert to Blob URL
+      if (certData && typeof certData === 'string' && certData.startsWith('data:application/pdf;base64,')) {
+        try {
+          const base64Data = certData.replace(/^data:application\/pdf;base64,/, '').trim().replace(/[\r\n\s]/g, '');
+          const byteCharacters = atob(base64Data);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: 'application/pdf' });
+          createdUrl = URL.createObjectURL(blob);
+          if (active) setBlobUrl(createdUrl);
+          return;
+        } catch (err) {
+          console.error('Error converting base64 PDF to blob:', err);
+        }
+      }
+
+      // 2. Second priority: Fetch custom uploaded PDF from server
+      try {
+        const res = await fetch(SERVE_CERTIFICATE_API_URL);
+        if (res.ok) {
+          const blob = await res.blob();
+          if (blob.type === 'application/pdf' || blob.size > 100) {
+            createdUrl = URL.createObjectURL(blob);
+            if (active) setBlobUrl(createdUrl);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Server PDF fetch note:', err);
+      }
+
+      // 3. Fallback: Default RCMCCertificate asset
+      if (active) setBlobUrl(RCMCCertificate);
+    };
+
+    resolvePdf();
+
+    return () => {
+      active = false;
+      if (createdUrl && createdUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(createdUrl);
+      }
+    };
+  }, [documents?.certificateUrl, documents?.certificateName]);
+
+  const pdfViewUrl = blobUrl || RCMCCertificate;
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>
@@ -117,7 +128,7 @@ const CertificatePage = () => {
 
           <div style={{ height: '85vh' }}>
             <iframe
-              src={pdfDisplayUrl}
+              src={pdfViewUrl}
               title={certName}
               width='100%'
               height='100%'
@@ -135,10 +146,10 @@ const CertificatePage = () => {
               href={pdfViewUrl}
               target='_blank'
               rel='noopener noreferrer'
-              download='RCMC Certificate.pdf'
+              download={certName}
               className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
             >
-              Download RCMC Certificate
+              Download {certName}
             </a>
             .
           </p>
