@@ -349,19 +349,23 @@ const AdminDashboard = () => {
     }
   };
 
-  // Handle PDF Document Upload (Certificate / Brochure)
-  const handlePdfFileUpload = (e, docKey, targetFilename) => {
+  // Handle PDF Document Upload (Certificate / Brochure) preserving original filename
+  const handlePdfFileUpload = (e, docKey, docNameKey) => {
     const file = e.target.files[0];
     if (file) {
       if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
         alert('Please select a valid PDF file (.pdf)');
         return;
       }
+      const originalFileName = file.name;
       const reader = new FileReader();
       reader.onloadend = async () => {
         const fileData = reader.result;
-        await updateDocuments({ [docKey]: fileData });
-        alert(`PDF document updated successfully!`);
+        await updateDocuments({
+          [docKey]: fileData,
+          [docNameKey]: originalFileName,
+        });
+        alert(`Document "${originalFileName}" uploaded and saved successfully!`);
       };
       reader.readAsDataURL(file);
     }
@@ -849,14 +853,14 @@ const AdminDashboard = () => {
                       </a>
                     </div>
                     <p className='text-xs text-slate-400'>
-                      Upload a new PDF to replace <code className='text-amber-400'>RCMCCertificate.pdf</code> in <code className='text-slate-300'>src/assets/pdfs/</code>.
+                      Current File: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'RCMCCertificate.pdf'}</code>
                     </p>
                     <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
                       <Upload className='w-4 h-4' /> Upload New Certificate PDF
                       <input
                         type='file'
                         accept='.pdf,application/pdf'
-                        onChange={(e) => handlePdfFileUpload(e, 'certificateUrl', 'RCMCCertificate.pdf')}
+                        onChange={(e) => handlePdfFileUpload(e, 'certificateUrl', 'certificateName')}
                         className='hidden'
                       />
                     </label>
@@ -878,14 +882,14 @@ const AdminDashboard = () => {
                       </a>
                     </div>
                     <p className='text-xs text-slate-400'>
-                      Upload a new PDF to replace <code className='text-amber-400'>BrochureGigabull2025.pdf</code> in <code className='text-slate-300'>src/assets/pdfs/</code>.
+                      Current File: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'BrochureGigabull2025.pdf'}</code>
                     </p>
                     <label className='inline-flex items-center gap-2 py-2 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl cursor-pointer border border-slate-700 transition w-full justify-center'>
                       <Upload className='w-4 h-4' /> Upload New Brochure PDF
                       <input
                         type='file'
                         accept='.pdf,application/pdf'
-                        onChange={(e) => handlePdfFileUpload(e, 'brochureUrl', 'BrochureGigabull2025.pdf')}
+                        onChange={(e) => handlePdfFileUpload(e, 'brochureUrl', 'brochureName')}
                         className='hidden'
                       />
                     </label>

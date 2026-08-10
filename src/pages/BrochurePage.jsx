@@ -6,6 +6,7 @@ import { useSiteData } from '../context/SiteDataContext';
 const BrochurePage = () => {
   const { documents } = useSiteData();
   const rawBrochureUrl = documents?.brochureUrl || BrochureGigabull2025;
+  const brochureName = documents?.brochureName || 'BrochureGigabull2025.pdf';
 
   const pdfViewUrl = useMemo(() => {
     if (!rawBrochureUrl) return BrochureGigabull2025;
@@ -21,15 +22,17 @@ const BrochurePage = () => {
           byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
         const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        return URL.createObjectURL(blob);
+        const pdfFile = new File([byteArray], brochureName, { type: 'application/pdf' });
+        return URL.createObjectURL(pdfFile);
       } catch (err) {
         console.error('Error creating PDF Blob URL:', err);
         return BrochureGigabull2025;
       }
     }
     return rawBrochureUrl;
-  }, [rawBrochureUrl]);
+  }, [rawBrochureUrl, brochureName]);
+
+  const pdfDisplayUrl = `${pdfViewUrl}#filename=${encodeURIComponent(brochureName)}`;
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -65,15 +68,16 @@ const BrochurePage = () => {
         {/* PDF Viewer */}
         <div className='w-full shadow-md rounded-xl overflow-hidden border border-gray-300' style={{ height: '85vh' }}>
           <object
-            data={pdfViewUrl}
+            data={pdfDisplayUrl}
             type='application/pdf'
+            title={brochureName}
             width='100%'
             height='100%'
             className='w-full h-full'
           >
             <iframe
-              src={pdfViewUrl}
-              title='Leather Products Brochure'
+              src={pdfDisplayUrl}
+              title={brochureName}
               width='100%'
               height='100%'
               style={{ border: 'none' }}
@@ -90,9 +94,9 @@ const BrochurePage = () => {
               target='_blank'
               rel='noopener noreferrer'
               className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
-              download='BrochureGigabull2025.pdf'
+              download={brochureName}
             >
-              Download Original PDF
+              Download {brochureName}
             </a>
             .
           </p>

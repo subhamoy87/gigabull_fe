@@ -6,6 +6,7 @@ import { useSiteData } from '../context/SiteDataContext';
 const CertificatePage = () => {
   const { documents } = useSiteData();
   const rawCertUrl = documents?.certificateUrl || RCMCCertificate;
+  const certName = documents?.certificateName || 'RCMCCertificate.pdf';
 
   const pdfViewUrl = useMemo(() => {
     if (!rawCertUrl) return RCMCCertificate;
@@ -21,15 +22,17 @@ const CertificatePage = () => {
           byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
         const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: 'application/pdf' });
-        return URL.createObjectURL(blob);
+        const pdfFile = new File([byteArray], certName, { type: 'application/pdf' });
+        return URL.createObjectURL(pdfFile);
       } catch (err) {
         console.error('Error creating PDF Blob URL:', err);
         return RCMCCertificate;
       }
     }
     return rawCertUrl;
-  }, [rawCertUrl]);
+  }, [rawCertUrl, certName]);
+
+  const pdfDisplayUrl = `${pdfViewUrl}#filename=${encodeURIComponent(certName)}`;
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>
@@ -57,15 +60,16 @@ const CertificatePage = () => {
       <div className='container mx-auto px-4 py-8'>
         <div className='w-full shadow-md rounded-xl overflow-hidden border border-gray-300' style={{ height: '85vh' }}>
           <object
-            data={pdfViewUrl}
+            data={pdfDisplayUrl}
             type='application/pdf'
+            title={certName}
             width='100%'
             height='100%'
             className='w-full h-full'
           >
             <iframe
-              src={pdfViewUrl}
-              title='RCMC Certificate'
+              src={pdfDisplayUrl}
+              title={certName}
               width='100%'
               height='100%'
               style={{ border: 'none' }}
@@ -81,10 +85,10 @@ const CertificatePage = () => {
               href={pdfViewUrl}
               target='_blank'
               rel='noopener noreferrer'
-              download='RCMCCertificate.pdf'
+              download={certName}
               className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
             >
-              Download Original PDF
+              Download {certName}
             </a>
             .
           </p>
