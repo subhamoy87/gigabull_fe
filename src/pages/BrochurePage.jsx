@@ -1,11 +1,32 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 
 const BrochurePage = () => {
   const { documents } = useSiteData();
-  const brochureUrl = documents?.brochureUrl || BrochureGigabull2025;
+  const rawBrochureUrl = documents?.brochureUrl || BrochureGigabull2025;
+
+  const pdfViewUrl = useMemo(() => {
+    if (!rawBrochureUrl) return '';
+    if (typeof rawBrochureUrl === 'string' && rawBrochureUrl.startsWith('data:application/pdf;base64,')) {
+      try {
+        const base64Data = rawBrochureUrl.replace(/^data:application\/pdf;base64,/, '');
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        return URL.createObjectURL(blob);
+      } catch (err) {
+        console.error('Error creating PDF Blob URL:', err);
+        return rawBrochureUrl;
+      }
+    }
+    return rawBrochureUrl;
+  }, [rawBrochureUrl]);
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -39,14 +60,22 @@ const BrochurePage = () => {
         </p>
 
         {/* PDF Viewer */}
-        <div className='w-full' style={{ height: '80vh' }}>
-          <iframe
-            src={brochureUrl}
-            title='Leather Products Brochure'
+        <div className='w-full shadow-md rounded-xl overflow-hidden border border-gray-300' style={{ height: '85vh' }}>
+          <object
+            data={pdfViewUrl}
+            type='application/pdf'
             width='100%'
             height='100%'
-            style={{ border: '1px solid #ccc' }}
-          />
+            className='w-full h-full'
+          >
+            <iframe
+              src={pdfViewUrl}
+              title='Leather Products Brochure'
+              width='100%'
+              height='100%'
+              style={{ border: 'none' }}
+            />
+          </object>
         </div>
 
         {/* Fallback message for unsupported browsers */}
@@ -54,13 +83,13 @@ const BrochurePage = () => {
           <p>
             Can’t view the brochure?{' '}
             <a
-              href={brochureUrl}
+              href={pdfViewUrl}
               target='_blank'
               rel='noopener noreferrer'
-              className='text-blue-600 underline'
+              className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
               download='BrochureGigabull2025.pdf'
             >
-              Download it here
+              Download Original PDF
             </a>
             .
           </p>

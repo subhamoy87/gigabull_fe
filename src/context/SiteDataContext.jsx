@@ -104,6 +104,22 @@ export const SiteDataProvider = ({ children }) => {
     }
   });
 
+  // Fetch server documents on component mount
+  useEffect(() => {
+    const fetchServerDocuments = async () => {
+      try {
+        const res = await fetch(DOCUMENTS_API_URL);
+        const data = await res.json();
+        if (res.ok && data.success && data.documents) {
+          setDocuments(data.documents);
+        }
+      } catch (err) {
+        console.warn('Could not fetch documents from server, using local fallback:', err);
+      }
+    };
+    fetchServerDocuments();
+  }, []);
+
   // 6. Admin Authentication & Session State
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem('gigabull_admin_session') === 'true';
@@ -319,7 +335,17 @@ export const SiteDataProvider = ({ children }) => {
   // Updates for company, contact, documents
   const updateCompany = (updates) => setCompany((prev) => ({ ...prev, ...updates }));
   const updateContact = (updates) => setContact((prev) => ({ ...prev, ...updates }));
-  const updateDocuments = (updates) => setDocuments((prev) => ({ ...prev, ...updates }));
+  const updateDocuments = async (updates) => {
+    setDocuments((prev) => {
+      const nextDocs = { ...prev, ...updates };
+      fetch(SAVE_DOCUMENTS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ documents: nextDocs }),
+      }).catch((err) => console.warn('Error saving documents to server:', err));
+      return nextDocs;
+    });
+  };
 
   // Backup & Reset
   const resetToDefaults = () => {

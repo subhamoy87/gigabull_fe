@@ -1,11 +1,32 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 
 const CertificatePage = () => {
   const { documents } = useSiteData();
-  const certUrl = documents?.certificateUrl || RCMCCertificate;
+  const rawCertUrl = documents?.certificateUrl || RCMCCertificate;
+
+  const pdfViewUrl = useMemo(() => {
+    if (!rawCertUrl) return '';
+    if (typeof rawCertUrl === 'string' && rawCertUrl.startsWith('data:application/pdf;base64,')) {
+      try {
+        const base64Data = rawCertUrl.replace(/^data:application\/pdf;base64,/, '');
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        return URL.createObjectURL(blob);
+      } catch (err) {
+        console.error('Error creating PDF Blob URL:', err);
+        return rawCertUrl;
+      }
+    }
+    return rawCertUrl;
+  }, [rawCertUrl]);
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>
@@ -31,14 +52,22 @@ const CertificatePage = () => {
 
       {/* PDF Viewer */}
       <div className='container mx-auto px-4 py-8'>
-        <div className='w-full' style={{ height: '80vh' }}>
-          <iframe
-            src={certUrl}
-            title='RCMC Certificate'
+        <div className='w-full shadow-md rounded-xl overflow-hidden border border-gray-300' style={{ height: '85vh' }}>
+          <object
+            data={pdfViewUrl}
+            type='application/pdf'
             width='100%'
             height='100%'
-            style={{ border: '1px solid #ccc' }}
-          />
+            className='w-full h-full'
+          >
+            <iframe
+              src={pdfViewUrl}
+              title='RCMC Certificate'
+              width='100%'
+              height='100%'
+              style={{ border: 'none' }}
+            />
+          </object>
         </div>
 
         {/* Fallback message */}
@@ -46,13 +75,13 @@ const CertificatePage = () => {
           <p>
             Can’t view the certificate?{' '}
             <a
-              href={certUrl}
+              href={pdfViewUrl}
               target='_blank'
               rel='noopener noreferrer'
               download='RCMCCertificate.pdf'
-              className='text-blue-600 underline'
+              className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
             >
-              Download it here
+              Download Original PDF
             </a>
             .
           </p>
