@@ -21,10 +21,8 @@ const hashPassword = async (plainPassword) => {
 const DEFAULT_DOCUMENTS = {
   certificateName: 'RCMC Certificate.pdf',
   certificateUrl: RCMCCertificate,
-  certificateGDriveId: '',
   brochureName: 'Brochure Gigabull.pdf',
   brochureUrl: BrochureGigabull2025,
-  brochureGDriveId: '',
 };
 
 const DEFAULT_COMPANY = {
@@ -172,20 +170,16 @@ export const SiteDataProvider = ({ children }) => {
       try {
         const certName = await getIDBItem('certificateName');
         const certUrl = await getIDBItem('certificateUrl');
-        const certGDrive = await getIDBItem('certificateGDriveId');
         const brochureName = await getIDBItem('brochureName');
         const brochureUrl = await getIDBItem('brochureUrl');
-        const brochureGDrive = await getIDBItem('brochureGDriveId');
 
-        if (certGDrive || brochureGDrive || certName || brochureName || certUrl || brochureUrl) {
+        if (certName || brochureName || certUrl || brochureUrl) {
           setDocuments((prev) => ({
             ...prev,
             certificateName: certName || prev.certificateName,
             certificateUrl: certUrl || prev.certificateUrl,
-            certificateGDriveId: certGDrive || prev.certificateGDriveId,
             brochureName: brochureName || prev.brochureName,
             brochureUrl: brochureUrl || prev.brochureUrl,
-            brochureGDriveId: brochureGDrive || prev.brochureGDriveId,
           }));
         }
       } catch (err) {
@@ -258,17 +252,11 @@ export const SiteDataProvider = ({ children }) => {
     if (documents.certificateUrl) {
       setIDBItem('certificateUrl', documents.certificateUrl);
     }
-    if (documents.certificateGDriveId !== undefined) {
-      setIDBItem('certificateGDriveId', documents.certificateGDriveId);
-    }
     if (documents.brochureName) {
       setIDBItem('brochureName', documents.brochureName);
     }
     if (documents.brochureUrl) {
       setIDBItem('brochureUrl', documents.brochureUrl);
-    }
-    if (documents.brochureGDriveId !== undefined) {
-      setIDBItem('brochureGDriveId', documents.brochureGDriveId);
     }
   }, [documents]);
 

@@ -16,9 +16,7 @@ const CertificatePage = () => {
   const pdfViewUrl = documents?.certificateUrl || defaultSupabaseUrl || RCMCCertificate;
   const downloadUrl = pdfViewUrl;
 
-  const certName = (documents?.certificateName && !documents.certificateName.startsWith('Google Drive File'))
-    ? documents.certificateName
-    : 'RCMC Certificate.pdf';
+  const certName = documents?.certificateName || 'RCMC Certificate.pdf';
 
   return (
     <div className='w-full bg-white min-h-screen font-sans'>

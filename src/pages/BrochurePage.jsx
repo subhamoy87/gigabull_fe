@@ -16,9 +16,7 @@ const BrochurePage = () => {
   const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl || BrochureGigabull2025;
   const downloadUrl = pdfViewUrl;
 
-  const brochureName = (documents?.brochureName && !documents.brochureName.startsWith('Google Drive File'))
-    ? documents.brochureName
-    : 'Brochure Gigabull.pdf';
+  const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>

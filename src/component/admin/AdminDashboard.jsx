@@ -427,51 +427,6 @@ const AdminDashboard = () => {
 
 
 
-  const extractGDriveId = (urlOrId) => {
-    if (!urlOrId || typeof urlOrId !== 'string') return '';
-    const trimmed = urlOrId.trim();
-    const matchFileD = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-    if (matchFileD && matchFileD[1]) return matchFileD[1];
-    const matchIdParam = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-    if (matchIdParam && matchIdParam[1]) return matchIdParam[1];
-    if (/^[a-zA-Z0-9_-]{20,}$/.test(trimmed)) return trimmed;
-    return trimmed;
-  };
-
-  const [gdriveForm, setGdriveForm] = useState({
-    certLink: '',
-    brochureLink: '',
-  });
-
-  const handleSaveGDrive = async (e, type) => {
-    e.preventDefault();
-    if (type === 'certificate') {
-      const parsedId = extractGDriveId(gdriveForm.certLink);
-      if (!parsedId) {
-        alert('Please enter a valid Google Drive Link or File ID');
-        return;
-      }
-      await updateDocuments({
-        certificateGDriveId: parsedId,
-        certificateName: 'RCMC Certificate.pdf',
-      });
-      setGdriveForm((p) => ({ ...p, certLink: '' }));
-      alert('Google Drive Certificate link saved successfully!');
-    } else if (type === 'brochure') {
-      const parsedId = extractGDriveId(gdriveForm.brochureLink);
-      if (!parsedId) {
-        alert('Please enter a valid Google Drive Link or File ID');
-        return;
-      }
-      await updateDocuments({
-        brochureGDriveId: parsedId,
-        brochureName: 'Brochure Gigabull.pdf',
-      });
-      setGdriveForm((p) => ({ ...p, brochureLink: '' }));
-      alert('Google Drive Brochure link saved successfully!');
-    }
-  };
-
   // Smart PDF Preview handler (handles Base64 Blobs, Server URLs, and Page Fallbacks)
   const handlePreviewPdf = (e, url, fallbackRoute) => {
     e.preventDefault();
@@ -987,8 +942,8 @@ const AdminDashboard = () => {
 
             <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl'>
               <h3 className='font-bold text-lg text-amber-400 flex items-center justify-between'>
-                <span>Google Drive PDF Documents Manager</span>
-                <span className='text-xs text-slate-400 font-normal'>Paste Google Drive Share Link or File ID</span>
+                <span>Supabase PDF Documents Manager</span>
+                <span className='text-xs text-slate-400 font-normal'>Upload PDF Files Directly to Supabase Storage Bucket</span>
               </h3>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
@@ -1010,18 +965,13 @@ const AdminDashboard = () => {
                   <p className='text-xs text-slate-400'>
                     Current Document: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'Default Certificate'}</code>
                   </p>
-                  {documents?.certificateGDriveId && (
-                    <p className='text-[11px] text-emerald-400 font-mono bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20 truncate'>
-                      Active GDrive ID: {documents.certificateGDriveId}
-                    </p>
-                  )}
 
                   <div className='pt-2 border-t border-slate-800 space-y-3'>
                     <div>
                       <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider mb-1'>
-                        Option A: Upload PDF to Supabase Storage
+                        Upload PDF to Supabase Storage
                       </label>
-                      <label className='inline-flex items-center gap-2 py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
+                      <label className='inline-flex items-center gap-2 py-3 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
                         <Upload className='w-4 h-4' /> {pdfUploading.cert ? 'Uploading PDF...' : 'Choose Certificate PDF File'}
                         <input
                           type='file'
@@ -1031,28 +981,6 @@ const AdminDashboard = () => {
                           className='hidden'
                         />
                       </label>
-                    </div>
-
-                    <div>
-                      <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider mb-1'>
-                        Option B: Set Google Drive Link / File ID
-                      </label>
-                      <div className='flex gap-2'>
-                        <input
-                          type='text'
-                          placeholder='Paste GDrive Link or File ID'
-                          value={gdriveForm.certLink}
-                          onChange={(e) => setGdriveForm((p) => ({ ...p, certLink: e.target.value }))}
-                          className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
-                        />
-                        <button
-                          type='button'
-                          onClick={(e) => handleSaveGDrive(e, 'certificate')}
-                          className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
-                        >
-                          Save Link
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -1075,18 +1003,13 @@ const AdminDashboard = () => {
                   <p className='text-xs text-slate-400'>
                     Current Document: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Default Brochure'}</code>
                   </p>
-                  {documents?.brochureGDriveId && (
-                    <p className='text-[11px] text-emerald-400 font-mono bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20 truncate'>
-                      Active GDrive ID: {documents.brochureGDriveId}
-                    </p>
-                  )}
 
                   <div className='pt-2 border-t border-slate-800 space-y-3'>
                     <div>
                       <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider mb-1'>
-                        Option A: Upload PDF to Supabase Storage
+                        Upload PDF to Supabase Storage
                       </label>
-                      <label className='inline-flex items-center gap-2 py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
+                      <label className='inline-flex items-center gap-2 py-3 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
                         <Upload className='w-4 h-4' /> {pdfUploading.brochure ? 'Uploading PDF...' : 'Choose Brochure PDF File'}
                         <input
                           type='file'
@@ -1096,28 +1019,6 @@ const AdminDashboard = () => {
                           className='hidden'
                         />
                       </label>
-                    </div>
-
-                    <div>
-                      <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider mb-1'>
-                        Option B: Set Google Drive Link / File ID
-                      </label>
-                      <div className='flex gap-2'>
-                        <input
-                          type='text'
-                          placeholder='Paste GDrive Link or File ID'
-                          value={gdriveForm.brochureLink}
-                          onChange={(e) => setGdriveForm((p) => ({ ...p, brochureLink: e.target.value }))}
-                          className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
-                        />
-                        <button
-                          type='button'
-                          onClick={(e) => handleSaveGDrive(e, 'brochure')}
-                          className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
-                        >
-                          Save Link
-                        </button>
-                      </div>
                     </div>
                   </div>
                 </div>
