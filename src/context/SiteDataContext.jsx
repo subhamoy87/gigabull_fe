@@ -332,14 +332,25 @@ export const SiteDataProvider = ({ children }) => {
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase
+        const { data, error } = await supabase
           .from('site_settings')
-          .upsert({
-            key: 'admin_config',
-            data: { passwordHash: newHash },
-          }, { onConflict: 'key' });
+          .upsert(
+            {
+              key: 'admin_config',
+              data: { passwordHash: newHash },
+            },
+            { onConflict: 'key' }
+          )
+          .select();
+
+        if (error) {
+          console.error('Supabase site_settings password update error:', error);
+          return { success: false, message: `Supabase DB error: ${error.message}` };
+        }
+        console.log('Successfully updated admin_config in Supabase site_settings:', data);
       } catch (err) {
-        console.warn('Error saving password hash to Supabase:', err);
+        console.error('Error saving password hash to Supabase:', err);
+        return { success: false, message: `Supabase error: ${err.message}` };
       }
     }
 
@@ -354,10 +365,10 @@ export const SiteDataProvider = ({ children }) => {
         return data;
       }
     } catch (err) {
-      console.warn('Error updating admin password on server:', err);
+      console.warn('Error updating admin password on server fallback:', err);
     }
 
-    return { success: true, message: 'Admin password hash updated successfully' };
+    return { success: true, message: 'Admin password updated successfully in Supabase site_settings!' };
   };
 
   const saveProductsToDisk = async (newProductsData) => {
