@@ -140,6 +140,10 @@ const AdminDashboard = () => {
       return;
     }
 
+    try {
+      sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
+    } catch (e) {}
+
     handleSelectTab('documents');
     setPdfUploading((p) => ({ ...p, cert: true }));
 
@@ -148,6 +152,10 @@ const AdminDashboard = () => {
       if (res && res.success) {
         alert(`Successfully uploaded "${selectedCertFile.name}" to Supabase Storage Bucket ('site-documents')!`);
         setSelectedCertFile(null);
+        try {
+          sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
+        } catch (e) {}
+        window.location.reload();
       } else {
         alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
       }
@@ -165,6 +173,10 @@ const AdminDashboard = () => {
       return;
     }
 
+    try {
+      sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
+    } catch (e) {}
+
     handleSelectTab('documents');
     setPdfUploading((p) => ({ ...p, brochure: true }));
 
@@ -173,6 +185,10 @@ const AdminDashboard = () => {
       if (res && res.success) {
         alert(`Successfully uploaded "${selectedBrochureFile.name}" to Supabase Storage Bucket ('site-documents')!`);
         setSelectedBrochureFile(null);
+        try {
+          sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
+        } catch (e) {}
+        window.location.reload();
       } else {
         alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
       }
