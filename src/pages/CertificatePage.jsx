@@ -1,5 +1,5 @@
 import React from 'react';
-import { RCMCCertificate } from '../assets/pdfs';
+// import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
@@ -7,13 +7,13 @@ import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseC
 const CertificatePage = () => {
   const { documents } = useSiteData();
 
-  // Supabase Storage direct fallback path
+  // Supabase Storage direct bucket URL (pdfs/rcmc-certificate.pdf)
   const defaultSupabaseUrl = isSupabaseConfigured()
     ? getSupabaseStorageUrl('pdfs/rcmc-certificate.pdf')
     : null;
 
-  // Prioritize uploaded Supabase URL, then default Supabase Bucket URL, then local asset (GDrive disabled)
-  const pdfViewUrl = documents?.certificateUrl || defaultSupabaseUrl || RCMCCertificate;
+  // Strictly fetch from Supabase Storage (uploaded URL or bucket default path)
+  const pdfViewUrl = documents?.certificateUrl || defaultSupabaseUrl;
   const downloadUrl = pdfViewUrl;
 
   const certName = documents?.certificateName || 'RCMC Certificate.pdf';

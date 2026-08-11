@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrochureGigabull2025 } from '../assets/pdfs';
+// import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
@@ -7,13 +7,13 @@ import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseC
 const BrochurePage = () => {
   const { documents } = useSiteData();
 
-  // Supabase Storage direct fallback path
+  // Supabase Storage direct bucket URL (pdfs/gigabull-brochure.pdf)
   const defaultSupabaseUrl = isSupabaseConfigured()
     ? getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf')
     : null;
 
-  // Prioritize uploaded Supabase URL, then default Supabase Bucket URL, then local asset (GDrive disabled)
-  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl || BrochureGigabull2025;
+  // Strictly fetch from Supabase Storage (uploaded URL or bucket default path)
+  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl;
   const downloadUrl = pdfViewUrl;
 
   const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
