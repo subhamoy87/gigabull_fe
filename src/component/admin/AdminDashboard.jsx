@@ -100,6 +100,16 @@ const AdminDashboard = () => {
   const [passForm, setPassForm] = useState({ newPass: '', confirmPass: '' });
   const [passMessage, setPassMessage] = useState({ type: '', text: '' });
 
+  // Custom In-App Toast State & Trigger
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast({ show: false, message: '', type: 'success' });
+    }, 4500);
+  };
+
   // Supabase Seeder & Storage State
   const [isSeeding, setIsSeeding] = useState(false);
   const [pdfUploading, setPdfUploading] = useState({ cert: false, brochure: false });
@@ -136,13 +146,9 @@ const AdminDashboard = () => {
 
   const handleUploadCertToSupabase = async () => {
     if (!selectedCertFile) {
-      alert('Please choose a Certificate PDF file first!');
+      showToast('Please choose a Certificate PDF file first!', 'error');
       return;
     }
-
-    try {
-      sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
-    } catch (e) {}
 
     handleSelectTab('documents');
     setPdfUploading((p) => ({ ...p, cert: true }));
@@ -150,18 +156,14 @@ const AdminDashboard = () => {
     try {
       const res = await uploadPdfToSupabase(selectedCertFile, 'certificate');
       if (res && res.success) {
-        alert(`Successfully uploaded "${selectedCertFile.name}" to Supabase Storage Bucket ('site-documents')!`);
+        showToast(`Successfully uploaded "${selectedCertFile.name}" to Supabase Storage!`, 'success');
         setSelectedCertFile(null);
-        try {
-          sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
-        } catch (e) {}
-        window.location.reload();
       } else {
-        alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
+        showToast(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`, 'error');
       }
     } catch (err) {
       console.error('PDF Upload Error:', err);
-      alert(`Upload error: ${err.message}`);
+      showToast(`Upload error: ${err.message}`, 'error');
     } finally {
       setPdfUploading((p) => ({ ...p, cert: false }));
     }
@@ -169,13 +171,9 @@ const AdminDashboard = () => {
 
   const handleUploadBrochureToSupabase = async () => {
     if (!selectedBrochureFile) {
-      alert('Please choose a Brochure PDF file first!');
+      showToast('Please choose a Brochure PDF file first!', 'error');
       return;
     }
-
-    try {
-      sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
-    } catch (e) {}
 
     handleSelectTab('documents');
     setPdfUploading((p) => ({ ...p, brochure: true }));
@@ -183,18 +181,14 @@ const AdminDashboard = () => {
     try {
       const res = await uploadPdfToSupabase(selectedBrochureFile, 'brochure');
       if (res && res.success) {
-        alert(`Successfully uploaded "${selectedBrochureFile.name}" to Supabase Storage Bucket ('site-documents')!`);
+        showToast(`Successfully uploaded "${selectedBrochureFile.name}" to Supabase Storage!`, 'success');
         setSelectedBrochureFile(null);
-        try {
-          sessionStorage.setItem('gigabull_admin_active_tab', 'documents');
-        } catch (e) {}
-        window.location.reload();
       } else {
-        alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
+        showToast(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`, 'error');
       }
     } catch (err) {
       console.error('PDF Upload Error:', err);
-      alert(`Upload error: ${err.message}`);
+      showToast(`Upload error: ${err.message}`, 'error');
     } finally {
       setPdfUploading((p) => ({ ...p, brochure: false }));
     }
@@ -569,7 +563,21 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className='min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row font-sans selection:bg-amber-500 selection:text-slate-950'>
+    <div className='min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row font-sans selection:bg-amber-500 selection:text-slate-950 relative'>
+      {/* Custom In-App Toast Notification Banner */}
+      {toast.show && (
+        <div className='fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border backdrop-blur-md transition-all duration-300 animate-slide-in font-sans text-sm font-semibold bg-slate-900/95 border-amber-500/40 text-amber-300'>
+          <div className={`w-3 h-3 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-emerald-400 animate-pulse'}`}></div>
+          <span>{toast.message}</span>
+          <button
+            onClick={() => setToast({ show: false, message: '', type: 'success' })}
+            className='ml-2 text-slate-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer'
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* SIDEBAR */}
       <aside className='w-full md:w-72 bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between shrink-0'>
         <div>
