@@ -22,15 +22,21 @@ export const seedSupabaseCatalog = async () => {
           return String(img);
         });
 
+        const modelVal = prod.model || prod.details?.model_no || prod.details?.model || '';
+
         productRows.push({
           slug: prod.slug,
           category: categoryName,
           name: prod.name,
+          model: modelVal,
           tags: prod.tags || [],
           is_model_image: !!prod.isModelImage,
           is_showcase: !!prod.isShowcase,
           images: cleanImages,
-          details: prod.details || {},
+          details: {
+            ...prod.details,
+            model_no: modelVal,
+          },
         });
       });
     });

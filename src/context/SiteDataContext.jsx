@@ -96,14 +96,19 @@ export const SiteDataProvider = ({ children }) => {
         if (!categoryMap[cat]) {
           categoryMap[cat] = { category: cat, products: [] };
         }
+        const modelVal = row.model || row.details?.model_no || row.details?.model || '';
         categoryMap[cat].products.push({
           name: row.name,
           slug: row.slug,
+          model: modelVal,
           tags: row.tags || [],
           isModelImage: row.is_model_image,
           isShowcase: row.is_showcase,
           images: row.images || [],
-          details: row.details || {},
+          details: {
+            model_no: modelVal,
+            ...(row.details || {}),
+          },
         });
       });
       return Object.values(categoryMap);
@@ -389,17 +394,22 @@ export const SiteDataProvider = ({ children }) => {
     if (isSupabaseConfigured()) {
       try {
         const cleanImages = (cleanProduct.images || []).map((img) => typeof img === 'string' ? img : String(img));
+        const modelVal = cleanProduct.model || cleanProduct.details?.model_no || cleanProduct.details?.model || '';
         await supabase
           .from('products')
           .upsert({
             slug: productSlug,
             category: categoryName,
             name: cleanProduct.name,
+            model: modelVal,
             tags: cleanProduct.tags || [],
             is_model_image: !!cleanProduct.isModelImage,
             is_showcase: !!cleanProduct.isShowcase,
             images: cleanImages,
-            details: cleanProduct.details || {},
+            details: {
+              ...cleanProduct.details,
+              model_no: modelVal,
+            },
           }, { onConflict: 'slug' });
       } catch (err) {
         console.warn('Supabase product update error:', err);
@@ -443,17 +453,22 @@ export const SiteDataProvider = ({ children }) => {
     if (isSupabaseConfigured()) {
       try {
         const cleanImages = (newProduct.images || []).map((img) => typeof img === 'string' ? img : String(img));
+        const modelVal = newProduct.model || newProduct.details?.model_no || newProduct.details?.model || '';
         await supabase
           .from('products')
           .upsert({
             slug: newProduct.slug,
             category: categoryName,
             name: newProduct.name,
+            model: modelVal,
             tags: newProduct.tags || [],
             is_model_image: !!newProduct.isModelImage,
             is_showcase: !!newProduct.isShowcase,
             images: cleanImages,
-            details: newProduct.details || {},
+            details: {
+              ...newProduct.details,
+              model_no: modelVal,
+            },
           }, { onConflict: 'slug' });
       } catch (err) {
         console.warn('Supabase product add error:', err);
