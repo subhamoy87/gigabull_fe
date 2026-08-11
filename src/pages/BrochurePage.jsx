@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrochureGigabull2025 } from '../assets/pdfs';
+// import { BrochureGigabull2025 } from '../assets/pdfs'; // Local PDF fallback import (disabled)
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
@@ -12,8 +12,8 @@ const BrochurePage = () => {
     ? getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf')
     : null;
 
-  // Prioritize uploaded Supabase URL, then default Supabase Bucket URL, then bundled local asset
-  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl || BrochureGigabull2025;
+  // Strictly fetch from Supabase Storage only (Local fallback disabled in comment below)
+  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl; // || BrochureGigabull2025;
   const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
 
   // Direct Frontend Blob Download Handler (Ensures clean uncorrupted PDF file downloads)
