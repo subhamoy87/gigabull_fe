@@ -708,12 +708,21 @@ const AdminDashboard = () => {
                   Add, update, or remove products, edit titles, features, and upload custom images.
                 </p>
               </div>
-              <button
-                onClick={handleOpenAddProduct}
-                className='py-3 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 flex items-center gap-2 transition cursor-pointer text-sm shrink-0'
-              >
-                <Plus className='w-5 h-5' /> Add New Product
-              </button>
+              <div className='flex items-center gap-3 shrink-0'>
+                <button
+                  onClick={handleSeedSupabase}
+                  disabled={isSeeding}
+                  className='py-3 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold rounded-xl border border-amber-500/30 shadow-md flex items-center gap-2 transition cursor-pointer text-sm disabled:opacity-50'
+                >
+                  <Database className='w-4 h-4' /> {isSeeding ? 'Seeding Database...' : 'Seed Catalog to Supabase'}
+                </button>
+                <button
+                  onClick={handleOpenAddProduct}
+                  className='py-3 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 flex items-center gap-2 transition cursor-pointer text-sm shrink-0'
+                >
+                  <Plus className='w-5 h-5' /> Add New Product
+                </button>
+              </div>
             </div>
 
             {/* Filter & Search Bar */}
