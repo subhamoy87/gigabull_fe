@@ -76,7 +76,14 @@ export const SiteDataProvider = ({ children }) => {
   const contact = DEFAULT_CONTACT;
 
   // 5. Documents State (PDFs for Certificate and Brochure)
-  const [documents, setDocuments] = useState(DEFAULT_DOCUMENTS);
+  const [documents, setDocuments] = useState(() => {
+    try {
+      const storedDocs = localStorage.getItem('gigabull_documents_meta');
+      return storedDocs ? { ...DEFAULT_DOCUMENTS, ...JSON.parse(storedDocs) } : DEFAULT_DOCUMENTS;
+    } catch (e) {
+      return DEFAULT_DOCUMENTS;
+    }
+  });
 
   // Helper: Fetch products from Supabase database
   const fetchSupabaseProducts = async () => {
@@ -164,16 +171,20 @@ export const SiteDataProvider = ({ children }) => {
     const loadIDBDocuments = async () => {
       try {
         const certName = await getIDBItem('certificateName');
+        const certUrl = await getIDBItem('certificateUrl');
         const certGDrive = await getIDBItem('certificateGDriveId');
         const brochureName = await getIDBItem('brochureName');
+        const brochureUrl = await getIDBItem('brochureUrl');
         const brochureGDrive = await getIDBItem('brochureGDriveId');
 
-        if (certGDrive || brochureGDrive || certName || brochureName) {
+        if (certGDrive || brochureGDrive || certName || brochureName || certUrl || brochureUrl) {
           setDocuments((prev) => ({
             ...prev,
             certificateName: certName || prev.certificateName,
+            certificateUrl: certUrl || prev.certificateUrl,
             certificateGDriveId: certGDrive || prev.certificateGDriveId,
             brochureName: brochureName || prev.brochureName,
+            brochureUrl: brochureUrl || prev.brochureUrl,
             brochureGDriveId: brochureGDrive || prev.brochureGDriveId,
           }));
         }
@@ -236,14 +247,25 @@ export const SiteDataProvider = ({ children }) => {
   }, [company]);
 
   useEffect(() => {
+    try {
+      localStorage.setItem('gigabull_documents_meta', JSON.stringify(documents));
+    } catch (e) {
+      console.error('Error saving documents meta', e);
+    }
     if (documents.certificateName) {
       setIDBItem('certificateName', documents.certificateName);
+    }
+    if (documents.certificateUrl) {
+      setIDBItem('certificateUrl', documents.certificateUrl);
     }
     if (documents.certificateGDriveId !== undefined) {
       setIDBItem('certificateGDriveId', documents.certificateGDriveId);
     }
     if (documents.brochureName) {
       setIDBItem('brochureName', documents.brochureName);
+    }
+    if (documents.brochureUrl) {
+      setIDBItem('brochureUrl', documents.brochureUrl);
     }
     if (documents.brochureGDriveId !== undefined) {
       setIDBItem('brochureGDriveId', documents.brochureGDriveId);

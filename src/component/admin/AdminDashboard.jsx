@@ -52,8 +52,21 @@ const AdminDashboard = () => {
     importData,
   } = useSiteData();
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      return sessionStorage.getItem('gigabull_admin_active_tab') || 'overview';
+    } catch (e) {
+      return 'overview';
+    }
+  });
   const navigate = useNavigate();
+
+  const handleSelectTab = (tabId) => {
+    setActiveTab(tabId);
+    try {
+      sessionStorage.setItem('gigabull_admin_active_tab', tabId);
+    } catch (e) {}
+  };
 
   // Temporary local state for forms
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
@@ -107,14 +120,23 @@ const AdminDashboard = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Ensure tab remains on PDF File Manager view
+    handleSelectTab('documents');
     setPdfUploading((p) => ({ ...p, [docType]: true }));
-    const res = await uploadPdfToSupabase(file, docType);
-    setPdfUploading((p) => ({ ...p, [docType]: false }));
 
-    if (res.success) {
-      alert(`Successfully uploaded ${file.name} to Supabase Storage Bucket ('site-documents')!`);
-    } else {
-      alert(`Upload error: ${res.error || res.message}`);
+    try {
+      const res = await uploadPdfToSupabase(file, docType);
+      if (res && res.success) {
+        alert(`Successfully uploaded ${file.name} to Supabase Storage Bucket ('site-documents')!`);
+      } else {
+        alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
+      }
+    } catch (err) {
+      console.error('PDF Upload Error:', err);
+      alert(`Upload error: ${err.message}`);
+    } finally {
+      setPdfUploading((p) => ({ ...p, [docType]: false }));
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -571,7 +593,7 @@ const AdminDashboard = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => !tab.disabled && setActiveTab(tab.id)}
+                  onClick={() => !tab.disabled && handleSelectTab(tab.id)}
                   disabled={tab.disabled}
                   className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition ${tab.disabled
                       ? 'opacity-40 cursor-not-allowed text-slate-500'
