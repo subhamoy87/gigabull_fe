@@ -35,6 +35,10 @@ const BrochurePage = () => {
     fetch(pdfViewUrl)
       .then(async (response) => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          throw new Error('Supabase returned 404 JSON response instead of PDF file');
+        }
         const arrayBuffer = await response.arrayBuffer();
         const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
         const localUrl = window.URL.createObjectURL(pdfBlob);
@@ -44,10 +48,10 @@ const BrochurePage = () => {
         }
       })
       .catch((err) => {
-        console.warn('Could not fetch PDF Blob, falling back to direct URL:', err);
+        console.warn('PDF fetch error:', err.message);
         if (isMounted) {
-          // If direct fetch fails (e.g. 404 or CORS), set direct URL as fallback
-          setBlobUrl(pdfViewUrl);
+          setBlobUrl(null);
+          setPdfError(true);
           setLoading(false);
         }
       });
@@ -83,10 +87,6 @@ const BrochurePage = () => {
       window.open(pdfViewUrl, '_blank');
     }
   };
-
-  const gviewUrl = pdfViewUrl
-    ? `https://docs.google.com/gview?url=${encodeURIComponent(pdfViewUrl)}&embedded=true`
-    : '';
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -134,17 +134,20 @@ const BrochurePage = () => {
               </div>
             </div>
             <div className='flex items-center gap-2'>
-              <a
-                href={pdfViewUrl}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition cursor-pointer border border-slate-700'
-              >
-                Open Fullscreen
-              </a>
+              {!pdfError && (
+                <a
+                  href={pdfViewUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition cursor-pointer border border-slate-700'
+                >
+                  Open Fullscreen
+                </a>
+              )}
               <button
                 onClick={handleDownloadPdf}
-                className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm cursor-pointer'
+                disabled={pdfError}
+                className={`inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm ${pdfError ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 Download PDF
               </button>
@@ -155,18 +158,23 @@ const BrochurePage = () => {
             {loading ? (
               <div className='flex flex-col items-center justify-center h-full text-amber-400 gap-3'>
                 <div className='w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin'></div>
-                <span className='text-xs font-semibold text-slate-400 tracking-wide'>Loading Product Brochure PDF...</span>
+                <span className='text-xs font-semibold text-slate-400 tracking-wide'>Loading Product Brochure PDF from Supabase Storage...</span>
               </div>
-            ) : pdfError ? (
+            ) : pdfError || !blobUrl ? (
               <div className='flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-3 p-6 text-center'>
+                <div className='w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-xl mb-1'>
+                  !
+                </div>
                 <p className='text-amber-400 font-bold text-base'>Brochure PDF Not Found in Supabase Storage</p>
-                <p className='text-xs text-slate-400 max-w-md'>
-                  Please log into Admin Panel $\rightarrow$ PDF File Manager and upload your Product Brochure PDF into your Supabase Storage bucket.
+                <p className='text-xs text-slate-400 max-w-md leading-relaxed'>
+                  The PDF document file has not been uploaded to your Supabase Storage bucket yet.
+                  <br /><br />
+                  Please log into <strong>Admin Panel $\rightarrow$ PDF File Manager</strong> tab and upload your Product Brochure PDF file.
                 </p>
               </div>
             ) : (
               <iframe
-                src={blobUrl || gviewUrl || pdfViewUrl}
+                src={blobUrl}
                 title={brochureName}
                 width='100%'
                 height='100%'
@@ -187,19 +195,24 @@ const BrochurePage = () => {
             Can’t view the brochure?{' '}
             <button
               onClick={handleDownloadPdf}
-              className='text-blue-600 font-semibold underline hover:text-blue-800 transition cursor-pointer'
+              disabled={pdfError}
+              className='text-blue-600 font-semibold underline hover:text-blue-800 transition cursor-pointer disabled:opacity-50'
             >
               Download {brochureName}
             </button>
-            {' '}or{' '}
-            <a
-              href={pdfViewUrl}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
-            >
-              Open in New Tab
-            </a>
+            {!pdfError && (
+              <>
+                {' '}or{' '}
+                <a
+                  href={pdfViewUrl}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
+                >
+                  Open in New Tab
+                </a>
+              </>
+            )}
             .
           </p>
         </div>
