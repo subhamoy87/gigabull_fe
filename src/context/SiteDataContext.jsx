@@ -563,30 +563,33 @@ export const SiteDataProvider = ({ children }) => {
     });
   };
 
-  // Upload PDF file to Supabase Storage Bucket ('site-documents')
+  // Upload PDF file to Supabase Storage Bucket ('site-documents') with automatic overwrite
   const uploadPdfToSupabase = async (file, docType) => {
     if (!isSupabaseConfigured()) {
       return { success: false, message: 'Supabase credentials not configured in .env' };
     }
 
     try {
-      const fileName = `${docType}_${Date.now()}.pdf`;
-      const filePath = `pdfs/${fileName}`;
+      // Fixed storage path for each document type to ensure overwriting in place
+      const filePath = docType === 'certificate' ? 'pdfs/rcmc-certificate.pdf' : 'pdfs/gigabull-brochure.pdf';
 
+      // 1. Upload & Overwrite in place
       const { data, error } = await supabase.storage
         .from('site-documents')
         .upload(filePath, file, {
-          cacheControl: '3600',
+          cacheControl: '0',
           upsert: true,
         });
 
       if (error) throw error;
 
+      // 2. Get Public URL
       const { data: urlData } = supabase.storage
         .from('site-documents')
         .getPublicUrl(filePath);
 
-      const publicUrl = urlData.publicUrl;
+      // Append timestamp query parameter to bust browser cache on updates
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
       const docUpdates = docType === 'certificate'
         ? { certificateUrl: publicUrl, certificateName: file.name }
