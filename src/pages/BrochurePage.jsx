@@ -75,14 +75,17 @@ const BrochurePage = () => {
             </a>
           </div>
 
-          <div style={{ height: '85vh' }}>
+          <div style={{ height: '85vh', overflow: 'hidden', position: 'relative' }}>
             <iframe
               src={pdfViewUrl}
               title={brochureName}
               width='100%'
-              height='100%'
-              style={{ border: 'none' }}
-              className='w-full h-full'
+              style={{
+                border: 'none',
+                width: '100%',
+                height: 'calc(100% + 56px)',
+                marginTop: '-56px',
+              }}
             />
           </div>
         </div>
