@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 // import { BrochureGigabull2025 } from '../assets/pdfs'; // Local PDF fallback import (disabled)
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
@@ -16,9 +16,53 @@ const BrochurePage = () => {
   const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl; // || BrochureGigabull2025;
   const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
 
+  const [blobUrl, setBlobUrl] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [pdfError, setPdfError] = useState(false);
+
+  // Fetch the PDF from Supabase as a local Blob URL for same-origin iframe rendering
+  useEffect(() => {
+    if (!pdfViewUrl) {
+      setLoading(false);
+      setPdfError(true);
+      return;
+    }
+
+    let isMounted = true;
+    setLoading(true);
+    setPdfError(false);
+
+    fetch(pdfViewUrl)
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const arrayBuffer = await response.arrayBuffer();
+        const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        const localUrl = window.URL.createObjectURL(pdfBlob);
+        if (isMounted) {
+          setBlobUrl(localUrl);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not fetch PDF Blob, falling back to direct URL:', err);
+        if (isMounted) {
+          // If direct fetch fails (e.g. 404 or CORS), set direct URL as fallback
+          setBlobUrl(pdfViewUrl);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+      if (blobUrl && blobUrl.startsWith('blob:')) {
+        window.URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [pdfViewUrl]);
+
   // Direct Frontend Blob Download Handler (Ensures clean uncorrupted PDF file downloads)
   const handleDownloadPdf = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!pdfViewUrl) return;
 
     try {
@@ -26,19 +70,23 @@ const BrochurePage = () => {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const arrayBuffer = await response.arrayBuffer();
       const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
-      const blobUrl = window.URL.createObjectURL(pdfBlob);
+      const downloadUrl = window.URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
-      link.href = blobUrl;
+      link.href = downloadUrl;
       link.download = brochureName.endsWith('.pdf') ? brochureName : `${brochureName}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
+      window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
       console.warn('Direct blob download notice, opening in new tab:', err);
       window.open(pdfViewUrl, '_blank');
     }
   };
+
+  const gviewUrl = pdfViewUrl
+    ? `https://docs.google.com/gview?url=${encodeURIComponent(pdfViewUrl)}&embedded=true`
+    : '';
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -85,27 +133,51 @@ const BrochurePage = () => {
                 </h2>
               </div>
             </div>
-            <button
-              onClick={handleDownloadPdf}
-              className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm cursor-pointer'
-            >
-              Download PDF
-            </button>
+            <div className='flex items-center gap-2'>
+              <a
+                href={pdfViewUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition cursor-pointer border border-slate-700'
+              >
+                Open Fullscreen
+              </a>
+              <button
+                onClick={handleDownloadPdf}
+                className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm cursor-pointer'
+              >
+                Download PDF
+              </button>
+            </div>
           </div>
 
           <div style={{ height: '85vh', position: 'relative' }} className='bg-slate-900 w-full'>
-            <iframe
-              src={pdfViewUrl}
-              title={brochureName}
-              width='100%'
-              height='100%'
-              className='w-full h-full border-0'
-              style={{
-                border: 'none',
-                width: '100%',
-                height: '100%',
-              }}
-            />
+            {loading ? (
+              <div className='flex flex-col items-center justify-center h-full text-amber-400 gap-3'>
+                <div className='w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin'></div>
+                <span className='text-xs font-semibold text-slate-400 tracking-wide'>Loading Product Brochure PDF...</span>
+              </div>
+            ) : pdfError ? (
+              <div className='flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-3 p-6 text-center'>
+                <p className='text-amber-400 font-bold text-base'>Brochure PDF Not Found in Supabase Storage</p>
+                <p className='text-xs text-slate-400 max-w-md'>
+                  Please log into Admin Panel $\rightarrow$ PDF File Manager and upload your Product Brochure PDF into your Supabase Storage bucket.
+                </p>
+              </div>
+            ) : (
+              <iframe
+                src={blobUrl || gviewUrl || pdfViewUrl}
+                title={brochureName}
+                width='100%'
+                height='100%'
+                className='w-full h-full border-0'
+                style={{
+                  border: 'none',
+                  width: '100%',
+                  height: '100%',
+                }}
+              />
+            )}
           </div>
         </div>
 
@@ -119,6 +191,15 @@ const BrochurePage = () => {
             >
               Download {brochureName}
             </button>
+            {' '}or{' '}
+            <a
+              href={pdfViewUrl}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
+            >
+              Open in New Tab
+            </a>
             .
           </p>
         </div>
