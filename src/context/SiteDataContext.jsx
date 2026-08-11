@@ -251,17 +251,21 @@ export const SiteDataProvider = ({ children }) => {
     } catch (e) {
       console.error('Error saving documents meta', e);
     }
-    if (documents.certificateName) {
-      setIDBItem('certificateName', documents.certificateName);
-    }
-    if (documents.certificateUrl) {
-      setIDBItem('certificateUrl', documents.certificateUrl);
-    }
-    if (documents.brochureName) {
-      setIDBItem('brochureName', documents.brochureName);
-    }
-    if (documents.brochureUrl) {
-      setIDBItem('brochureUrl', documents.brochureUrl);
+    try {
+      if (documents.certificateName) {
+        setIDBItem('certificateName', documents.certificateName).catch((e) => console.warn('IDB certName warning:', e));
+      }
+      if (documents.certificateUrl) {
+        setIDBItem('certificateUrl', documents.certificateUrl).catch((e) => console.warn('IDB certUrl warning:', e));
+      }
+      if (documents.brochureName) {
+        setIDBItem('brochureName', documents.brochureName).catch((e) => console.warn('IDB brochureName warning:', e));
+      }
+      if (documents.brochureUrl) {
+        setIDBItem('brochureUrl', documents.brochureUrl).catch((e) => console.warn('IDB brochureUrl warning:', e));
+      }
+    } catch (err) {
+      console.warn('Error in documents IDB sync:', err);
     }
   }, [documents]);
 

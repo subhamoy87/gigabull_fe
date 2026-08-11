@@ -1111,7 +1111,11 @@ const AdminDashboard = () => {
                           📄 {selectedCertFile.name}
                         </span>
                         <button
-                          onClick={() => setSelectedCertFile(null)}
+                          type='button'
+                          onClick={(e) => {
+                            if (e && e.preventDefault) e.preventDefault();
+                            setSelectedCertFile(null);
+                          }}
                           className='text-amber-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer'
                           title='Clear Selection'
                         >
@@ -1123,6 +1127,7 @@ const AdminDashboard = () => {
                     {/* Step 2: Explicit Upload Button */}
                     <div className='pt-1'>
                       <button
+                        type='button'
                         onClick={handleUploadCertToSupabase}
                         disabled={!selectedCertFile || pdfUploading.cert}
                         className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold transition shadow-lg ${
@@ -1184,7 +1189,11 @@ const AdminDashboard = () => {
                           📄 {selectedBrochureFile.name}
                         </span>
                         <button
-                          onClick={() => setSelectedBrochureFile(null)}
+                          type='button'
+                          onClick={(e) => {
+                            if (e && e.preventDefault) e.preventDefault();
+                            setSelectedBrochureFile(null);
+                          }}
                           className='text-amber-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer'
                           title='Clear Selection'
                         >
@@ -1196,6 +1205,7 @@ const AdminDashboard = () => {
                     {/* Step 2: Explicit Upload Button */}
                     <div className='pt-1'>
                       <button
+                        type='button'
                         onClick={handleUploadBrochureToSupabase}
                         disabled={!selectedBrochureFile || pdfUploading.brochure}
                         className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold transition shadow-lg ${
