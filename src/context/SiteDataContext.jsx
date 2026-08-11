@@ -326,9 +326,10 @@ export const SiteDataProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
-  // Change Admin Password (updates Supabase site_settings 'admin_config')
+  // Change Admin Password (updates Supabase site_settings 'admin_config' with updated timestamp)
   const changeAdminPassword = async (newPass) => {
     const newHash = await hashPassword(newPass);
+    const nowIso = new Date().toISOString();
 
     if (isSupabaseConfigured()) {
       try {
@@ -337,7 +338,12 @@ export const SiteDataProvider = ({ children }) => {
           .upsert(
             {
               key: 'admin_config',
-              data: { passwordHash: newHash },
+              data: {
+                passwordHash: newHash,
+                updatedAt: nowIso,
+                updated_at: nowIso,
+              },
+              updated_at: nowIso,
             },
             { onConflict: 'key' }
           )
