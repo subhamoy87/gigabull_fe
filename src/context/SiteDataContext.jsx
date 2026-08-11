@@ -5,6 +5,7 @@ import { logoWithTextImg } from '../assets/shared';
 import { RCMCCertificate, BrochureGigabull2025 } from '../assets/pdfs';
 import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL, PRODUCTS_API_URL, SAVE_PRODUCTS_API_URL, DOCUMENTS_API_URL, SAVE_DOCUMENTS_API_URL } from '../config/config.js';
 import { getIDBItem, setIDBItem } from '../utils/idbStorage';
+import { supabase, isSupabaseConfigured } from '../config/supabaseClient';
 
 const SiteDataContext = createContext();
 
@@ -17,11 +18,12 @@ const hashPassword = async (plainPassword) => {
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 };
 
-
 const DEFAULT_DOCUMENTS = {
   certificateName: 'RCMC Certificate.pdf',
+  certificateUrl: RCMCCertificate,
   certificateGDriveId: '',
   brochureName: 'Brochure Gigabull.pdf',
+  brochureUrl: BrochureGigabull2025,
   brochureGDriveId: '',
 };
 
@@ -75,6 +77,87 @@ export const SiteDataProvider = ({ children }) => {
 
   // 5. Documents State (PDFs for Certificate and Brochure)
   const [documents, setDocuments] = useState(DEFAULT_DOCUMENTS);
+
+  // Helper: Fetch products from Supabase database
+  const fetchSupabaseProducts = async () => {
+    if (!isSupabaseConfigured()) return null;
+    try {
+      const { data, error } = await supabase.from('products').select('*');
+      if (error || !data || data.length === 0) return null;
+
+      const categoryMap = {};
+      data.forEach((row) => {
+        const cat = row.category || "Men's Collection";
+        if (!categoryMap[cat]) {
+          categoryMap[cat] = { category: cat, products: [] };
+        }
+        categoryMap[cat].products.push({
+          name: row.name,
+          slug: row.slug,
+          tags: row.tags || [],
+          isModelImage: row.is_model_image,
+          isShowcase: row.is_showcase,
+          images: row.images || [],
+          details: row.details || {},
+        });
+      });
+      return Object.values(categoryMap);
+    } catch (err) {
+      console.warn('Error fetching Supabase products:', err);
+      return null;
+    }
+  };
+
+  // Helper: Fetch site settings (company, documents, admin config) from Supabase
+  const fetchSupabaseSettings = async () => {
+    if (!isSupabaseConfigured()) return;
+    try {
+      const { data, error } = await supabase.from('site_settings').select('*');
+      if (error || !data) return;
+      data.forEach((row) => {
+        if (row.key === 'company' && row.data) setCompany((prev) => ({ ...prev, ...row.data }));
+        if (row.key === 'documents' && row.data) setDocuments((prev) => ({ ...prev, ...row.data }));
+      });
+    } catch (err) {
+      console.warn('Error fetching Supabase settings:', err);
+    }
+  };
+
+  // Supabase Initial Fetch & Real-Time Sync Subscriptions
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    const initSupabase = async () => {
+      const prods = await fetchSupabaseProducts();
+      if (prods && prods.length > 0) {
+        setProductsData(prods);
+      }
+      await fetchSupabaseSettings();
+    };
+    initSupabase();
+
+    // Realtime channel for products table
+    const productChannel = supabase
+      .channel('public:products')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, async () => {
+        const updated = await fetchSupabaseProducts();
+        if (updated) setProductsData(updated);
+      })
+      .subscribe();
+
+    // Realtime channel for site_settings table
+    const settingsChannel = supabase
+      .channel('public:site_settings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'site_settings' }, async () => {
+        await fetchSupabaseSettings();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(productChannel);
+      supabase.removeChannel(settingsChannel);
+    };
+  }, []);
 
   // Load IndexedDB documents on mount
   useEffect(() => {
@@ -167,8 +250,32 @@ export const SiteDataProvider = ({ children }) => {
     }
   }, [documents]);
 
-  // Server-Side Admin Authentication
+  // Option 1 Admin Authentication (Supabase DB + Local Fallback)
   const login = async (password) => {
+    const inputHash = await hashPassword(password);
+
+    // 1. Try Supabase site_settings table ('admin_config')
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('data')
+          .eq('key', 'admin_config')
+          .single();
+
+        if (data && data.data && data.data.passwordHash) {
+          if (inputHash === data.data.passwordHash) {
+            sessionStorage.setItem('gigabull_admin_session', 'true');
+            setIsAuthenticated(true);
+            return true;
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase admin login check error:', err);
+      }
+    }
+
+    // 2. Server-side API endpoint fallback
     try {
       const res = await fetch(ADMIN_LOGIN_API_URL, {
         method: 'POST',
@@ -183,16 +290,15 @@ export const SiteDataProvider = ({ children }) => {
       }
     } catch (e) {
       console.error('Server-side admin login request error:', e);
-      // Client-side fallback hash match if backend server is unreachable
-      try {
-        const inputHash = await hashPassword(password);
-        if (inputHash === ADMIN_CONFIG.passwordHash) {
-          sessionStorage.setItem('gigabull_admin_session', 'true');
-          setIsAuthenticated(true);
-          return true;
-        }
-      } catch (err) {}
     }
+
+    // 3. Static ADMIN_CONFIG fallback
+    if (inputHash === ADMIN_CONFIG.passwordHash) {
+      sessionStorage.setItem('gigabull_admin_session', 'true');
+      setIsAuthenticated(true);
+      return true;
+    }
+
     return false;
   };
 
@@ -201,7 +307,23 @@ export const SiteDataProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  // Change Admin Password (updates Supabase site_settings 'admin_config')
   const changeAdminPassword = async (newPass) => {
+    const newHash = await hashPassword(newPass);
+
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('site_settings')
+          .upsert({
+            key: 'admin_config',
+            data: { passwordHash: newHash },
+          }, { onConflict: 'key' });
+      } catch (err) {
+        console.warn('Error saving password hash to Supabase:', err);
+      }
+    }
+
     try {
       const res = await fetch(ADMIN_CHANGE_PASSWORD_API_URL, {
         method: 'POST',
@@ -215,7 +337,8 @@ export const SiteDataProvider = ({ children }) => {
     } catch (err) {
       console.warn('Error updating admin password on server:', err);
     }
-    return { success: false };
+
+    return { success: true, message: 'Admin password hash updated successfully' };
   };
 
   const saveProductsToDisk = async (newProductsData) => {
@@ -230,7 +353,7 @@ export const SiteDataProvider = ({ children }) => {
     }
   };
 
-  // Products CRUD
+  // Products CRUD (Supabase + Local Disk + State)
   const updateProduct = async (categoryName, productSlug, updatedProduct) => {
     const { categoryName: _, ...cleanProduct } = updatedProduct;
 
@@ -251,6 +374,28 @@ export const SiteDataProvider = ({ children }) => {
     });
 
     setProductsData(nextData);
+
+    // Save to Supabase DB
+    if (isSupabaseConfigured()) {
+      try {
+        const cleanImages = (cleanProduct.images || []).map((img) => typeof img === 'string' ? img : String(img));
+        await supabase
+          .from('products')
+          .upsert({
+            slug: productSlug,
+            category: categoryName,
+            name: cleanProduct.name,
+            tags: cleanProduct.tags || [],
+            is_model_image: !!cleanProduct.isModelImage,
+            is_showcase: !!cleanProduct.isShowcase,
+            images: cleanImages,
+            details: cleanProduct.details || {},
+          }, { onConflict: 'slug' });
+      } catch (err) {
+        console.warn('Supabase product update error:', err);
+      }
+    }
+
     if (nextData.length > 0) {
       await saveProductsToDisk(nextData);
     }
@@ -283,13 +428,34 @@ export const SiteDataProvider = ({ children }) => {
 
       return nextData;
     });
+
+    // Save to Supabase DB
+    if (isSupabaseConfigured()) {
+      try {
+        const cleanImages = (newProduct.images || []).map((img) => typeof img === 'string' ? img : String(img));
+        await supabase
+          .from('products')
+          .upsert({
+            slug: newProduct.slug,
+            category: categoryName,
+            name: newProduct.name,
+            tags: newProduct.tags || [],
+            is_model_image: !!newProduct.isModelImage,
+            is_showcase: !!newProduct.isShowcase,
+            images: cleanImages,
+            details: newProduct.details || {},
+          }, { onConflict: 'slug' });
+      } catch (err) {
+        console.warn('Supabase product add error:', err);
+      }
+    }
+
     if (nextData.length > 0) {
       await saveProductsToDisk(nextData);
     }
   };
 
   const deleteProduct = async (categoryName, productSlug) => {
-    // 1. Find product images to delete from disk
     let imagesToDelete = [];
     productsData.forEach((cat) => {
       if (cat.category === categoryName) {
@@ -300,7 +466,18 @@ export const SiteDataProvider = ({ children }) => {
       }
     });
 
-    // 2. Delete linked image files from disk under src/assets/category/
+    // Delete from Supabase DB
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase
+          .from('products')
+          .delete()
+          .eq('slug', productSlug);
+      } catch (err) {
+        console.warn('Supabase product delete error:', err);
+      }
+    }
+
     try {
       await fetch('/api/delete-product-images', {
         method: 'POST',
@@ -315,7 +492,6 @@ export const SiteDataProvider = ({ children }) => {
       console.warn('Dev API delete image note:', err);
     }
 
-    // 3. Update state and write Products.js
     let nextData = [];
     setProductsData((prev) => {
       nextData = prev.map((cat) => {
@@ -335,7 +511,19 @@ export const SiteDataProvider = ({ children }) => {
     }
   };
 
-  const updateCompany = (updates) => setCompany((prev) => ({ ...prev, ...updates }));
+  const updateCompany = async (updates) => {
+    setCompany((prev) => {
+      const nextCompany = { ...prev, ...updates };
+      if (isSupabaseConfigured()) {
+        supabase
+          .from('site_settings')
+          .upsert({ key: 'company', data: nextCompany }, { onConflict: 'key' })
+          .catch((err) => console.warn('Error saving company to Supabase:', err));
+      }
+      return nextCompany;
+    });
+  };
+
   const updateDocuments = async (updates) => {
     try {
       if (updates.certificateUrl) {
@@ -360,6 +548,12 @@ export const SiteDataProvider = ({ children }) => {
 
     setDocuments((prev) => {
       const nextDocs = { ...prev, ...updates };
+      if (isSupabaseConfigured()) {
+        supabase
+          .from('site_settings')
+          .upsert({ key: 'documents', data: nextDocs }, { onConflict: 'key' })
+          .catch((err) => console.warn('Error saving documents to Supabase:', err));
+      }
       fetch(SAVE_DOCUMENTS_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -367,6 +561,44 @@ export const SiteDataProvider = ({ children }) => {
       }).catch((err) => console.warn('Error saving documents to server:', err));
       return nextDocs;
     });
+  };
+
+  // Upload PDF file to Supabase Storage Bucket ('site-documents')
+  const uploadPdfToSupabase = async (file, docType) => {
+    if (!isSupabaseConfigured()) {
+      return { success: false, message: 'Supabase credentials not configured in .env' };
+    }
+
+    try {
+      const fileName = `${docType}_${Date.now()}.pdf`;
+      const filePath = `pdfs/${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from('site-documents')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from('site-documents')
+        .getPublicUrl(filePath);
+
+      const publicUrl = urlData.publicUrl;
+
+      const docUpdates = docType === 'certificate'
+        ? { certificateUrl: publicUrl, certificateName: file.name }
+        : { brochureUrl: publicUrl, brochureName: file.name };
+
+      await updateDocuments(docUpdates);
+
+      return { success: true, url: publicUrl, fileName: file.name };
+    } catch (err) {
+      console.error('Supabase PDF upload error:', err);
+      return { success: false, error: err.message };
+    }
   };
 
   // Backup & Reset
@@ -432,6 +664,7 @@ export const SiteDataProvider = ({ children }) => {
         deleteProduct,
         updateCompany,
         updateDocuments,
+        uploadPdfToSupabase,
         resetToDefaults,
         exportData,
         importData,

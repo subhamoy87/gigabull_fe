@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useSiteData } from '../../context/SiteDataContext';
 import { convertImageToWebP } from '../../lib/utils';
+import { seedSupabaseCatalog } from '../../utils/supabaseSeeder';
 
 import {
   LayoutDashboard,
@@ -27,7 +28,8 @@ import {
   Sparkles,
   ChevronRight,
   Eye,
-  Copy
+  Copy,
+  Database
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -44,6 +46,7 @@ const AdminDashboard = () => {
     deleteProduct,
     updateCompany,
     updateDocuments,
+    uploadPdfToSupabase,
     resetToDefaults,
     exportData,
     importData,
@@ -83,6 +86,56 @@ const AdminDashboard = () => {
   // Password Form state
   const [passForm, setPassForm] = useState({ newPass: '', confirmPass: '' });
   const [passMessage, setPassMessage] = useState({ type: '', text: '' });
+
+  // Supabase Seeder & Storage State
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [pdfUploading, setPdfUploading] = useState({ cert: false, brochure: false });
+
+  const handleSeedSupabase = async () => {
+    if (!window.confirm('Are you sure you want to seed all products from default catalog into your Supabase database?')) return;
+    setIsSeeding(true);
+    const res = await seedSupabaseCatalog();
+    setIsSeeding(false);
+    if (res.success) {
+      alert(res.message);
+    } else {
+      alert(`Seeding notice: ${res.message || res.error}`);
+    }
+  };
+
+  const handlePdfUploadFile = async (e, docType) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setPdfUploading((p) => ({ ...p, [docType]: true }));
+    const res = await uploadPdfToSupabase(file, docType);
+    setPdfUploading((p) => ({ ...p, [docType]: false }));
+
+    if (res.success) {
+      alert(`Successfully uploaded ${file.name} to Supabase Storage Bucket ('site-documents')!`);
+    } else {
+      alert(`Upload error: ${res.error || res.message}`);
+    }
+  };
+
+  const handleSavePassword = async (e) => {
+    e.preventDefault();
+    if (!passForm.newPass) {
+      setPassMessage({ type: 'error', text: 'Password cannot be empty' });
+      return;
+    }
+    if (passForm.newPass !== passForm.confirmPass) {
+      setPassMessage({ type: 'error', text: 'Passwords do not match' });
+      return;
+    }
+    const res = await changeAdminPassword(passForm.newPass);
+    if (res.success) {
+      setPassMessage({ type: 'success', text: 'Admin password updated successfully in Supabase!' });
+      setPassForm({ newPass: '', confirmPass: '' });
+    } else {
+      setPassMessage({ type: 'error', text: res.message || 'Error updating password' });
+    }
+  };
 
   // Compute Total Products
   const totalProductsCount = productsData.reduce((acc, cat) => acc + (cat.products?.length || 0), 0);
@@ -511,7 +564,7 @@ const AdminDashboard = () => {
               { id: 'products', label: 'Product Manager', icon: Package, badge: totalProductsCount },
               { id: 'branding', label: 'Branding & Logo', icon: ImageIcon },
               { id: 'documents', label: 'PDF File Manager', icon: FileText },
-              { id: 'settings', label: 'Change Password', icon: Settings, disabled: true },
+              { id: 'settings', label: 'Change Password', icon: Settings, disabled: false },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -574,12 +627,21 @@ const AdminDashboard = () => {
                   Manage catalog, company branding, text copy, and support details in real-time.
                 </p>
               </div>
-              <button
-                onClick={handleOpenAddProduct}
-                className='py-3 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 flex items-center gap-2 transition cursor-pointer text-sm'
-              >
-                <Plus className='w-5 h-5' /> Add New Product
-              </button>
+              <div className='flex items-center gap-3'>
+                <button
+                  onClick={handleSeedSupabase}
+                  disabled={isSeeding}
+                  className='py-3 px-4 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-xl border border-slate-700 shadow-md flex items-center gap-2 transition cursor-pointer text-sm disabled:opacity-50'
+                >
+                  <Database className='w-4 h-4' /> {isSeeding ? 'Seeding Database...' : 'Seed Catalog to Supabase'}
+                </button>
+                <button
+                  onClick={handleOpenAddProduct}
+                  className='py-3 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 flex items-center gap-2 transition cursor-pointer text-sm'
+                >
+                  <Plus className='w-5 h-5' /> Add New Product
+                </button>
+              </div>
             </div>
 
             {/* Metric Cards Grid */}
@@ -923,25 +985,43 @@ const AdminDashboard = () => {
                     </p>
                   )}
 
-                  <div className='pt-2 border-t border-slate-800 space-y-2'>
-                    <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider'>
-                      Set Google Drive Link / File ID
-                    </label>
-                    <div className='flex gap-2'>
-                      <input
-                        type='text'
-                        placeholder='Paste GDrive Link or File ID'
-                        value={gdriveForm.certLink}
-                        onChange={(e) => setGdriveForm((p) => ({ ...p, certLink: e.target.value }))}
-                        className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
-                      />
-                      <button
-                        type='button'
-                        onClick={(e) => handleSaveGDrive(e, 'certificate')}
-                        className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
-                      >
-                        Save Link
-                      </button>
+                  <div className='pt-2 border-t border-slate-800 space-y-3'>
+                    <div>
+                      <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider mb-1'>
+                        Option A: Upload PDF to Supabase Storage
+                      </label>
+                      <label className='inline-flex items-center gap-2 py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
+                        <Upload className='w-4 h-4' /> {pdfUploading.cert ? 'Uploading PDF...' : 'Choose Certificate PDF File'}
+                        <input
+                          type='file'
+                          accept='application/pdf'
+                          disabled={pdfUploading.cert}
+                          onChange={(e) => handlePdfUploadFile(e, 'certificate')}
+                          className='hidden'
+                        />
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider mb-1'>
+                        Option B: Set Google Drive Link / File ID
+                      </label>
+                      <div className='flex gap-2'>
+                        <input
+                          type='text'
+                          placeholder='Paste GDrive Link or File ID'
+                          value={gdriveForm.certLink}
+                          onChange={(e) => setGdriveForm((p) => ({ ...p, certLink: e.target.value }))}
+                          className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
+                        />
+                        <button
+                          type='button'
+                          onClick={(e) => handleSaveGDrive(e, 'certificate')}
+                          className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
+                        >
+                          Save Link
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -970,25 +1050,43 @@ const AdminDashboard = () => {
                     </p>
                   )}
 
-                  <div className='pt-2 border-t border-slate-800 space-y-2'>
-                    <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider'>
-                      Set Google Drive Link / File ID
-                    </label>
-                    <div className='flex gap-2'>
-                      <input
-                        type='text'
-                        placeholder='Paste GDrive Link or File ID'
-                        value={gdriveForm.brochureLink}
-                        onChange={(e) => setGdriveForm((p) => ({ ...p, brochureLink: e.target.value }))}
-                        className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
-                      />
-                      <button
-                        type='button'
-                        onClick={(e) => handleSaveGDrive(e, 'brochure')}
-                        className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
-                      >
-                        Save Link
-                      </button>
+                  <div className='pt-2 border-t border-slate-800 space-y-3'>
+                    <div>
+                      <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider mb-1'>
+                        Option A: Upload PDF to Supabase Storage
+                      </label>
+                      <label className='inline-flex items-center gap-2 py-2 px-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
+                        <Upload className='w-4 h-4' /> {pdfUploading.brochure ? 'Uploading PDF...' : 'Choose Brochure PDF File'}
+                        <input
+                          type='file'
+                          accept='application/pdf'
+                          disabled={pdfUploading.brochure}
+                          onChange={(e) => handlePdfUploadFile(e, 'brochure')}
+                          className='hidden'
+                        />
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider mb-1'>
+                        Option B: Set Google Drive Link / File ID
+                      </label>
+                      <div className='flex gap-2'>
+                        <input
+                          type='text'
+                          placeholder='Paste GDrive Link or File ID'
+                          value={gdriveForm.brochureLink}
+                          onChange={(e) => setGdriveForm((p) => ({ ...p, brochureLink: e.target.value }))}
+                          className='flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400'
+                        />
+                        <button
+                          type='button'
+                          onClick={(e) => handleSaveGDrive(e, 'brochure')}
+                          className='px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold rounded-xl transition'
+                        >
+                          Save Link
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>

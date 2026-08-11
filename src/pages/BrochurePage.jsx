@@ -7,11 +7,15 @@ const BrochurePage = () => {
   const { documents } = useSiteData();
   const gdriveId = documents?.brochureGDriveId;
 
-  const pdfViewUrl = gdriveId
+  const pdfViewUrl = documents?.brochureUrl
+    ? documents.brochureUrl
+    : gdriveId
     ? `https://drive.google.com/file/d/${gdriveId}/preview`
     : BrochureGigabull2025;
 
-  const downloadUrl = gdriveId
+  const downloadUrl = documents?.brochureUrl
+    ? documents.brochureUrl
+    : gdriveId
     ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
     : BrochureGigabull2025;
 

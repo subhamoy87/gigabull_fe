@@ -7,11 +7,15 @@ const CertificatePage = () => {
   const { documents } = useSiteData();
   const gdriveId = documents?.certificateGDriveId;
 
-  const pdfViewUrl = gdriveId
+  const pdfViewUrl = documents?.certificateUrl
+    ? documents.certificateUrl
+    : gdriveId
     ? `https://drive.google.com/file/d/${gdriveId}/preview`
     : RCMCCertificate;
 
-  const downloadUrl = gdriveId
+  const downloadUrl = documents?.certificateUrl
+    ? documents.certificateUrl
+    : gdriveId
     ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
     : RCMCCertificate;
 
