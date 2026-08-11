@@ -2,78 +2,117 @@ import React, { useState, useEffect } from 'react';
 // import { BrochureGigabull2025 } from '../assets/pdfs'; // Local PDF fallback import (disabled)
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
-import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
+import { supabase, getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
 
 const BrochurePage = () => {
   const { documents } = useSiteData();
 
-  // Supabase Storage direct bucket URL (pdfs/gigabull-brochure.pdf)
-  const defaultSupabaseUrl = isSupabaseConfigured()
-    ? getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf')
-    : null;
-
-  // Strictly fetch from Supabase Storage only (Local fallback disabled in comment below)
-  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl; // || BrochureGigabull2025;
   const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
 
   const [blobUrl, setBlobUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pdfError, setPdfError] = useState(false);
 
-  // Fetch the PDF from Supabase as a local Blob URL for same-origin iframe rendering
+  // Fetch the PDF binary directly from Supabase Storage using authenticated SDK download
   useEffect(() => {
-    if (!pdfViewUrl) {
-      setLoading(false);
-      setPdfError(true);
-      return;
-    }
-
     let isMounted = true;
     setLoading(true);
     setPdfError(false);
 
-    fetch(pdfViewUrl)
-      .then(async (response) => {
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          throw new Error('Supabase returned 404 JSON response instead of PDF file');
+    async function loadBrochureFromSupabase() {
+      if (!isSupabaseConfigured()) {
+        if (isMounted) {
+          setPdfError(true);
+          setLoading(false);
         }
-        const arrayBuffer = await response.arrayBuffer();
-        const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
+        return;
+      }
+
+      try {
+        const filePath = 'pdfs/gigabull-brochure.pdf';
+
+        // 1. Try downloading directly via Supabase SDK (handles auth & bucket permissions)
+        const { data, error } = await supabase.storage
+          .from('site-documents')
+          .download(filePath);
+
+        if (error || !data) {
+          console.warn('Supabase storage download notice:', error?.message || 'File not found');
+          
+          // 2. Fallback to public URL fetch if SDK download returns error
+          const publicUrl = documents?.brochureUrl || getSupabaseStorageUrl(filePath);
+          if (publicUrl) {
+            const res = await fetch(publicUrl);
+            if (res.ok) {
+              const contentType = res.headers.get('content-type');
+              if (contentType && !contentType.includes('application/json')) {
+                const arrayBuffer = await res.arrayBuffer();
+                const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
+                const localUrl = window.URL.createObjectURL(pdfBlob);
+                if (isMounted) {
+                  setBlobUrl(localUrl);
+                  setLoading(false);
+                  return;
+                }
+              }
+            }
+          }
+
+          if (isMounted) {
+            setBlobUrl(null);
+            setPdfError(true);
+            setLoading(false);
+          }
+          return;
+        }
+
+        // Create a clean local Blob URL for same-origin iframe rendering
+        const pdfBlob = new Blob([data], { type: 'application/pdf' });
         const localUrl = window.URL.createObjectURL(pdfBlob);
+
         if (isMounted) {
           setBlobUrl(localUrl);
           setLoading(false);
         }
-      })
-      .catch((err) => {
-        console.warn('PDF fetch error:', err.message);
+      } catch (err) {
+        console.warn('Error loading Brochure PDF:', err);
         if (isMounted) {
           setBlobUrl(null);
           setPdfError(true);
           setLoading(false);
         }
-      });
+      }
+    }
+
+    loadBrochureFromSupabase();
 
     return () => {
       isMounted = false;
-      if (blobUrl && blobUrl.startsWith('blob:')) {
-        window.URL.revokeObjectURL(blobUrl);
-      }
     };
-  }, [pdfViewUrl]);
+  }, [documents]);
 
-  // Direct Frontend Blob Download Handler (Ensures clean uncorrupted PDF file downloads)
+  // Direct Frontend Blob Download Handler
   const handleDownloadPdf = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    if (!pdfViewUrl) return;
+
+    if (blobUrl) {
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = brochureName.endsWith('.pdf') ? brochureName : `${brochureName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
 
     try {
-      const response = await fetch(pdfViewUrl);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const arrayBuffer = await response.arrayBuffer();
-      const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
+      const { data, error } = await supabase.storage
+        .from('site-documents')
+        .download('pdfs/gigabull-brochure.pdf');
+
+      if (error || !data) throw error || new Error('File download failed');
+
+      const pdfBlob = new Blob([data], { type: 'application/pdf' });
       const downloadUrl = window.URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = downloadUrl;
@@ -83,10 +122,13 @@ const BrochurePage = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
-      console.warn('Direct blob download notice, opening in new tab:', err);
-      window.open(pdfViewUrl, '_blank');
+      console.warn('Download notice:', err);
+      const publicUrl = documents?.brochureUrl || getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf');
+      if (publicUrl) window.open(publicUrl, '_blank');
     }
   };
+
+  const publicViewUrl = documents?.brochureUrl || getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf');
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -136,7 +178,7 @@ const BrochurePage = () => {
             <div className='flex items-center gap-2'>
               {!pdfError && (
                 <a
-                  href={pdfViewUrl}
+                  href={blobUrl || publicViewUrl}
                   target='_blank'
                   rel='noopener noreferrer'
                   className='inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs rounded-lg transition cursor-pointer border border-slate-700'
@@ -204,7 +246,7 @@ const BrochurePage = () => {
               <>
                 {' '}or{' '}
                 <a
-                  href={pdfViewUrl}
+                  href={blobUrl || publicViewUrl}
                   target='_blank'
                   rel='noopener noreferrer'
                   className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
