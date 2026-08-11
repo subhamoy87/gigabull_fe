@@ -1104,34 +1104,29 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* TAB 4: CHANGE PASSWORD (DISABLED) */}
+        {/* TAB 5: CHANGE PASSWORD */}
         {activeTab === 'settings' && (
-          <div className='space-y-6 max-w-xl opacity-75'>
+          <div className='space-y-6 max-w-xl'>
             <div>
               <h1 className='text-3xl font-bold text-white tracking-tight'>Change Password</h1>
               <p className='text-slate-400 text-sm mt-1'>
-                Update your administrator account password.
+                Update your administrator security credential across the web (Supabase Site Settings).
               </p>
             </div>
 
-            <div className='p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs font-semibold flex items-center gap-2'>
-              <ShieldAlert className='w-5 h-5 shrink-0 text-amber-400' />
-              <span>Password changing via the admin dashboard is currently disabled. Please manage passwords via server configuration.</span>
-            </div>
-
-            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl pointer-events-none opacity-60'>
-              <form onSubmit={(e) => e.preventDefault()} className='space-y-5'>
+            <div className='bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl'>
+              <form onSubmit={handleSavePassword} className='space-y-5'>
                 <div className='space-y-2'>
                   <label className='block text-xs font-semibold uppercase tracking-wider text-slate-300'>
                     New Admin Password
                   </label>
                   <input
                     type='password'
-                    disabled={true}
+                    required
                     value={passForm.newPass}
                     onChange={(e) => setPassForm((p) => ({ ...p, newPass: e.target.value }))}
-                    placeholder='Password change disabled'
-                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-slate-500 cursor-not-allowed transition'
+                    placeholder='Enter new admin password'
+                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-400'
                   />
                 </div>
 
@@ -1141,11 +1136,11 @@ const AdminDashboard = () => {
                   </label>
                   <input
                     type='password'
-                    disabled={true}
+                    required
                     value={passForm.confirmPass}
                     onChange={(e) => setPassForm((p) => ({ ...p, confirmPass: e.target.value }))}
-                    placeholder='Password change disabled'
-                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-slate-500 cursor-not-allowed transition'
+                    placeholder='Confirm new admin password'
+                    className='w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-amber-400'
                   />
                 </div>
 
@@ -1161,11 +1156,10 @@ const AdminDashboard = () => {
                 )}
 
                 <button
-                  type='button'
-                  disabled={true}
-                  className='w-full py-3 px-5 bg-slate-800 text-slate-500 font-bold text-sm rounded-xl cursor-not-allowed opacity-60'
+                  type='submit'
+                  className='w-full py-3.5 px-5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer flex items-center justify-center gap-2'
                 >
-                  Update Password (Disabled)
+                  <Save className='w-4 h-4' /> Save New Password
                 </button>
               </form>
             </div>
