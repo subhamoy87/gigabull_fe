@@ -103,6 +103,8 @@ const AdminDashboard = () => {
   // Supabase Seeder & Storage State
   const [isSeeding, setIsSeeding] = useState(false);
   const [pdfUploading, setPdfUploading] = useState({ cert: false, brochure: false });
+  const [selectedCertFile, setSelectedCertFile] = useState(null);
+  const [selectedBrochureFile, setSelectedBrochureFile] = useState(null);
 
   const handleSeedSupabase = async () => {
     if (!window.confirm('Are you sure you want to seed all products from default catalog into your Supabase database?')) return;
@@ -116,18 +118,36 @@ const AdminDashboard = () => {
     }
   };
 
-  const handlePdfUploadFile = async (e, docType) => {
+  const handleCertFileSelect = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (file) {
+      setSelectedCertFile(file);
+    }
+    if (e.target) e.target.value = '';
+  };
 
-    // Ensure tab remains on PDF File Manager view
+  const handleBrochureFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedBrochureFile(file);
+    }
+    if (e.target) e.target.value = '';
+  };
+
+  const handleUploadCertToSupabase = async () => {
+    if (!selectedCertFile) {
+      alert('Please choose a Certificate PDF file first!');
+      return;
+    }
+
     handleSelectTab('documents');
-    setPdfUploading((p) => ({ ...p, [docType]: true }));
+    setPdfUploading((p) => ({ ...p, cert: true }));
 
     try {
-      const res = await uploadPdfToSupabase(file, docType);
+      const res = await uploadPdfToSupabase(selectedCertFile, 'certificate');
       if (res && res.success) {
-        alert(`Successfully uploaded ${file.name} to Supabase Storage Bucket ('site-documents')!`);
+        alert(`Successfully uploaded "${selectedCertFile.name}" to Supabase Storage Bucket ('site-documents')!`);
+        setSelectedCertFile(null);
       } else {
         alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
       }
@@ -135,8 +155,32 @@ const AdminDashboard = () => {
       console.error('PDF Upload Error:', err);
       alert(`Upload error: ${err.message}`);
     } finally {
-      setPdfUploading((p) => ({ ...p, [docType]: false }));
-      if (e.target) e.target.value = '';
+      setPdfUploading((p) => ({ ...p, cert: false }));
+    }
+  };
+
+  const handleUploadBrochureToSupabase = async () => {
+    if (!selectedBrochureFile) {
+      alert('Please choose a Brochure PDF file first!');
+      return;
+    }
+
+    handleSelectTab('documents');
+    setPdfUploading((p) => ({ ...p, brochure: true }));
+
+    try {
+      const res = await uploadPdfToSupabase(selectedBrochureFile, 'brochure');
+      if (res && res.success) {
+        alert(`Successfully uploaded "${selectedBrochureFile.name}" to Supabase Storage Bucket ('site-documents')!`);
+        setSelectedBrochureFile(null);
+      } else {
+        alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
+      }
+    } catch (err) {
+      console.error('PDF Upload Error:', err);
+      alert(`Upload error: ${err.message}`);
+    } finally {
+      setPdfUploading((p) => ({ ...p, brochure: false }));
     }
   };
 
@@ -966,21 +1010,56 @@ const AdminDashboard = () => {
                     Current Document: <code className='text-amber-400 font-mono'>{documents?.certificateName || 'Default Certificate'}</code>
                   </p>
 
-                  <div className='pt-2 border-t border-slate-800 space-y-3'>
+                  <div className='pt-3 border-t border-slate-800 space-y-3'>
+                    {/* Step 1: Choose File */}
                     <div>
-                      <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider mb-1'>
-                        Upload PDF to Supabase Storage
+                      <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider mb-1.5'>
+                        Step 1: Choose Certificate PDF File
                       </label>
-                      <label className='inline-flex items-center gap-2 py-3 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
-                        <Upload className='w-4 h-4' /> {pdfUploading.cert ? 'Uploading PDF...' : 'Choose Certificate PDF File'}
+                      <label className='inline-flex items-center gap-2 py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-medium rounded-xl cursor-pointer transition w-full justify-center'>
+                        <FileText className='w-4 h-4 text-amber-400' />
+                        {selectedCertFile ? 'Change Selected File' : 'Select PDF File'}
                         <input
                           type='file'
                           accept='application/pdf'
-                          disabled={pdfUploading.cert}
-                          onChange={(e) => handlePdfUploadFile(e, 'certificate')}
+                          onChange={handleCertFileSelect}
                           className='hidden'
                         />
                       </label>
+                    </div>
+
+                    {/* Selected File Name Badge */}
+                    {selectedCertFile && (
+                      <div className='flex items-center justify-between bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl text-xs text-amber-300'>
+                        <span className='truncate font-mono font-medium max-w-[200px]'>
+                          📄 {selectedCertFile.name}
+                        </span>
+                        <button
+                          onClick={() => setSelectedCertFile(null)}
+                          className='text-amber-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer'
+                          title='Clear Selection'
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Step 2: Explicit Upload Button */}
+                    <div className='pt-1'>
+                      <button
+                        onClick={handleUploadCertToSupabase}
+                        disabled={!selectedCertFile || pdfUploading.cert}
+                        className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold transition shadow-lg ${
+                          !selectedCertFile || pdfUploading.cert
+                            ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
+                            : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-amber-500/20 cursor-pointer'
+                        }`}
+                      >
+                        <Upload className='w-4 h-4' />
+                        {pdfUploading.cert
+                          ? 'Uploading Certificate to Supabase...'
+                          : 'Upload Certificate PDF to Supabase'}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1004,21 +1083,56 @@ const AdminDashboard = () => {
                     Current Document: <code className='text-amber-400 font-mono'>{documents?.brochureName || 'Default Brochure'}</code>
                   </p>
 
-                  <div className='pt-2 border-t border-slate-800 space-y-3'>
+                  <div className='pt-3 border-t border-slate-800 space-y-3'>
+                    {/* Step 1: Choose File */}
                     <div>
-                      <label className='block text-[11px] font-semibold uppercase text-amber-400 tracking-wider mb-1'>
-                        Upload PDF to Supabase Storage
+                      <label className='block text-[11px] font-semibold uppercase text-slate-400 tracking-wider mb-1.5'>
+                        Step 1: Choose Brochure PDF File
                       </label>
-                      <label className='inline-flex items-center gap-2 py-3 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-semibold rounded-xl cursor-pointer transition w-full justify-center'>
-                        <Upload className='w-4 h-4' /> {pdfUploading.brochure ? 'Uploading PDF...' : 'Choose Brochure PDF File'}
+                      <label className='inline-flex items-center gap-2 py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-medium rounded-xl cursor-pointer transition w-full justify-center'>
+                        <FileText className='w-4 h-4 text-amber-400' />
+                        {selectedBrochureFile ? 'Change Selected File' : 'Select PDF File'}
                         <input
                           type='file'
                           accept='application/pdf'
-                          disabled={pdfUploading.brochure}
-                          onChange={(e) => handlePdfUploadFile(e, 'brochure')}
+                          onChange={handleBrochureFileSelect}
                           className='hidden'
                         />
                       </label>
+                    </div>
+
+                    {/* Selected File Name Badge */}
+                    {selectedBrochureFile && (
+                      <div className='flex items-center justify-between bg-amber-500/10 border border-amber-500/30 p-2.5 rounded-xl text-xs text-amber-300'>
+                        <span className='truncate font-mono font-medium max-w-[200px]'>
+                          📄 {selectedBrochureFile.name}
+                        </span>
+                        <button
+                          onClick={() => setSelectedBrochureFile(null)}
+                          className='text-amber-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer'
+                          title='Clear Selection'
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Step 2: Explicit Upload Button */}
+                    <div className='pt-1'>
+                      <button
+                        onClick={handleUploadBrochureToSupabase}
+                        disabled={!selectedBrochureFile || pdfUploading.brochure}
+                        className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs font-bold transition shadow-lg ${
+                          !selectedBrochureFile || pdfUploading.brochure
+                            ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50'
+                            : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 shadow-amber-500/20 cursor-pointer'
+                        }`}
+                      >
+                        <Upload className='w-4 h-4' />
+                        {pdfUploading.brochure
+                          ? 'Uploading Brochure to Supabase...'
+                          : 'Upload Brochure PDF to Supabase'}
+                      </button>
                     </div>
                   </div>
                 </div>
