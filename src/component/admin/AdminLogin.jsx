@@ -20,7 +20,11 @@ const AdminLogin = () => {
     }
 
     const success = await login(password);
-    if (!success) {
+    if (success) {
+      try {
+        sessionStorage.setItem('gigabull_admin_active_tab', 'overview');
+      } catch (err) {}
+    } else {
       setError('Invalid password. Please check your admin credentials.');
     }
   };

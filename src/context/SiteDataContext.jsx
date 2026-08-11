@@ -310,6 +310,7 @@ export const SiteDataProvider = ({ children }) => {
 
   const logout = () => {
     sessionStorage.removeItem('gigabull_admin_session');
+    sessionStorage.removeItem('gigabull_admin_active_tab');
     setIsAuthenticated(false);
   };
 
