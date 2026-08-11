@@ -2,22 +2,19 @@ import React from 'react';
 import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
+import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
 
 const BrochurePage = () => {
   const { documents } = useSiteData();
-  const gdriveId = documents?.brochureGDriveId;
 
-  const pdfViewUrl = documents?.brochureUrl
-    ? documents.brochureUrl
-    : gdriveId
-    ? `https://drive.google.com/file/d/${gdriveId}/preview`
-    : BrochureGigabull2025;
+  // Supabase Storage direct fallback path
+  const defaultSupabaseUrl = isSupabaseConfigured()
+    ? getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf')
+    : null;
 
-  const downloadUrl = documents?.brochureUrl
-    ? documents.brochureUrl
-    : gdriveId
-    ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
-    : BrochureGigabull2025;
+  // Prioritize uploaded Supabase URL, then default Supabase Bucket URL, then local asset (GDrive disabled)
+  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl || BrochureGigabull2025;
+  const downloadUrl = pdfViewUrl;
 
   const brochureName = (documents?.brochureName && !documents.brochureName.startsWith('Google Drive File'))
     ? documents.brochureName
@@ -87,8 +84,7 @@ const BrochurePage = () => {
               style={{
                 border: 'none',
                 width: '100%',
-                height: 'calc(100% + 56px)',
-                marginTop: '-56px',
+                height: '100%',
               }}
             />
           </div>

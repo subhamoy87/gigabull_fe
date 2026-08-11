@@ -17,6 +17,12 @@ export const isSupabaseConfigured = () => {
   );
 };
 
+// Helper to generate public storage bucket URL
+export const getSupabaseStorageUrl = (filePath) => {
+  if (!isSupabaseConfigured()) return null;
+  return `${supabaseUrl}/storage/v1/object/public/site-documents/${filePath}`;
+};
+
 // Initialize Supabase Client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 

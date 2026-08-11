@@ -2,22 +2,19 @@ import React from 'react';
 import { RCMCCertificate } from '../assets/pdfs';
 import { certificateBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
+import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
 
 const CertificatePage = () => {
   const { documents } = useSiteData();
-  const gdriveId = documents?.certificateGDriveId;
 
-  const pdfViewUrl = documents?.certificateUrl
-    ? documents.certificateUrl
-    : gdriveId
-    ? `https://drive.google.com/file/d/${gdriveId}/preview`
-    : RCMCCertificate;
+  // Supabase Storage direct fallback path
+  const defaultSupabaseUrl = isSupabaseConfigured()
+    ? getSupabaseStorageUrl('pdfs/rcmc-certificate.pdf')
+    : null;
 
-  const downloadUrl = documents?.certificateUrl
-    ? documents.certificateUrl
-    : gdriveId
-    ? `https://drive.google.com/uc?export=download&id=${gdriveId}`
-    : RCMCCertificate;
+  // Prioritize uploaded Supabase URL, then default Supabase Bucket URL, then local asset (GDrive disabled)
+  const pdfViewUrl = documents?.certificateUrl || defaultSupabaseUrl || RCMCCertificate;
+  const downloadUrl = pdfViewUrl;
 
   const certName = (documents?.certificateName && !documents.certificateName.startsWith('Google Drive File'))
     ? documents.certificateName
@@ -79,8 +76,7 @@ const CertificatePage = () => {
               style={{
                 border: 'none',
                 width: '100%',
-                height: 'calc(100% + 56px)',
-                marginTop: '-56px',
+                height: '100%',
               }}
             />
           </div>
