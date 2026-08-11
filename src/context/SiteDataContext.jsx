@@ -269,7 +269,7 @@ export const SiteDataProvider = ({ children }) => {
     }
   }, [documents]);
 
-  // Option 1 Admin Authentication (Supabase DB + Local Fallback)
+  // Admin Authentication (Strict Supabase DB hash check with zero fallthrough when configured)
   const login = async (password) => {
     const inputHash = await hashPassword(password);
 
@@ -280,13 +280,17 @@ export const SiteDataProvider = ({ children }) => {
           .from('site_settings')
           .select('data')
           .eq('key', 'admin_config')
-          .single();
+          .maybeSingle();
 
         if (data && data.data && data.data.passwordHash) {
+          // Supabase admin_config record is authoritative
           if (inputHash === data.data.passwordHash) {
             sessionStorage.setItem('gigabull_admin_session', 'true');
             setIsAuthenticated(true);
             return true;
+          } else {
+            // Password does not match updated Supabase hash -> Reject immediately!
+            return false;
           }
         }
       } catch (err) {
@@ -294,24 +298,7 @@ export const SiteDataProvider = ({ children }) => {
       }
     }
 
-    // 2. Server-side API endpoint fallback
-    try {
-      const res = await fetch(ADMIN_LOGIN_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        sessionStorage.setItem('gigabull_admin_session', 'true');
-        setIsAuthenticated(true);
-        return true;
-      }
-    } catch (e) {
-      console.error('Server-side admin login request error:', e);
-    }
-
-    // 3. Static ADMIN_CONFIG fallback
+    // 2. Fallback only if Supabase is unconfigured or admin_config row does not exist yet
     if (inputHash === ADMIN_CONFIG.passwordHash) {
       sessionStorage.setItem('gigabull_admin_session', 'true');
       setIsAuthenticated(true);
