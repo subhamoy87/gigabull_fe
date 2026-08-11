@@ -100,14 +100,8 @@ const AdminDashboard = () => {
   const [passForm, setPassForm] = useState({ newPass: '', confirmPass: '' });
   const [passMessage, setPassMessage] = useState({ type: '', text: '' });
 
-  // Custom In-App Toast & Modal States
+  // Custom In-App Toast State & Trigger
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
-  const [uploadSuccessModal, setUploadSuccessModal] = useState({
-    show: false,
-    title: '',
-    fileName: '',
-    message: '',
-  });
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -155,7 +149,7 @@ const AdminDashboard = () => {
   const handleUploadCertToSupabase = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!selectedCertFile) {
-      showToast('Please choose a Certificate PDF file first!', 'error');
+      alert('Please choose a Certificate PDF file first!');
       return;
     }
 
@@ -165,19 +159,14 @@ const AdminDashboard = () => {
     try {
       const res = await uploadPdfToSupabase(selectedCertFile, 'certificate');
       if (res && res.success) {
-        setUploadSuccessModal({
-          show: true,
-          title: 'RCMC Certificate Uploaded Successfully!',
-          fileName: selectedCertFile.name,
-          message: 'Your PDF file has been uploaded into your Supabase Storage bucket ("site-documents") and linked to your storefront Certificate page.',
-        });
+        alert(`Successfully uploaded "${selectedCertFile.name}" to Supabase Storage Bucket ('site-documents')!`);
         setSelectedCertFile(null);
       } else {
-        showToast(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`, 'error');
+        alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
       }
     } catch (err) {
       console.error('PDF Upload Error:', err);
-      showToast(`Upload error: ${err.message}`, 'error');
+      alert(`Upload error: ${err.message}`);
     } finally {
       setPdfUploading((p) => ({ ...p, cert: false }));
     }
@@ -186,7 +175,7 @@ const AdminDashboard = () => {
   const handleUploadBrochureToSupabase = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!selectedBrochureFile) {
-      showToast('Please choose a Brochure PDF file first!', 'error');
+      alert('Please choose a Brochure PDF file first!');
       return;
     }
 
@@ -196,19 +185,14 @@ const AdminDashboard = () => {
     try {
       const res = await uploadPdfToSupabase(selectedBrochureFile, 'brochure');
       if (res && res.success) {
-        setUploadSuccessModal({
-          show: true,
-          title: 'Product Brochure Uploaded Successfully!',
-          fileName: selectedBrochureFile.name,
-          message: 'Your PDF file has been uploaded into your Supabase Storage bucket ("site-documents") and linked to your storefront Brochure page.',
-        });
+        alert(`Successfully uploaded "${selectedBrochureFile.name}" to Supabase Storage Bucket ('site-documents')!`);
         setSelectedBrochureFile(null);
       } else {
-        showToast(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`, 'error');
+        alert(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`);
       }
     } catch (err) {
       console.error('PDF Upload Error:', err);
-      showToast(`Upload error: ${err.message}`, 'error');
+      alert(`Upload error: ${err.message}`);
     } finally {
       setPdfUploading((p) => ({ ...p, brochure: false }));
     }
@@ -596,37 +580,6 @@ const AdminDashboard = () => {
           >
             ✕
           </button>
-        </div>
-      )}
-
-      {/* Custom PDF Upload Success Confirmation Modal Overlay */}
-      {uploadSuccessModal.show && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm transition-all duration-300'>
-          <div className='bg-slate-900 border border-slate-700/80 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 animate-scale-up'>
-            <div className='w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto text-3xl font-bold'>
-              ✓
-            </div>
-            <div>
-              <h3 className='text-xl font-bold text-white tracking-wide'>
-                {uploadSuccessModal.title}
-              </h3>
-              <p className='text-amber-400 font-mono text-xs mt-2 font-semibold bg-amber-500/10 border border-amber-500/20 py-1.5 px-3 rounded-lg inline-block max-w-full truncate'>
-                📄 {uploadSuccessModal.fileName}
-              </p>
-              <p className='text-slate-300 text-xs mt-3.5 leading-relaxed'>
-                {uploadSuccessModal.message}
-              </p>
-            </div>
-            <div className='pt-2'>
-              <button
-                type='button'
-                onClick={() => setUploadSuccessModal({ show: false, title: '', fileName: '', message: '' })}
-                className='w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer text-sm'
-              >
-                OK / Continue
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
