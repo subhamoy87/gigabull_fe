@@ -1,5 +1,4 @@
 import React from 'react';
-// import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
@@ -12,11 +11,37 @@ const BrochurePage = () => {
     ? getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf')
     : null;
 
-  // Strictly fetch from Supabase Storage (uploaded URL or bucket default path)
+  // Strictly fetch from Supabase Storage
   const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl;
-  const downloadUrl = pdfViewUrl;
-
   const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
+
+  // Google Docs Viewer embed URL for cross-browser fallback
+  const gviewUrl = pdfViewUrl
+    ? `https://docs.google.com/gview?url=${encodeURIComponent(pdfViewUrl)}&embedded=true`
+    : '';
+
+  // Direct Frontend Blob Download Handler
+  const handleDownloadPdf = async (e) => {
+    e.preventDefault();
+    if (!pdfViewUrl) return;
+
+    try {
+      const response = await fetch(pdfViewUrl);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = brochureName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.warn('Direct blob download notice, opening in new tab:', err);
+      window.open(pdfViewUrl, '_blank');
+    }
+  };
 
   return (
     <div className='w-full bg-white font-sans min-h-screen'>
@@ -63,28 +88,41 @@ const BrochurePage = () => {
                 </h2>
               </div>
             </div>
-            <a
-              href={downloadUrl}
-              target='_blank'
-              rel='noopener noreferrer'
-              download={brochureName}
-              className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm'
+            <button
+              onClick={handleDownloadPdf}
+              className='inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-lg transition shadow-sm cursor-pointer'
             >
               Download PDF
-            </a>
+            </button>
           </div>
 
-          <div style={{ height: '85vh', overflow: 'hidden', position: 'relative' }}>
-            <iframe
-              src={pdfViewUrl}
-              title={brochureName}
-              width='100%'
-              style={{
-                border: 'none',
-                width: '100%',
-                height: '100%',
-              }}
-            />
+          <div style={{ height: '85vh', overflow: 'hidden', position: 'relative' }} className='bg-slate-900'>
+            {pdfViewUrl ? (
+              <object
+                data={pdfViewUrl}
+                type='application/pdf'
+                width='100%'
+                height='100%'
+                className='w-full h-full'
+                style={{ border: 'none', width: '100%', height: '100%' }}
+              >
+                <iframe
+                  src={gviewUrl}
+                  title={brochureName}
+                  width='100%'
+                  height='100%'
+                  style={{
+                    border: 'none',
+                    width: '100%',
+                    height: '100%',
+                  }}
+                />
+              </object>
+            ) : (
+              <div className='flex items-center justify-center h-full text-slate-400 text-sm'>
+                No Brochure PDF configured in Supabase Storage.
+              </div>
+            )}
           </div>
         </div>
 
@@ -92,15 +130,12 @@ const BrochurePage = () => {
         <div className='text-center mt-4 text-sm text-gray-500'>
           <p>
             Can’t view the brochure?{' '}
-            <a
-              href={downloadUrl}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='text-blue-600 font-semibold underline hover:text-blue-800 transition'
-              download={brochureName}
+            <button
+              onClick={handleDownloadPdf}
+              className='text-blue-600 font-semibold underline hover:text-blue-800 transition cursor-pointer'
             >
               Download {brochureName}
-            </a>
+            </button>
             .
           </p>
         </div>
