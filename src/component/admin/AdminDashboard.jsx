@@ -100,8 +100,14 @@ const AdminDashboard = () => {
   const [passForm, setPassForm] = useState({ newPass: '', confirmPass: '' });
   const [passMessage, setPassMessage] = useState({ type: '', text: '' });
 
-  // Custom In-App Toast State & Trigger
+  // Custom In-App Toast & Modal States
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [uploadSuccessModal, setUploadSuccessModal] = useState({
+    show: false,
+    title: '',
+    fileName: '',
+    message: '',
+  });
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -129,6 +135,7 @@ const AdminDashboard = () => {
   };
 
   const handleCertFileSelect = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     const file = e.target.files[0];
     if (file) {
       setSelectedCertFile(file);
@@ -137,6 +144,7 @@ const AdminDashboard = () => {
   };
 
   const handleBrochureFileSelect = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     const file = e.target.files[0];
     if (file) {
       setSelectedBrochureFile(file);
@@ -144,7 +152,8 @@ const AdminDashboard = () => {
     if (e.target) e.target.value = '';
   };
 
-  const handleUploadCertToSupabase = async () => {
+  const handleUploadCertToSupabase = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!selectedCertFile) {
       showToast('Please choose a Certificate PDF file first!', 'error');
       return;
@@ -156,7 +165,12 @@ const AdminDashboard = () => {
     try {
       const res = await uploadPdfToSupabase(selectedCertFile, 'certificate');
       if (res && res.success) {
-        showToast(`Successfully uploaded "${selectedCertFile.name}" to Supabase Storage!`, 'success');
+        setUploadSuccessModal({
+          show: true,
+          title: 'RCMC Certificate Uploaded Successfully!',
+          fileName: selectedCertFile.name,
+          message: 'Your PDF file has been uploaded into your Supabase Storage bucket ("site-documents") and linked to your storefront Certificate page.',
+        });
         setSelectedCertFile(null);
       } else {
         showToast(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`, 'error');
@@ -169,7 +183,8 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUploadBrochureToSupabase = async () => {
+  const handleUploadBrochureToSupabase = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!selectedBrochureFile) {
       showToast('Please choose a Brochure PDF file first!', 'error');
       return;
@@ -181,7 +196,12 @@ const AdminDashboard = () => {
     try {
       const res = await uploadPdfToSupabase(selectedBrochureFile, 'brochure');
       if (res && res.success) {
-        showToast(`Successfully uploaded "${selectedBrochureFile.name}" to Supabase Storage!`, 'success');
+        setUploadSuccessModal({
+          show: true,
+          title: 'Product Brochure Uploaded Successfully!',
+          fileName: selectedBrochureFile.name,
+          message: 'Your PDF file has been uploaded into your Supabase Storage bucket ("site-documents") and linked to your storefront Brochure page.',
+        });
         setSelectedBrochureFile(null);
       } else {
         showToast(`Upload notice: ${(res && (res.error || res.message)) || 'File uploaded'}`, 'error');
@@ -570,11 +590,43 @@ const AdminDashboard = () => {
           <div className={`w-3 h-3 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-emerald-400 animate-pulse'}`}></div>
           <span>{toast.message}</span>
           <button
+            type='button'
             onClick={() => setToast({ show: false, message: '', type: 'success' })}
             className='ml-2 text-slate-400 hover:text-white text-xs font-bold px-1.5 py-0.5 rounded cursor-pointer'
           >
             ✕
           </button>
+        </div>
+      )}
+
+      {/* Custom PDF Upload Success Confirmation Modal Overlay */}
+      {uploadSuccessModal.show && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm transition-all duration-300'>
+          <div className='bg-slate-900 border border-slate-700/80 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 animate-scale-up'>
+            <div className='w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto text-3xl font-bold'>
+              ✓
+            </div>
+            <div>
+              <h3 className='text-xl font-bold text-white tracking-wide'>
+                {uploadSuccessModal.title}
+              </h3>
+              <p className='text-amber-400 font-mono text-xs mt-2 font-semibold bg-amber-500/10 border border-amber-500/20 py-1.5 px-3 rounded-lg inline-block max-w-full truncate'>
+                📄 {uploadSuccessModal.fileName}
+              </p>
+              <p className='text-slate-300 text-xs mt-3.5 leading-relaxed'>
+                {uploadSuccessModal.message}
+              </p>
+            </div>
+            <div className='pt-2'>
+              <button
+                type='button'
+                onClick={() => setUploadSuccessModal({ show: false, title: '', fileName: '', message: '' })}
+                className='w-full py-3 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 transition cursor-pointer text-sm'
+              >
+                OK / Continue
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
