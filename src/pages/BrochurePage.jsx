@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
@@ -15,10 +15,28 @@ const BrochurePage = () => {
   const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl;
   const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
 
-  // Google Docs Viewer embed URL for cross-browser fallback
-  const gviewUrl = pdfViewUrl
-    ? `https://docs.google.com/gview?url=${encodeURIComponent(pdfViewUrl)}&embedded=true`
-    : '';
+  const [pdfStatus, setPdfStatus] = useState({ checking: true, exists: true });
+
+  // Verify whether the PDF file exists at the Supabase Storage URL
+  useEffect(() => {
+    if (!pdfViewUrl) {
+      setPdfStatus({ checking: false, exists: false });
+      return;
+    }
+    setPdfStatus({ checking: true, exists: true });
+    fetch(pdfViewUrl, { method: 'HEAD' })
+      .then((res) => {
+        if (res.ok || res.status === 200 || res.status === 304) {
+          setPdfStatus({ checking: false, exists: true });
+        } else {
+          setPdfStatus({ checking: false, exists: false });
+        }
+      })
+      .catch(() => {
+        // If HEAD is blocked by CORS, assume file exists so iframe can load it
+        setPdfStatus({ checking: false, exists: true });
+      });
+  }, [pdfViewUrl]);
 
   // Direct Frontend Blob Download Handler
   const handleDownloadPdf = async (e) => {
@@ -96,31 +114,31 @@ const BrochurePage = () => {
             </button>
           </div>
 
-          <div style={{ height: '85vh', overflow: 'hidden', position: 'relative' }} className='bg-slate-900'>
-            {pdfViewUrl ? (
-              <object
-                data={pdfViewUrl}
-                type='application/pdf'
+          <div style={{ height: '85vh', position: 'relative' }} className='bg-slate-900 w-full'>
+            {pdfStatus.checking ? (
+              <div className='flex flex-col items-center justify-center h-full text-amber-400 gap-2'>
+                <div className='w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin'></div>
+                <span className='text-xs font-semibold text-slate-400'>Loading Brochure from Supabase Storage...</span>
+              </div>
+            ) : pdfStatus.exists && pdfViewUrl ? (
+              <iframe
+                src={pdfViewUrl}
+                title={brochureName}
                 width='100%'
                 height='100%'
-                className='w-full h-full'
-                style={{ border: 'none', width: '100%', height: '100%' }}
-              >
-                <iframe
-                  src={gviewUrl}
-                  title={brochureName}
-                  width='100%'
-                  height='100%'
-                  style={{
-                    border: 'none',
-                    width: '100%',
-                    height: '100%',
-                  }}
-                />
-              </object>
+                className='w-full h-full border-0'
+                style={{
+                  border: 'none',
+                  width: '100%',
+                  height: '100%',
+                }}
+              />
             ) : (
-              <div className='flex items-center justify-center h-full text-slate-400 text-sm'>
-                No Brochure PDF configured in Supabase Storage.
+              <div className='flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-3 p-6 text-center'>
+                <p className='text-amber-400 font-bold text-base'>Brochure PDF Not Found in Supabase Storage</p>
+                <p className='text-xs text-slate-400 max-w-md'>
+                  Please log into the Admin Panel $\rightarrow$ PDF File Manager and upload your Product Brochure PDF file into your Supabase Storage bucket.
+                </p>
               </div>
             )}
           </div>
