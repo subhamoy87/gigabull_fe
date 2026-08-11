@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrochureGigabull2025 } from '../assets/pdfs';
 import { brochureBannerImage } from '../assets/common';
 import { useSiteData } from '../context/SiteDataContext';
 import { getSupabaseStorageUrl, isSupabaseConfigured } from '../config/supabaseClient';
@@ -11,34 +12,11 @@ const BrochurePage = () => {
     ? getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf')
     : null;
 
-  // Strictly fetch from Supabase Storage
-  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl;
+  // Prioritize uploaded Supabase URL, then default Supabase Bucket URL, then bundled local asset
+  const pdfViewUrl = documents?.brochureUrl || defaultSupabaseUrl || BrochureGigabull2025;
   const brochureName = documents?.brochureName || 'Brochure Gigabull.pdf';
 
-  const [pdfStatus, setPdfStatus] = useState({ checking: true, exists: true });
-
-  // Verify whether the PDF file exists at the Supabase Storage URL
-  useEffect(() => {
-    if (!pdfViewUrl) {
-      setPdfStatus({ checking: false, exists: false });
-      return;
-    }
-    setPdfStatus({ checking: true, exists: true });
-    fetch(pdfViewUrl, { method: 'HEAD' })
-      .then((res) => {
-        if (res.ok || res.status === 200 || res.status === 304) {
-          setPdfStatus({ checking: false, exists: true });
-        } else {
-          setPdfStatus({ checking: false, exists: false });
-        }
-      })
-      .catch(() => {
-        // If HEAD is blocked by CORS, assume file exists so iframe can load it
-        setPdfStatus({ checking: false, exists: true });
-      });
-  }, [pdfViewUrl]);
-
-  // Direct Frontend Blob Download Handler
+  // Direct Frontend Blob Download Handler (Ensures clean uncorrupted PDF file downloads)
   const handleDownloadPdf = async (e) => {
     e.preventDefault();
     if (!pdfViewUrl) return;
@@ -46,11 +24,12 @@ const BrochurePage = () => {
     try {
       const response = await fetch(pdfViewUrl);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+      const arrayBuffer = await response.arrayBuffer();
+      const pdfBlob = new Blob([arrayBuffer], { type: 'application/pdf' });
+      const blobUrl = window.URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = brochureName;
+      link.download = brochureName.endsWith('.pdf') ? brochureName : `${brochureName}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -115,32 +94,18 @@ const BrochurePage = () => {
           </div>
 
           <div style={{ height: '85vh', position: 'relative' }} className='bg-slate-900 w-full'>
-            {pdfStatus.checking ? (
-              <div className='flex flex-col items-center justify-center h-full text-amber-400 gap-2'>
-                <div className='w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin'></div>
-                <span className='text-xs font-semibold text-slate-400'>Loading Brochure from Supabase Storage...</span>
-              </div>
-            ) : pdfStatus.exists && pdfViewUrl ? (
-              <iframe
-                src={pdfViewUrl}
-                title={brochureName}
-                width='100%'
-                height='100%'
-                className='w-full h-full border-0'
-                style={{
-                  border: 'none',
-                  width: '100%',
-                  height: '100%',
-                }}
-              />
-            ) : (
-              <div className='flex flex-col items-center justify-center h-full text-slate-400 text-sm gap-3 p-6 text-center'>
-                <p className='text-amber-400 font-bold text-base'>Brochure PDF Not Found in Supabase Storage</p>
-                <p className='text-xs text-slate-400 max-w-md'>
-                  Please log into the Admin Panel $\rightarrow$ PDF File Manager and upload your Product Brochure PDF file into your Supabase Storage bucket.
-                </p>
-              </div>
-            )}
+            <iframe
+              src={pdfViewUrl}
+              title={brochureName}
+              width='100%'
+              height='100%'
+              className='w-full h-full border-0'
+              style={{
+                border: 'none',
+                width: '100%',
+                height: '100%',
+              }}
+            />
           </div>
         </div>
 

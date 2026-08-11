@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import defaultProductsData from '../data/Products.js';
 import { ADMIN_CONFIG } from '../data/AdminConfig.js';
 import { logoWithTextImg } from '../assets/shared';
-// import { RCMCCertificate, BrochureGigabull2025 } from '../assets/pdfs';
+import { RCMCCertificate, BrochureGigabull2025 } from '../assets/pdfs';
 import { ADMIN_LOGIN_API_URL, ADMIN_CHANGE_PASSWORD_API_URL, PRODUCTS_API_URL, SAVE_PRODUCTS_API_URL, DOCUMENTS_API_URL, SAVE_DOCUMENTS_API_URL } from '../config/config.js';
 import { getIDBItem, setIDBItem } from '../utils/idbStorage';
 import { supabase, isSupabaseConfigured, getSupabaseStorageUrl } from '../config/supabaseClient';
@@ -20,9 +20,9 @@ const hashPassword = async (plainPassword) => {
 
 const DEFAULT_DOCUMENTS = {
   certificateName: 'RCMC Certificate.pdf',
-  certificateUrl: getSupabaseStorageUrl('pdfs/rcmc-certificate.pdf'),
+  certificateUrl: isSupabaseConfigured() ? getSupabaseStorageUrl('pdfs/rcmc-certificate.pdf') : RCMCCertificate,
   brochureName: 'Brochure Gigabull.pdf',
-  brochureUrl: getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf'),
+  brochureUrl: isSupabaseConfigured() ? getSupabaseStorageUrl('pdfs/gigabull-brochure.pdf') : BrochureGigabull2025,
 };
 
 const DEFAULT_COMPANY = {
@@ -583,11 +583,12 @@ export const SiteDataProvider = ({ children }) => {
       // Fixed storage path for each document type to ensure overwriting in place
       const filePath = docType === 'certificate' ? 'pdfs/rcmc-certificate.pdf' : 'pdfs/gigabull-brochure.pdf';
 
-      // 1. Upload & Overwrite in place
+      // 1. Upload & Overwrite in place with explicit PDF content-type
       const { data, error } = await supabase.storage
         .from('site-documents')
         .upload(filePath, file, {
           cacheControl: '0',
+          contentType: 'application/pdf',
           upsert: true,
         });
 
