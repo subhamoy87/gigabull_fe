@@ -376,22 +376,52 @@ export const SiteDataProvider = ({ children }) => {
   // Products CRUD (Supabase + Local Disk + State)
   const updateProduct = async (categoryName, productSlug, updatedProduct) => {
     const { categoryName: _, ...cleanProduct } = updatedProduct;
+    const targetCategory = updatedProduct.category || categoryName;
+    const targetSlug = updatedProduct.slug || productSlug;
 
-    const nextData = productsData.map((cat) => {
+    let nextData = productsData.map((cat) => {
+      if (targetCategory === categoryName) {
+        if (cat.category === categoryName) {
+          return {
+            ...cat,
+            products: cat.products.map((p) => {
+              if (p.slug === productSlug) {
+                const { categoryName: __, ...cleanP } = p;
+                return { ...cleanP, ...cleanProduct, category: targetCategory, slug: targetSlug };
+              }
+              return p;
+            }),
+          };
+        }
+        return cat;
+      }
       if (cat.category === categoryName) {
         return {
           ...cat,
-          products: cat.products.map((p) => {
-            if (p.slug === productSlug) {
-              const { categoryName: __, ...cleanP } = p;
-              return { ...cleanP, ...cleanProduct };
-            }
-            return p;
-          }),
+          products: cat.products.filter((p) => p.slug !== productSlug),
+        };
+      }
+      if (cat.category === targetCategory) {
+        const updatedProductObj = { ...cleanProduct, category: targetCategory, slug: targetSlug };
+        return {
+          ...cat,
+          products: [updatedProductObj, ...cat.products],
         };
       }
       return cat;
     });
+
+    const targetCatExists = productsData.some((cat) => cat.category === targetCategory);
+    if (targetCategory !== categoryName && !targetCatExists) {
+      const updatedProductObj = { ...cleanProduct, category: targetCategory, slug: targetSlug };
+      nextData = [
+        ...nextData,
+        {
+          category: targetCategory,
+          products: [updatedProductObj],
+        },
+      ];
+    }
 
     setProductsData(nextData);
 
@@ -400,11 +430,20 @@ export const SiteDataProvider = ({ children }) => {
       try {
         const cleanImages = (cleanProduct.images || []).map((img) => typeof img === 'string' ? img : String(img));
         const modelVal = cleanProduct.model || cleanProduct.details?.model_no || cleanProduct.details?.model || '';
+
+        // Delete old slug record from Supabase if slug changed
+        if (targetSlug !== productSlug) {
+          await supabase
+            .from('products')
+            .delete()
+            .eq('slug', productSlug);
+        }
+
         await supabase
           .from('products')
           .upsert({
-            slug: productSlug,
-            category: categoryName,
+            slug: targetSlug,
+            category: targetCategory,
             name: cleanProduct.name,
             model: modelVal,
             tags: cleanProduct.tags || [],

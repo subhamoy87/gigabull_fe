@@ -83,6 +83,8 @@ const AdminDashboard = () => {
     name: '',
     slug: '',
     tags: '',
+    isShowcase: false,
+    isModelImage: false,
     images: [''],
     details: {
       model_no: '',
@@ -252,6 +254,7 @@ const AdminDashboard = () => {
       name: prod.name || '',
       slug: prod.slug || '',
       isShowcase: !!prod.isShowcase,
+      isModelImage: !!prod.isModelImage,
       tags: Array.isArray(prod.tags) ? prod.tags.join(', ') : (prod.tags || ''),
       images: prod.images && prod.images.length > 0 ? [...prod.images] : [''],
       details: {
@@ -278,6 +281,7 @@ const AdminDashboard = () => {
       name: prod.name ? `${prod.name} (Copy)` : '',
       slug: baseSlug,
       isShowcase: !!prod.isShowcase,
+      isModelImage: !!prod.isModelImage,
       tags: Array.isArray(prod.tags) ? prod.tags.join(', ') : (prod.tags || ''),
       images: prod.images && prod.images.length > 0 ? [...prod.images] : [''],
       details: {
@@ -303,6 +307,7 @@ const AdminDashboard = () => {
       name: '',
       slug: '',
       isShowcase: false,
+      isModelImage: false,
       tags: 'leather, wallet, genuine',
       images: [''],
       details: {
@@ -441,10 +446,12 @@ const AdminDashboard = () => {
     }
 
     const formattedProduct = {
+      category: productForm.category,
       name: productForm.name,
       slug: generatedSlug,
       tags: tagsArray,
       isShowcase: !!productForm.isShowcase,
+      isModelImage: !!productForm.isModelImage,
       images: processedImages,
       details: { ...productForm.details },
     };
@@ -1289,17 +1296,31 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              <div className='p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center gap-3'>
-                <input
-                  type='checkbox'
-                  id='modalIsShowcase'
-                  checked={!!productForm.isShowcase}
-                  onChange={(e) => setProductForm((p) => ({ ...p, isShowcase: e.target.checked }))}
-                  className='w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-900 focus:ring-amber-500 cursor-pointer'
-                />
-                <label htmlFor='modalIsShowcase' className='font-semibold text-amber-400 text-xs cursor-pointer select-none'>
-                  Feature product in Homepage Showcase section ("Our Products")
-                </label>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                <div className='p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center gap-3'>
+                  <input
+                    type='checkbox'
+                    id='modalIsShowcase'
+                    checked={!!productForm.isShowcase}
+                    onChange={(e) => setProductForm((p) => ({ ...p, isShowcase: e.target.checked }))}
+                    className='w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-900 focus:ring-amber-500 cursor-pointer'
+                  />
+                  <label htmlFor='modalIsShowcase' className='font-semibold text-amber-400 text-xs cursor-pointer select-none'>
+                    Feature product in Homepage Showcase section ("Our Products")
+                  </label>
+                </div>
+                <div className='p-3 bg-slate-950 border border-slate-800 rounded-xl flex items-center gap-3'>
+                  <input
+                    type='checkbox'
+                    id='modalIsModelImage'
+                    checked={!!productForm.isModelImage}
+                    onChange={(e) => setProductForm((p) => ({ ...p, isModelImage: e.target.checked }))}
+                    className='w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-900 focus:ring-amber-500 cursor-pointer'
+                  />
+                  <label htmlFor='modalIsModelImage' className='font-semibold text-amber-400 text-xs cursor-pointer select-none'>
+                    Feature with Hero/Model Photo (Pins to top of collection)
+                  </label>
+                </div>
               </div>
 
               <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
