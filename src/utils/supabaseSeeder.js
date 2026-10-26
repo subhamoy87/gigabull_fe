@@ -51,18 +51,26 @@ export const seedSupabaseCatalog = async () => {
       throw prodError;
     }
 
-    // 3. Upsert admin config password hash into 'site_settings'
-    const { error: settingsError } = await supabase
+    // 3. Ensure admin_config exists in 'site_settings' without overwriting existing password
+    const { data: existingConfig } = await supabase
       .from('site_settings')
-      .upsert([
-        {
-          key: 'admin_config',
-          data: { passwordHash: ADMIN_CONFIG.passwordHash },
-        },
-      ], { onConflict: 'key' });
+      .select('data')
+      .eq('key', 'admin_config')
+      .maybeSingle();
 
-    if (settingsError) {
-      console.error('Error seeding site_settings to Supabase:', settingsError);
+    if (!existingConfig || !existingConfig.data || !existingConfig.data.passwordHash) {
+      const { error: settingsError } = await supabase
+        .from('site_settings')
+        .upsert([
+          {
+            key: 'admin_config',
+            data: { passwordHash: ADMIN_CONFIG.passwordHash },
+          },
+        ], { onConflict: 'key' });
+
+      if (settingsError) {
+        console.error('Error seeding site_settings to Supabase:', settingsError);
+      }
     }
 
     return {

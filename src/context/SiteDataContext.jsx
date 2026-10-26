@@ -344,6 +344,20 @@ export const SiteDataProvider = ({ children }) => {
       }
     }
 
+    // Keep local in-memory fallback in sync
+    ADMIN_CONFIG.passwordHash = newHash;
+
+    // In local dev environment, also sync src/data/AdminConfig.js on disk
+    try {
+      await fetch('/api/change-admin-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newHash }),
+      });
+    } catch (err) {
+      // Ignored when running on production hosting
+    }
+
     try {
       const res = await fetch(ADMIN_CHANGE_PASSWORD_API_URL, {
         method: 'POST',
